@@ -1,0 +1,121 @@
+{
+  "common": {
+    "appName": "Doctor Rice",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "retry": "Retry",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "ok": "OK",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done",
+    "skip": "Skip"
+  },
+
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "phone": "Phone Number",
+    "displayName": "Display Name",
+    "forgotPassword": "Forgot Password?",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "loginWithGoogle": "Login with Google",
+    "loginWithFacebook": "Login with Facebook",
+    "loginWithPhone": "Login with Phone",
+    "sendOTP": "Send OTP",
+    "verifyOTP": "Verify OTP",
+    "enterOTP": "Enter OTP",
+    "otpSent": "OTP has been sent to {{phone}}",
+    "invalidCredentials": "Invalid email or password",
+    "emailRequired": "Please enter your email",
+    "passwordRequired": "Please enter your password",
+    "phoneRequired": "Please enter your phone number",
+    "invalidEmail": "Invalid email address",
+    "invalidPhone": "Invalid phone number",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "passwordsNotMatch": "Passwords do not match",
+    "loginSuccess": "Login successful",
+    "registerSuccess": "Registration successful",
+    "logoutSuccess": "Logout successful"
+  },
+
+  "camera": {
+    "title": "Take Photo",
+    "takePicture": "Take Picture",
+    "retake": "Retake",
+    "usePhoto": "Use This Photo",
+    "permissionRequired": "Permission Required",
+    "cameraPermissionDenied": "You need to grant camera permission to use this feature",
+    "locationPermissionDenied": "You need to grant location permission to add GPS watermark",
+    "cameraPermissionRationale": "App needs camera access to take rice plant photos",
+    "locationPermissionRationale": "App needs location access to embed GPS coordinates in photos",
+    "openSettings": "Open Settings",
+    "grantPermission": "Grant Permission",
+    "uploading": "Uploading...",
+    "processing": "Processing...",
+    "uploadProgress": "Uploaded {{percent}}%",
+    "uploadSuccess": "Photo uploaded successfully",
+    "uploadFailed": "Photo upload failed",
+    "watermarkFailed": "Failed to add watermark",
+    "locationNotAvailable": "Unable to get current location"
+  },
+
+  "gallery": {
+    "title": "Photo Gallery",
+    "myPhotos": "My Photos",
+    "noPhotos": "No photos yet",
+    "photoDetails": "Photo Details",
+    "location": "Location",
+    "timestamp": "Timestamp",
+    "device": "Device",
+    "deletePhoto": "Delete Photo",
+    "deleteConfirm": "Are you sure you want to delete this photo?",
+    "deleteSuccess": "Photo deleted",
+    "deleteFailed": "Failed to delete photo"
+  },
+
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "vietnamese": "Tiếng Việt",
+    "english": "English",
+    "account": "Account",
+    "profile": "Profile",
+    "privacy": "Privacy",
+    "about": "About",
+    "version": "Version",
+    "logout": "Logout",
+    "logoutConfirm": "Are you sure you want to logout?"
+  },
+
+  "home": {
+    "welcome": "Welcome to Doctor Rice",
+    "subtitle": "Capture rice plants with GPS watermark",
+    "getStarted": "Get Started",
+    "recentPhotos": "Recent Photos",
+    "viewAll": "View All"
+  },
+
+  "errors": {
+    "networkError": "Network connection error",
+    "serverError": "Server error",
+    "unknownError": "Unknown error",
+    "timeout": "Request timeout",
+    "unauthorized": "You need to login to continue",
+    "forbidden": "You don't have permission to access",
+    "notFound": "Not found",
+    "validationError": "Invalid data"
+  }
+}
+

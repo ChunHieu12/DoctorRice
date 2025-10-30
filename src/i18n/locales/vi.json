@@ -1,0 +1,121 @@
+{
+  "common": {
+    "appName": "Bác sĩ Lúa",
+    "confirm": "Xác nhận",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "delete": "Xóa",
+    "edit": "Chỉnh sửa",
+    "close": "Đóng",
+    "retry": "Thử lại",
+    "loading": "Đang tải...",
+    "error": "Có lỗi xảy ra",
+    "success": "Thành công",
+    "ok": "OK",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "done": "Hoàn tất",
+    "skip": "Bỏ qua"
+  },
+
+  "auth": {
+    "login": "Đăng nhập",
+    "register": "Đăng ký",
+    "logout": "Đăng xuất",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "phone": "Số điện thoại",
+    "displayName": "Tên hiển thị",
+    "forgotPassword": "Quên mật khẩu?",
+    "dontHaveAccount": "Chưa có tài khoản?",
+    "alreadyHaveAccount": "Đã có tài khoản?",
+    "loginWithGoogle": "Đăng nhập với Google",
+    "loginWithFacebook": "Đăng nhập với Facebook",
+    "loginWithPhone": "Đăng nhập với số điện thoại",
+    "sendOTP": "Gửi mã OTP",
+    "verifyOTP": "Xác nhận OTP",
+    "enterOTP": "Nhập mã OTP",
+    "otpSent": "Mã OTP đã được gửi đến {{phone}}",
+    "invalidCredentials": "Email hoặc mật khẩu không đúng",
+    "emailRequired": "Vui lòng nhập email",
+    "passwordRequired": "Vui lòng nhập mật khẩu",
+    "phoneRequired": "Vui lòng nhập số điện thoại",
+    "invalidEmail": "Email không hợp lệ",
+    "invalidPhone": "Số điện thoại không hợp lệ",
+    "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
+    "passwordsNotMatch": "Mật khẩu xác nhận không khớp",
+    "loginSuccess": "Đăng nhập thành công",
+    "registerSuccess": "Đăng ký thành công",
+    "logoutSuccess": "Đăng xuất thành công"
+  },
+
+  "camera": {
+    "title": "Chụp ảnh",
+    "takePicture": "Chụp ảnh",
+    "retake": "Chụp lại",
+    "usePhoto": "Sử dụng ảnh này",
+    "permissionRequired": "Cần cấp quyền",
+    "cameraPermissionDenied": "Bạn cần cấp quyền camera để sử dụng tính năng này",
+    "locationPermissionDenied": "Bạn cần cấp quyền vị trí để thêm watermark GPS",
+    "cameraPermissionRationale": "Ứng dụng cần quyền truy cập camera để chụp ảnh cây lúa",
+    "locationPermissionRationale": "Ứng dụng cần quyền vị trí để ghi vị trí GPS lên ảnh",
+    "openSettings": "Mở cài đặt",
+    "grantPermission": "Cấp quyền",
+    "uploading": "Đang tải lên...",
+    "processing": "Đang xử lý...",
+    "uploadProgress": "Đã tải {{percent}}%",
+    "uploadSuccess": "Tải ảnh lên thành công",
+    "uploadFailed": "Tải ảnh lên thất bại",
+    "watermarkFailed": "Không thể thêm watermark",
+    "locationNotAvailable": "Không thể lấy vị trí hiện tại"
+  },
+
+  "gallery": {
+    "title": "Thư viện ảnh",
+    "myPhotos": "Ảnh của tôi",
+    "noPhotos": "Chưa có ảnh nào",
+    "photoDetails": "Chi tiết ảnh",
+    "location": "Vị trí",
+    "timestamp": "Thời gian",
+    "device": "Thiết bị",
+    "deletePhoto": "Xóa ảnh",
+    "deleteConfirm": "Bạn có chắc muốn xóa ảnh này?",
+    "deleteSuccess": "Đã xóa ảnh",
+    "deleteFailed": "Không thể xóa ảnh"
+  },
+
+  "settings": {
+    "title": "Cài đặt",
+    "language": "Ngôn ngữ",
+    "vietnamese": "Tiếng Việt",
+    "english": "English",
+    "account": "Tài khoản",
+    "profile": "Hồ sơ",
+    "privacy": "Quyền riêng tư",
+    "about": "Giới thiệu",
+    "version": "Phiên bản",
+    "logout": "Đăng xuất",
+    "logoutConfirm": "Bạn có chắc muốn đăng xuất?"
+  },
+
+  "home": {
+    "welcome": "Chào mừng đến với Bác sĩ Lúa",
+    "subtitle": "Chụp ảnh cây lúa với watermark GPS",
+    "getStarted": "Bắt đầu",
+    "recentPhotos": "Ảnh gần đây",
+    "viewAll": "Xem tất cả"
+  },
+
+  "errors": {
+    "networkError": "Lỗi kết nối mạng",
+    "serverError": "Lỗi máy chủ",
+    "unknownError": "Lỗi không xác định",
+    "timeout": "Hết thời gian chờ",
+    "unauthorized": "Bạn cần đăng nhập để tiếp tục",
+    "forbidden": "Bạn không có quyền truy cập",
+    "notFound": "Không tìm thấy",
+    "validationError": "Dữ liệu không hợp lệ"
+  }
+}
+

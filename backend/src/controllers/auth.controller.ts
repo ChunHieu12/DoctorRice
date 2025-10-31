@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { Session } from '../models/Session';
 import { User } from '../models/User';
 import { verifyFirebaseToken } from '../services/firebase-admin.service';
+import { validatePassword } from '../utils/passwordValidator';
 import { errorResponse, successResponse } from '../utils/responses';
 
 // Define type for JWT SignOptions to avoid overload issues
@@ -30,6 +31,7 @@ const signToken = (payload: object, secret: string, expiresIn: string): string =
  * /auth/register:
  *   post:
  *     summary: Register new user
+ *     description: Password must be more than 6 characters and contain at least 1 uppercase, 1 lowercase, and 1 number
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -37,13 +39,20 @@ const signToken = (payload: object, secret: string, expiresIn: string): string =
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - password
+ *               - displayName
  *             properties:
  *               email:
  *                 type: string
+ *                 example: "user@example.com"
  *               password:
  *                 type: string
+ *                 description: Must be >6 chars with uppercase, lowercase, and number
+ *                 example: "SecureP4ss"
  *               displayName:
  *                 type: string
+ *                 example: "Nguyen Van A"
  *     responses:
  *       201:
  *         description: User registered successfully
@@ -51,6 +60,17 @@ const signToken = (payload: object, secret: string, expiresIn: string): string =
 export const register = async (req: Request, res: Response) => {
   try {
     const { email, password, displayName, phone } = req.body;
+
+    // Validate password strength
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      return errorResponse(
+        res,
+        'AUTH_011',
+        passwordValidation.errors.join('; '),
+        400
+      );
+    }
 
     // Check if user exists
     const existingUser = await User.findOne({ $or: [{ email }, { phone }] });
@@ -444,6 +464,7 @@ export const verifyOTPCode = async (req: Request, res: Response) => {
  * /auth/complete-registration:
  *   post:
  *     summary: Complete registration with name and password
+ *     description: Password must be more than 6 characters and contain at least 1 uppercase, 1 lowercase, and 1 number
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -451,13 +472,21 @@ export const verifyOTPCode = async (req: Request, res: Response) => {
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - phone
+ *               - name
+ *               - password
  *             properties:
  *               phone:
  *                 type: string
+ *                 example: "+84123456789"
  *               name:
  *                 type: string
+ *                 example: "Nguyen Van A"
  *               password:
  *                 type: string
+ *                 description: Must be >6 chars with uppercase, lowercase, and number
+ *                 example: "MyPass123"
  */
 export const completeRegistration = async (req: Request, res: Response) => {
   try {
@@ -465,6 +494,17 @@ export const completeRegistration = async (req: Request, res: Response) => {
 
     if (!phone || !name || !password) {
       return errorResponse(res, 'AUTH_008', 'All fields are required', 400);
+    }
+
+    // Validate password strength
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      return errorResponse(
+        res,
+        'AUTH_011',
+        passwordValidation.errors.join('; '),
+        400
+      );
     }
 
     // Check if user already exists
@@ -530,6 +570,7 @@ export const completeRegistration = async (req: Request, res: Response) => {
  * /auth/reset-password:
  *   post:
  *     summary: Reset password after OTP verification
+ *     description: New password must be more than 6 characters and contain at least 1 uppercase, 1 lowercase, and 1 number
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -537,11 +578,17 @@ export const completeRegistration = async (req: Request, res: Response) => {
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - phone
+ *               - newPassword
  *             properties:
  *               phone:
  *                 type: string
+ *                 example: "+84123456789"
  *               newPassword:
  *                 type: string
+ *                 description: Must be >6 chars with uppercase, lowercase, and number
+ *                 example: "NewPass123"
  */
 export const resetPassword = async (req: Request, res: Response) => {
   try {
@@ -549,6 +596,17 @@ export const resetPassword = async (req: Request, res: Response) => {
 
     if (!phone || !newPassword) {
       return errorResponse(res, 'AUTH_009', 'Phone number and new password are required', 400);
+    }
+
+    // Validate password strength
+    const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.isValid) {
+      return errorResponse(
+        res,
+        'AUTH_011',
+        passwordValidation.errors.join('; '),
+        400
+      );
     }
 
     // Find user

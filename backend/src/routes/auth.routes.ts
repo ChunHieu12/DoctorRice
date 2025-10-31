@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+    checkPhone,
     completeRegistration,
     loginWithPhone,
     refresh,
@@ -311,6 +312,45 @@ router.post('/verify-otp', authLimiter, verifyOTPCode);
  *         description: User already exists
  */
 router.post('/complete-registration', authLimiter, completeRegistration);
+
+/**
+ * @swagger
+ * /api/auth/check-phone:
+ *   post:
+ *     summary: Check if phone number is registered
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - phone
+ *             properties:
+ *               phone:
+ *                 type: string
+ *                 description: Phone number with country code
+ *                 example: "+84123456789"
+ *     responses:
+ *       200:
+ *         description: Phone check successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     exists:
+ *                       type: boolean
+ *                       example: true
+ */
+router.post('/check-phone', authLimiter, checkPhone);
 
 /**
  * @swagger

@@ -565,6 +565,60 @@ export const completeRegistration = async (req: Request, res: Response) => {
 };
 
 /**
+ * Check if phone number exists
+ * @swagger
+ * /auth/check-phone:
+ *   post:
+ *     summary: Check if phone number is registered
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - phone
+ *             properties:
+ *               phone:
+ *                 type: string
+ *                 example: "+84123456789"
+ *     responses:
+ *       200:
+ *         description: Phone check successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     exists:
+ *                       type: boolean
+ */
+export const checkPhone = async (req: Request, res: Response) => {
+  try {
+    const { phone } = req.body;
+
+    if (!phone) {
+      return errorResponse(res, 'AUTH_012', 'Phone number is required', 400);
+    }
+
+    // Check if user exists
+    const user = await User.findOne({ phone });
+
+    return successResponse(res, {
+      exists: !!user,
+    });
+  } catch (error: any) {
+    return errorResponse(res, 'SERVER_001', error.message || 'Check phone failed', 500);
+  }
+};
+
+/**
  * Reset password after OTP verification
  * @swagger
  * /auth/reset-password:

@@ -79,13 +79,16 @@ export const sendOTP = async (phone: string): Promise<void> => {
  * Verify phone OTP code
  * Returns whether user exists or needs to complete registration
  */
-export const verifyPhoneOTP = async (
+/**
+ * Verify Firebase OTP Token
+ * Backend will verify the Firebase ID token and return JWT tokens if user exists
+ */
+export const verifyFirebaseOTP = async (
   phone: string,
-  code: string
+  firebaseToken: string
 ): Promise<VerifyPhoneResponse> => {
   const response = await apiPost<VerifyPhoneResponse>('/auth/verify-otp', {
-    phone,
-    code,
+    firebaseToken,
   });
 
   if (response.success && response.data) {

@@ -24,7 +24,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (phone: string, password: string, rememberMe?: boolean) => Promise<void>;
-  loginWithOTP: (phone: string, code: string) => Promise<{ userExists: boolean; user?: User }>;
+  loginWithOTP: (phone: string, firebaseToken: string) => Promise<{ userExists: boolean; user?: User }>;
   completeRegistration: (phone: string, name: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
@@ -103,10 +103,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   const loginWithOTP = async (
     phone: string,
-    code: string
+    firebaseToken: string
   ): Promise<{ userExists: boolean; user?: User }> => {
     try {
-      const response = await authService.verifyPhoneOTP(phone, code);
+      const response = await authService.verifyFirebaseOTP(phone, firebaseToken);
       
       if (response.userExists && response.user) {
         setUser(response.user);

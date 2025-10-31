@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { Session } from '../models/Session';
 import { User } from '../models/User';
+import { verifyFirebaseToken } from '../services/firebase-admin.service';
 import { errorResponse, successResponse } from '../utils/responses';
 
 // Define type for JWT SignOptions to avoid overload issues
@@ -321,22 +322,68 @@ export const sendOTPCode = async (req: Request, res: Response) => {
  *               code:
  *                 type: string
  */
+/**
+ * @swagger
+ * /api/auth/verify-otp:
+ *   post:
+ *     summary: Verify Firebase OTP token and login/register
+ *     description: Verify Firebase ID token after OTP verification. Returns JWT tokens if user exists, or userExists=false for new users.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - firebaseToken
+ *             properties:
+ *               firebaseToken:
+ *                 type: string
+ *                 description: Firebase ID token from client after OTP verification
+ *                 example: "eyJhbGciOiJSUzI1NiIsImtpZCI6IjFl..."
+ *     responses:
+ *       200:
+ *         description: OTP verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     userExists:
+ *                       type: boolean
+ *                       description: True if user exists, false for new users
+ *                     user:
+ *                       type: object
+ *                       description: User info (only if userExists=true)
+ *                     accessToken:
+ *                       type: string
+ *                       description: JWT access token (only if userExists=true)
+ *                     refreshToken:
+ *                       type: string
+ *                       description: JWT refresh token (only if userExists=true)
+ *       400:
+ *         description: Invalid Firebase token
+ */
 export const verifyOTPCode = async (req: Request, res: Response) => {
   try {
-    const { phone, code } = req.body;
+    const { firebaseToken } = req.body;
 
-    if (!phone || !code) {
-      return errorResponse(res, 'AUTH_005', 'Phone number and OTP code are required', 400);
+    if (!firebaseToken) {
+      return errorResponse(res, 'AUTH_005', 'Firebase token is required', 400);
     }
 
-    // Import Twilio service
-    const { verifyOTP } = require('../services/twilio.service');
+    // Verify Firebase token
+    const decodedToken = await verifyFirebaseToken(firebaseToken);
+    const phone = decodedToken.phone_number;
 
-    // Verify OTP with Twilio
-    const isValid = await verifyOTP(phone, code);
-
-    if (!isValid) {
-      return errorResponse(res, 'AUTH_006', 'Invalid or expired OTP code', 400);
+    if (!phone) {
+      return errorResponse(res, 'AUTH_006', 'Phone number not found in Firebase token', 400);
     }
 
     // Check if user exists

@@ -8,7 +8,7 @@
     "icon": "./src/assets/images/logo2.png",
     "scheme": "doctorrice",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.doctorrice.app"
@@ -31,7 +31,7 @@
       "output": "static",
       "favicon": "./src/assets/images/text-logo.png"
     },
-    "plugins": [
+      "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
@@ -44,8 +44,7 @@
             "backgroundColor": "#000000"
           }
         }
-      ],
-      "expo-web-browser"
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
@@ -54,7 +53,6 @@
     "extra": {
       "router": {},
       "apiUrl": "https://doctorrice.onrender.com/api",
-      "facebookAppId": "1071463597343527",
       "eas": {
         "projectId": "45fd028f-bb4c-4921-8b02-ed70b3082ebe"
       }

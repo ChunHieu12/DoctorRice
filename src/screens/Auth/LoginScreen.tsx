@@ -5,7 +5,6 @@
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { useAuth } from '@/hooks/useAuth';
 import { useCustomAlert } from '@/hooks/useCustomAlert';
-import { useFacebookAuth } from '@/hooks/useFacebookAuth';
 import * as authService from '@/services/auth.service';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -30,7 +29,6 @@ const LoginScreen: React.FC = () => {
   const { t } = useTranslation();
   const { login } = useAuth();
   const { showAlert } = useCustomAlert();
-  const { loginWithFacebook, isLoading: isFacebookLoading } = useFacebookAuth();
 
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -176,54 +174,6 @@ const LoginScreen: React.FC = () => {
    */
   const handleTerms = () => {
     router.push('/auth/privacy-policy');
-  };
-
-  /**
-   * Handle Facebook Login
-   */
-  const handleFacebookLogin = async () => {
-    try {
-      if (!agreeTerms) {
-        showAlert({
-          type: 'error',
-          title: t('common.error'),
-          message: t('auth.mustAgreeTerms'),
-          buttons: [{ text: t('common.ok'), style: 'default' }],
-        });
-        return;
-      }
-
-      const result = await loginWithFacebook();
-
-      if (result.success) {
-        showAlert({
-          type: 'success',
-          title: t('common.success'),
-          message: t('auth.loginSuccess'),
-          buttons: [
-            {
-              text: t('common.ok'),
-              style: 'default',
-              onPress: () => router.replace('/(tabs)'),
-            },
-          ],
-        });
-      } else {
-        showAlert({
-          type: 'error',
-          title: t('common.error'),
-          message: result.error || t('auth.facebookLoginFailed'),
-          buttons: [{ text: t('common.ok'), style: 'default' }],
-        });
-      }
-    } catch (error: any) {
-      showAlert({
-        type: 'error',
-        title: t('common.error'),
-        message: error.message || t('auth.facebookLoginFailed'),
-        buttons: [{ text: t('common.ok'), style: 'default' }],
-      });
-    }
   };
 
   if (loadingSavedCredentials) {
@@ -376,24 +326,21 @@ const LoginScreen: React.FC = () => {
               <View style={styles.dividerLine} />
             </View>
 
-            {/* Social Login Buttons */}
+            {/* Google Login Button */}
             <View style={styles.socialContainer}>
               <TouchableOpacity 
-                style={styles.socialButton}
-                onPress={handleFacebookLogin}
-                disabled={isFacebookLoading || !agreeTerms}
-              >
-                {isFacebookLoading ? (
-                  <ActivityIndicator size="small" color="#1877F2" />
-                ) : (
-                  <Ionicons name="logo-facebook" size={24} color="#1877F2" />
-                )}
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.socialButton}
+                style={[
+                  styles.socialButton,
+                  !agreeTerms && styles.socialButtonDisabled
+                ]}
                 disabled={!agreeTerms}
+                activeOpacity={0.7}
               >
-                <Ionicons name="logo-google" size={24} color="#DB4437" />
+                <Ionicons 
+                  name="logo-google" 
+                  size={24} 
+                  color={!agreeTerms ? '#999' : '#DB4437'} 
+                />
               </TouchableOpacity>
             </View>
 
@@ -588,8 +535,7 @@ const styles = StyleSheet.create({
   socialContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 16,
-    marginBottom: 10,
+    marginBottom: 16,
   },
   socialButton: {
     width: 56,
@@ -600,6 +546,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#E0E0E0',
+  },
+  socialButtonDisabled: {
+    opacity: 0.5,
+    backgroundColor: '#E8E8E8',
   },
   otpLoginContainer: {
     alignItems: 'center',

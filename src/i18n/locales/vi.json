@@ -77,7 +77,6 @@
     "logoutSuccess": "Đăng xuất thành công",
     "otpVerifySuccess": "Xác thực thành công",
     "passwordResetSuccess": "Đặt lại mật khẩu thành công",
-    "facebookLoginFailed": "Đăng nhập Facebook thất bại",
     "sendingOTP": "Đang gửi mã OTP...",
     "verifying": "Đang xác thực...",
     "loggingIn": "Đang đăng nhập...",

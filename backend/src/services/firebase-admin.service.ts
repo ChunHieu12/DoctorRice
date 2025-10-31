@@ -16,8 +16,26 @@ export const initializeFirebaseAdmin = (): void => {
       return;
     }
 
-    // Option 1: Use service account JSON file (recommended for development)
-    // Download from: Firebase Console → Project Settings → Service Accounts
+    // Option 1: Try environment variables first (for production/Render)
+    const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
+    const FIREBASE_CLIENT_EMAIL = process.env.FIREBASE_CLIENT_EMAIL;
+    const FIREBASE_PRIVATE_KEY = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+    if (FIREBASE_CLIENT_EMAIL && FIREBASE_PRIVATE_KEY) {
+      app = admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId: FIREBASE_PROJECT_ID || 'doctorrice-4e19f',
+          clientEmail: FIREBASE_CLIENT_EMAIL,
+          privateKey: FIREBASE_PRIVATE_KEY,
+        }),
+      });
+
+      logger.info('🔥 Firebase Admin initialized from environment variables');
+      return;
+    }
+
+    // Option 2: Fallback to service account JSON file (for local development)
+    logger.info('Trying to load firebase-service-account.json...');
     const serviceAccount = require('../../firebase-service-account.json');
     
     app = admin.initializeApp({
@@ -25,33 +43,10 @@ export const initializeFirebaseAdmin = (): void => {
       projectId: 'doctorrice-4e19f',
     });
 
-    logger.info('🔥 Firebase Admin initialized successfully');
+    logger.info('🔥 Firebase Admin initialized from service account file');
   } catch (error) {
     logger.error('❌ Failed to initialize Firebase Admin:', error);
-    
-    // Option 2: Fallback to manual config from env vars (for production)
-    try {
-      const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID || 'doctorrice-4e19f';
-      const FIREBASE_CLIENT_EMAIL = process.env.FIREBASE_CLIENT_EMAIL;
-      const FIREBASE_PRIVATE_KEY = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
-
-      if (!FIREBASE_CLIENT_EMAIL || !FIREBASE_PRIVATE_KEY) {
-        throw new Error('Firebase credentials missing in environment variables');
-      }
-
-      app = admin.initializeApp({
-        credential: admin.credential.cert({
-          projectId: FIREBASE_PROJECT_ID,
-          clientEmail: FIREBASE_CLIENT_EMAIL,
-          privateKey: FIREBASE_PRIVATE_KEY,
-        }),
-      });
-
-      logger.info('🔥 Firebase Admin initialized from env vars');
-    } catch (envError) {
-      logger.error('❌ Failed to initialize Firebase Admin from env:', envError);
-      throw new Error('Firebase Admin initialization failed');
-    }
+    throw new Error('Firebase Admin initialization failed. Please set FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY environment variables.');
   }
 };
 

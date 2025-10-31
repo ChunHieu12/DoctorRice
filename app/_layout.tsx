@@ -7,6 +7,7 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
+import { CustomAlertProvider } from '@/hooks/useCustomAlert';
 import { initI18n } from '@/i18n';
 
 export const unstable_settings = {
@@ -100,8 +101,10 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <RootLayoutNav />
-    </AuthProvider>
+    <CustomAlertProvider>
+      <AuthProvider>
+        <RootLayoutNav />
+      </AuthProvider>
+    </CustomAlertProvider>
   );
 }

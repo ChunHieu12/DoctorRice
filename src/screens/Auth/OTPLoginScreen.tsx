@@ -1,16 +1,17 @@
 /**
  * OTP Login Screen
- * Quick login with phone OTP verification via Twilio SMS
+ * Quick login with phone OTP verification via Firebase Phone Auth
  */
 import { useAuth } from '@/hooks/useAuth';
-import * as authService from '@/services/auth.service';
+import { useCustomAlert } from '@/hooks/useCustomAlert';
+import firebase from '@/services/firebase';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   ImageBackground,
   KeyboardAvoidingView,
@@ -27,14 +28,17 @@ const OTPLoginScreen: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation();
   const { loginWithOTP } = useAuth();
+  const { showAlert } = useCustomAlert();
 
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [verificationId, setVerificationId] = useState('');
 
   const otpInputRef = useRef<TextInput>(null);
+  const recaptchaVerifier = useRef(null);
 
   // Countdown timer
   useEffect(() => {

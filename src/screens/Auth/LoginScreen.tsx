@@ -2,7 +2,9 @@
  * Login Screen
  * Main authentication screen with phone/password login
  */
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { useAuth } from '@/hooks/useAuth';
+import { useCustomAlert } from '@/hooks/useCustomAlert';
 import * as authService from '@/services/auth.service';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -10,7 +12,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   ImageBackground,
   KeyboardAvoidingView,
@@ -27,6 +28,7 @@ const LoginScreen: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation();
   const { login } = useAuth();
+  const { showAlert } = useCustomAlert();
 
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -75,22 +77,42 @@ const LoginScreen: React.FC = () => {
     try {
       // Validation
       if (!phone.trim()) {
-        Alert.alert(t('common.error'), t('auth.phoneRequired'));
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: t('auth.phoneRequired'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
         return;
       }
 
       if (!isValidPhone(phone)) {
-        Alert.alert(t('common.error'), t('auth.invalidPhone'));
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: t('auth.invalidPhone'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
         return;
       }
 
       if (!password.trim()) {
-        Alert.alert(t('common.error'), t('auth.passwordRequired'));
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: t('auth.passwordRequired'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
         return;
       }
 
       if (!agreeTerms) {
-        Alert.alert(t('common.error'), t('auth.mustAgreeTerms'));
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: t('auth.mustAgreeTerms'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
         return;
       }
 
@@ -102,12 +124,25 @@ const LoginScreen: React.FC = () => {
       // Login
       await login(fullPhone, password, rememberMe);
 
-      Alert.alert(t('common.success'), t('auth.loginSuccess'));
-
-      // Navigate to home
-      router.replace('/(tabs)');
+      showAlert({
+        type: 'success',
+        title: t('common.success'),
+        message: t('auth.loginSuccess'),
+        buttons: [
+          {
+            text: t('common.ok'),
+            style: 'default',
+            onPress: () => router.replace('/(tabs)'),
+          },
+        ],
+      });
     } catch (error: any) {
-      Alert.alert(t('common.error'), error.message || t('auth.invalidCredentials'));
+      showAlert({
+        type: 'error',
+        title: t('common.error'),
+        message: error.message || t('auth.invalidCredentials'),
+        buttons: [{ text: t('common.ok'), style: 'default' }],
+      });
     } finally {
       setIsLoading(false);
     }
@@ -164,6 +199,11 @@ const LoginScreen: React.FC = () => {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
+          {/* Language Switcher */}
+          <View style={styles.languageSwitcherContainer}>
+            <LanguageSwitcher />
+          </View>
+
           {/* Logo */}
           <View style={styles.logoContainer}>
             <Image
@@ -328,8 +368,13 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 60,
+    paddingTop: 20,
     paddingBottom: 40,
+  },
+  languageSwitcherContainer: {
+    alignItems: 'flex-end',
+    marginBottom: 20,
+    marginTop: 40,
   },
   logoContainer: {
     alignItems: 'center',

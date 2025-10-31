@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "DoctorRice",
-    "slug": "doctorrice",
+    "slug": "DoctorRice",
     "displayName": "Bác sĩ Lúa",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./src/assets/images/icon.png",
+    "icon": "./src/assets/images/logo2.png",
     "scheme": "doctorrice",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -16,10 +16,7 @@
     "android": {
       "package": "com.doctorrice.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./src/assets/images/android-icon-foreground.png",
-        "backgroundImage": "./src/assets/images/android-icon-background.png",
-        "monochromeImage": "./src/assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -31,14 +28,14 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./src/assets/images/favicon.png"
+      "favicon": "./src/assets/images/text-logo.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./src/assets/images/splash-icon.png",
+          "image": "./src/assets/images/logo-img.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
@@ -54,9 +51,11 @@
     },
     "extra": {
       "router": {},
+      "apiUrl": "https://doctorrice.onrender.com/api",
       "eas": {
         "projectId": "45fd028f-bb4c-4921-8b02-ed70b3082ebe"
       }
-    }
+    },
+    "owner": "hungnguyenthanh11112002"
   }
 }

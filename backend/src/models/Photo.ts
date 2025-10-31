@@ -64,7 +64,6 @@ const PhotoSchema = new Schema<IPhoto>(
       type: String,
       enum: ['processing', 'completed', 'failed'],
       default: 'processing',
-      index: true,
     },
     fileSize: {
       type: Number,

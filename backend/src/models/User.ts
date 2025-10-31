@@ -6,33 +6,50 @@ import mongoose, { Document, Schema } from 'mongoose';
  *   schemas:
  *     User:
  *       type: object
+ *       required:
+ *         - phone
+ *         - displayName
  *       properties:
  *         _id:
  *           type: string
- *         email:
- *           type: string
+ *           description: User ID
  *         phone:
  *           type: string
+ *           description: Phone number (primary identifier, required)
+ *           example: "+84123456789"
  *         displayName:
  *           type: string
+ *           description: User full name
+ *           example: "Nguyen Van A"
+ *         email:
+ *           type: string
+ *           description: Email address (optional, for future use)
  *         avatar:
  *           type: string
+ *           description: Avatar URL
  *         roles:
  *           type: array
  *           items:
  *             type: string
- *         isEmailVerified:
- *           type: boolean
+ *             enum: [user, admin]
+ *           description: User roles
  *         isPhoneVerified:
  *           type: boolean
+ *           description: Phone verification status
+ *         isEmailVerified:
+ *           type: boolean
+ *           description: Email verification status (not used currently)
  *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
  *           type: string
  *           format: date-time
  */
 
 export interface IUser extends Document {
-  email?: string;
-  phone?: string;
+  email?: string; // Optional - for future use
+  phone?: string; // Required in practice (unique identifier)
   passwordHash?: string;
   displayName: string;
   avatar?: string;
@@ -41,8 +58,8 @@ export interface IUser extends Document {
     facebook?: string;
   };
   roles: ('user' | 'admin')[];
-  isEmailVerified: boolean;
-  isPhoneVerified: boolean;
+  isEmailVerified: boolean; // Not used currently
+  isPhoneVerified: boolean; // Set to true after OTP verification
   createdAt: Date;
   updatedAt: Date;
 }
@@ -51,15 +68,11 @@ const UserSchema = new Schema<IUser>(
   {
     email: {
       type: String,
-      unique: true,
-      sparse: true,
       lowercase: true,
       trim: true,
     },
     phone: {
       type: String,
-      unique: true,
-      sparse: true,
       trim: true,
     },
     passwordHash: {
@@ -98,8 +111,8 @@ const UserSchema = new Schema<IUser>(
 );
 
 // Indexes
-UserSchema.index({ email: 1 }, { sparse: true });
-UserSchema.index({ phone: 1 }, { sparse: true });
+UserSchema.index({ email: 1 }, { unique: true, sparse: true });
+UserSchema.index({ phone: 1 }, { unique: true, sparse: true });
 UserSchema.index({ 'socialIds.google': 1 }, { sparse: true });
 UserSchema.index({ 'socialIds.facebook': 1 }, { sparse: true });
 

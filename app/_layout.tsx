@@ -1,22 +1,90 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { initI18n } from '@/i18n';
 
 export const unstable_settings = {
   anchor: '(tabs)',
 };
 
-export default function RootLayout() {
+/**
+ * Auth Guard Component
+ * Handles navigation based on auth state
+ */
+function AuthGuard({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    const inAuthGroup = segments[0] === 'auth';
+
+    if (!isAuthenticated && !inAuthGroup) {
+      // User not authenticated and trying to access protected route
+      // Redirect to login
+      router.replace('/auth/login');
+    } else if (isAuthenticated && inAuthGroup) {
+      // User authenticated but still in auth routes
+      // Redirect to home
+      router.replace('/(tabs)');
+    }
+  }, [isAuthenticated, isLoading, segments]);
+
+  // Show loading screen while checking auth
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+        <ActivityIndicator size="large" color="#4CAF50" />
+      </View>
+    );
+  }
+
+  return <>{children}</>;
+}
+
+/**
+ * Root Layout Component
+ */
+function RootLayoutNav() {
   const colorScheme = useColorScheme();
+
+  return (
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <AuthGuard>
+        <Stack>
+          {/* Auth routes */}
+          <Stack.Screen name="auth/login" options={{ headerShown: false, animation: 'fade' }} />
+          <Stack.Screen name="auth/otp-login" options={{ headerShown: false, animation: 'slide_from_right' }} />
+          <Stack.Screen name="auth/complete-registration" options={{ headerShown: false, animation: 'slide_from_right' }} />
+          <Stack.Screen name="auth/forgot-password" options={{ headerShown: false, animation: 'slide_from_right' }} />
+          <Stack.Screen name="auth/privacy-policy" options={{ headerShown: false, animation: 'slide_from_bottom' }} />
+          
+          {/* Protected routes */}
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        </Stack>
+      </AuthGuard>
+      <StatusBar style="auto" />
+    </ThemeProvider>
+  );
+}
+
+/**
+ * Root Layout with Providers
+ */
+export default function RootLayout() {
   const [isI18nInitialized, setIsI18nInitialized] = useState(false);
 
   useEffect(() => {
-    // Initialize i18n on app start
+    // Initialize i18n
     initI18n().then(() => {
       setIsI18nInitialized(true);
     });
@@ -24,16 +92,16 @@ export default function RootLayout() {
 
   // Wait for i18n to initialize
   if (!isI18nInitialized) {
-    return null; // Or a splash screen component
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+        <ActivityIndicator size="large" color="#4CAF50" />
+      </View>
+    );
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
   );
 }

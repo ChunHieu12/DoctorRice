@@ -25,8 +25,14 @@ const getInitialLanguage = async (): Promise<string> => {
   }
   
   // Fallback to device language
-  const deviceLanguage = Localization.locale.split('-')[0]; // 'en-US' -> 'en'
-  return deviceLanguage === 'vi' ? 'vi' : 'vi'; // Default to Vietnamese
+  try {
+    const locale = Localization.locale || Localization.getLocales()[0]?.languageCode || 'vi';
+    const deviceLanguage = locale.split('-')[0]; // 'en-US' -> 'en'
+    return deviceLanguage === 'vi' ? 'vi' : 'vi'; // Default to Vietnamese
+  } catch (error) {
+    console.warn('Failed to get device language:', error);
+    return 'vi'; // Ultimate fallback
+  }
 };
 
 // Initialize i18n

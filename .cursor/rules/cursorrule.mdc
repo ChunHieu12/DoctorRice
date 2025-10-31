@@ -22,7 +22,6 @@ Mục tiêu triển khai: Android-first tối ưu, tương thích iOS, code có 
        "SAU MỖI LẦN user gửi yêu cầu: trước khi thực hiện hành động chính được yêu cầu, luôn xác nhận lại rằng hành động đó đúng với ý định của user.",
       "Luôn dùng TypeScript cho business logic; file UI có thể là .tsx. Nếu dùng JS, phải có JSDoc cho mọi function export.",
       "Project root phải có file `.env-example` chứa tất cả biến môi trường dùng trong app và backend (ví dụ: API_URL, GOOGLE_CLIENT_ID, FACEBOOK_APP_ID, SENTRY_DSN nếu dùng). Không commit `.env` thật vào VCS.",
-      "Luôn có 2 file docs ở root của repo: `BackendConfig.Md` và `AppLogicConfig.Md`. Mỗi lần thay đổi flow hoặc API hay cấu trúc folder — phải cập nhật tương ứng file doc đó (commit message nên chứa tag [DOCS]).",
       "Không để `console.log`, `debugger` trong bản build production; dùng logger controllable (ví dụ `debug` hoặc Sentry) và tắt theo biến môi trường.",
       "Mọi API network call phải thông qua module riêng `/src/services/api.ts` và sử dụng axios instance có timeout, retry logic (3 lần), và cancel token support."
     ]
@@ -31,7 +30,7 @@ Mục tiêu triển khai: Android-first tối ưu, tương thích iOS, code có 
   "projectStructure": {
     "description": "Cấu trúc Hybrid với Expo Router + /src cho business logic.",
     "rules": [
-      "Root chứa: /app (Expo Router screens), /src (business logic), và các file cấu hình (package.json, app.json, tsconfig.json, .eslintrc, .prettierrc, .env-example, BackendConfig.Md, AppLogicConfig.Md).",
+      "Root chứa: /app (Expo Router screens), /src (business logic), và các file cấu hình (package.json, app.json, tsconfig.json, .eslintrc, .prettierrc, .env-example)",
       "Cấu trúc Hybrid:",
       "  /app - Expo Router screens (file-based routing): (tabs), modal, _layout.tsx. Screens chỉ chứa UI layout và import logic từ /src",
       "  /src/components - các component tái sử dụng (Header, Button, Modal, Avatar, WatermarkPreview, SkeletonLoader, etc.)",

@@ -6,8 +6,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCustomAlert } from '@/hooks/useCustomAlert';
 import firebase from '@/services/firebase';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -62,12 +62,22 @@ const OTPLoginScreen: React.FC = () => {
   const handleSendOTP = async () => {
     try {
       if (!phone.trim()) {
-        Alert.alert(t('common.error'), t('auth.phoneRequired'));
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: t('auth.phoneRequired'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
         return;
       }
 
       if (!isValidPhone(phone)) {
-        Alert.alert(t('common.error'), t('auth.invalidPhone'));
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: t('auth.invalidPhone'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
         return;
       }
 
@@ -75,20 +85,32 @@ const OTPLoginScreen: React.FC = () => {
 
       const fullPhone = `+84${phone}`;
 
-      // Send OTP via backend (Twilio)
-      await authService.sendOTP(fullPhone);
+      // Send OTP via Firebase Phone Auth
+      const phoneProvider = new firebase.auth.PhoneAuthProvider();
+      const verificationId = await phoneProvider.verifyPhoneNumber(
+        fullPhone,
+        recaptchaVerifier.current!
+      );
 
+      setVerificationId(verificationId);
       setOtpSent(true);
-      setCountdown(60); // 60 seconds cooldown
+      setCountdown(60);
+      otpInputRef.current?.focus();
 
-      Alert.alert(t('common.success'), t('auth.otpSent', { phone: fullPhone }));
-
-      // Focus OTP input
-      setTimeout(() => {
-        otpInputRef.current?.focus();
-      }, 500);
+      showAlert({
+        type: 'success',
+        title: t('common.success'),
+        message: t('auth.otpSent', { phone: fullPhone }),
+        buttons: [{ text: t('common.ok'), style: 'default' }],
+      });
     } catch (error: any) {
-      Alert.alert(t('common.error'), error.message || 'Failed to send OTP');
+      console.error('OTP Send Error:', error);
+      showAlert({
+        type: 'error',
+        title: t('common.error'),
+        message: error.message || t('auth.otpSendFailed'),
+        buttons: [{ text: t('common.ok'), style: 'default' }],
+      });
     } finally {
       setIsLoading(false);
     }
@@ -99,13 +121,13 @@ const OTPLoginScreen: React.FC = () => {
    */
   const handleVerifyOTP = async () => {
     try {
-      if (!otp.trim()) {
-        Alert.alert(t('common.error'), t('auth.otpRequired'));
-        return;
-      }
-
-      if (otp.length !== 6) {
-        Alert.alert(t('common.error'), t('auth.invalidOTP'));
+      if (!otp.trim() || otp.length !== 6) {
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: t('auth.invalidOTP'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
         return;
       }
 
@@ -113,22 +135,48 @@ const OTPLoginScreen: React.FC = () => {
 
       const fullPhone = `+84${phone}`;
 
-      // Verify OTP with backend (Twilio)
-      const result = await loginWithOTP(fullPhone, otp);
+      // Create credential with verification ID and OTP code
+      const credential = firebase.auth.PhoneAuthProvider.credential(
+        verificationId,
+        otp
+      );
 
-      if (result.userExists) {
-        // User exists - login successful
-        Alert.alert(t('common.success'), t('auth.loginSuccess'));
-        router.replace('/(tabs)');
+      // Sign in with credential to get Firebase token
+      const result = await firebase.auth().signInWithCredential(credential);
+      const firebaseToken = await result.user!.getIdToken();
+
+      // Send Firebase token to backend for verification
+      const loginResult = await loginWithOTP(fullPhone, firebaseToken);
+
+      if (loginResult.userExists) {
+        // User exists - logged in successfully
+        showAlert({
+          type: 'success',
+          title: t('common.success'),
+          message: t('auth.loginSuccess'),
+          buttons: [
+            {
+              text: t('common.ok'),
+              style: 'default',
+              onPress: () => router.replace('/(tabs)'),
+            },
+          ],
+        });
       } else {
-        // User doesn't exist - navigate to complete registration
+        // New user - navigate to complete registration immediately
         router.push({
           pathname: '/auth/complete-registration',
-          params: { phone: fullPhone },
+          params: { phone: fullPhone, firebaseToken },
         });
       }
     } catch (error: any) {
-      Alert.alert(t('common.error'), error.message || t('auth.invalidOTP'));
+      console.error('OTP Verification Error:', error);
+      showAlert({
+        type: 'error',
+        title: t('common.error'),
+        message: error.message || t('auth.verificationFailed'),
+        buttons: [{ text: t('common.ok'), style: 'default' }],
+      });
     } finally {
       setIsLoading(false);
     }
@@ -148,6 +196,13 @@ const OTPLoginScreen: React.FC = () => {
       style={styles.background}
       resizeMode="cover"
     >
+      {/* Firebase Recaptcha Verifier */}
+      <FirebaseRecaptchaVerifierModal
+        ref={recaptchaVerifier}
+        firebaseConfig={firebase.app().options}
+        attemptInvisibleVerification={true}
+      />
+
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}

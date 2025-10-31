@@ -3,29 +3,30 @@
  * For new users after OTP verification
  */
 import { useAuth } from '@/hooks/useAuth';
+import { useCustomAlert } from '@/hooks/useCustomAlert';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    ImageBackground,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Image,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const CompleteRegistrationScreen: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation();
   const { completeRegistration } = useAuth();
+  const { showAlert } = useCustomAlert();
   const params = useLocalSearchParams();
 
   const [name, setName] = useState('');
@@ -41,34 +42,92 @@ const CompleteRegistrationScreen: React.FC = () => {
   const phone = params.phone as string;
 
   /**
+   * Validate password strength
+   * Requirements: >6 chars, uppercase, lowercase, number
+   */
+  const isPasswordStrong = (pwd: string): { valid: boolean; errors: string[] } => {
+    const errors: string[] = [];
+    
+    if (pwd.length <= 6) {
+      errors.push(t('auth.passwordTooShort'));
+    }
+    if (!/[A-Z]/.test(pwd)) {
+      errors.push(t('auth.passwordNeedsUppercase'));
+    }
+    if (!/[a-z]/.test(pwd)) {
+      errors.push(t('auth.passwordNeedsLowercase'));
+    }
+    if (!/[0-9]/.test(pwd)) {
+      errors.push(t('auth.passwordNeedsNumber'));
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors,
+    };
+  };
+
+  /**
    * Handle complete registration
    */
   const handleComplete = async () => {
     try {
       // Validation
       if (!name.trim()) {
-        Alert.alert(t('common.error'), t('auth.nameRequired'));
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: t('auth.nameRequired'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
         return;
       }
 
       if (!password.trim()) {
-        Alert.alert(t('common.error'), t('auth.passwordRequired'));
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: t('auth.passwordRequired'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
         return;
       }
 
-      if (password.length < 6) {
-        Alert.alert(t('common.error'), t('auth.passwordTooShort'));
+      // Check password strength
+      const passwordCheck = isPasswordStrong(password);
+      if (!passwordCheck.valid) {
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: passwordCheck.errors.join('\n'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
         return;
       }
 
       if (password !== confirmPassword) {
-        Alert.alert(t('common.error'), t('auth.passwordsNotMatch'));
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: t('auth.passwordsNotMatch'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
         return;
       }
 
       if (!phone) {
-        Alert.alert(t('common.error'), 'Invalid session. Please try again.');
-        router.back();
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: 'Invalid session. Please try again.',
+          buttons: [
+            {
+              text: t('common.ok'),
+              style: 'default',
+              onPress: () => router.back(),
+            },
+          ],
+        });
         return;
       }
 
@@ -77,12 +136,25 @@ const CompleteRegistrationScreen: React.FC = () => {
       // Complete registration
       await completeRegistration(phone, name, password);
 
-      Alert.alert(t('common.success'), t('auth.registerSuccess'));
-
-      // Navigate to home
-      router.replace('/(tabs)');
+      showAlert({
+        type: 'success',
+        title: t('common.success'),
+        message: t('auth.registerSuccess'),
+        buttons: [
+          {
+            text: t('common.ok'),
+            style: 'default',
+            onPress: () => router.replace('/(tabs)'),
+          },
+        ],
+      });
     } catch (error: any) {
-      Alert.alert(t('common.error'), error.message || 'Registration failed');
+      showAlert({
+        type: 'error',
+        title: t('common.error'),
+        message: error.message || 'Registration failed',
+        buttons: [{ text: t('common.ok'), style: 'default' }],
+      });
     } finally {
       setIsLoading(false);
     }
@@ -111,11 +183,10 @@ const CompleteRegistrationScreen: React.FC = () => {
           {/* Logo */}
           <View style={styles.logoContainer}>
             <Image
-              source={require('@/assets/images/logo2.png')}
+              source={require('@/assets/images/logo-img.png')}
               style={styles.logo}
               resizeMode="contain"
             />
-            <Text style={styles.appName}>{t('common.appName')}</Text>
           </View>
 
           {/* Form */}
@@ -195,9 +266,46 @@ const CompleteRegistrationScreen: React.FC = () => {
             {/* Password Requirements */}
             <View style={styles.requirementsContainer}>
               <Text style={styles.requirementsTitle}>Yêu cầu mật khẩu:</Text>
-              <Text style={[styles.requirement, password.length >= 6 && styles.requirementMet]}>
-                • Ít nhất 6 ký tự
-              </Text>
+              <View style={styles.requirementRow}>
+                <Ionicons
+                  name={password.length > 6 ? 'checkmark-circle' : 'ellipse-outline'}
+                  size={16}
+                  color={password.length > 6 ? '#4CAF50' : '#999'}
+                />
+                <Text style={[styles.requirement, password.length > 6 && styles.requirementMet]}>
+                  Trên 6 ký tự
+                </Text>
+              </View>
+              <View style={styles.requirementRow}>
+                <Ionicons
+                  name={/[A-Z]/.test(password) ? 'checkmark-circle' : 'ellipse-outline'}
+                  size={16}
+                  color={/[A-Z]/.test(password) ? '#4CAF50' : '#999'}
+                />
+                <Text style={[styles.requirement, /[A-Z]/.test(password) && styles.requirementMet]}>
+                  Ít nhất 1 chữ HOA (A-Z)
+                </Text>
+              </View>
+              <View style={styles.requirementRow}>
+                <Ionicons
+                  name={/[a-z]/.test(password) ? 'checkmark-circle' : 'ellipse-outline'}
+                  size={16}
+                  color={/[a-z]/.test(password) ? '#4CAF50' : '#999'}
+                />
+                <Text style={[styles.requirement, /[a-z]/.test(password) && styles.requirementMet]}>
+                  Ít nhất 1 chữ thường (a-z)
+                </Text>
+              </View>
+              <View style={styles.requirementRow}>
+                <Ionicons
+                  name={/[0-9]/.test(password) ? 'checkmark-circle' : 'ellipse-outline'}
+                  size={16}
+                  color={/[0-9]/.test(password) ? '#4CAF50' : '#999'}
+                />
+                <Text style={[styles.requirement, /[0-9]/.test(password) && styles.requirementMet]}>
+                  Ít nhất 1 chữ số (0-9)
+                </Text>
+              </View>
             </View>
 
             {/* Complete Button */}
@@ -315,13 +423,19 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 8,
   },
+  requirementRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
   requirement: {
     fontSize: 13,
     color: '#999',
-    marginBottom: 4,
+    marginLeft: 8,
   },
   requirementMet: {
     color: '#4CAF50',
+    fontWeight: '500',
   },
   button: {
     backgroundColor: '#4CAF50',

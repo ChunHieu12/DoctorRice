@@ -4,7 +4,7 @@
  */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
-import { apiPost, clearTokens, saveTokens } from './api';
+import { apiDelete, apiPost, clearTokens, saveTokens } from './api';
 
 /**
  * Storage Keys
@@ -50,7 +50,7 @@ export const loginWithPassword = async (
   phone: string,
   password: string
 ): Promise<LoginResponse> => {
-  const response = await apiPost<LoginResponse>('/auth/login/phone', {
+  const response = await apiPost<LoginResponse>('/auth/login', {
     phone,
     password,
   });
@@ -75,10 +75,6 @@ export const sendOTP = async (phone: string): Promise<void> => {
   }
 };
 
-/**
- * Verify phone OTP code
- * Returns whether user exists or needs to complete registration
- */
 /**
  * Verify Firebase OTP Token
  * Backend will verify the Firebase ID token and return JWT tokens if user exists
@@ -127,6 +123,40 @@ export const completeRegistration = async (
 };
 
 /**
+ * Login with Facebook access token
+ */
+export const loginWithFacebook = async (
+  facebookAccessToken: string
+): Promise<LoginResponse> => {
+  const response = await apiPost<LoginResponse>('/auth/facebook', {
+    accessToken: facebookAccessToken,
+  });
+
+  if (response.success && response.data) {
+    // Save tokens
+    await saveTokens(response.data.accessToken, response.data.refreshToken);
+    return response.data;
+  } else {
+    throw new Error(response.error?.message || 'Facebook login failed');
+  }
+};
+
+/**
+ * Check if phone number is registered
+ */
+export const checkPhoneExists = async (phone: string): Promise<boolean> => {
+  const response = await apiPost<{ exists: boolean }>('/auth/check-phone', {
+    phone,
+  });
+
+  if (response.success && response.data) {
+    return response.data.exists;
+  } else {
+    throw new Error(response.error?.message || 'Failed to check phone');
+  }
+};
+
+/**
  * Reset password after OTP verification
  */
 export const resetPassword = async (
@@ -141,6 +171,21 @@ export const resetPassword = async (
   if (!response.success) {
     throw new Error(response.error?.message || 'Password reset failed');
   }
+};
+
+/**
+ * Delete user account
+ */
+export const deleteAccount = async (): Promise<void> => {
+  const response = await apiDelete('/auth/delete-account');
+
+  if (!response.success) {
+    throw new Error(response.error?.message || 'Failed to delete account');
+  }
+  
+  // Clear tokens and saved data
+  await clearTokens();
+  await AsyncStorage.removeItem(KEYS.SAVED_PASSWORD);
 };
 
 /**
@@ -210,8 +255,9 @@ export const clearSavedCredentials = async (): Promise<void> => {
 
 export default {
   loginWithPassword,
+  loginWithFacebook,
   sendOTP,
-  verifyPhoneOTP,
+  verifyFirebaseOTP,
   completeRegistration,
   resetPassword,
   logout,

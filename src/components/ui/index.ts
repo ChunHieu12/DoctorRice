@@ -8,6 +8,7 @@ export { default as CustomAlert } from './CustomAlert';
 export { Input } from './Input';
 export { default as LanguageSwitcher } from './LanguageSwitcher';
 export { Modal } from './Modal';
+export { default as PermissionRequestModal } from './PermissionRequestModal';
 
 // Template components (used in tab navigator)
 export { IconSymbol } from './icon-symbol';

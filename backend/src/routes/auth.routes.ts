@@ -3,6 +3,7 @@ import {
     checkPhone,
     completeRegistration,
     deleteAccount,
+    loginWithFacebook,
     loginWithPhone,
     refresh,
     resetPassword,
@@ -125,6 +126,32 @@ router.post('/refresh', refresh);
  *         description: Phone and password are required
  */
 router.post('/login', authLimiter, loginWithPhone);
+
+/**
+ * @swagger
+ * /api/auth/facebook:
+ *   post:
+ *     summary: Login or register with Facebook
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - accessToken
+ *             properties:
+ *               accessToken:
+ *                 type: string
+ *                 description: Facebook access token from client
+ *     responses:
+ *       200:
+ *         description: Facebook login successful
+ *       400:
+ *         description: Invalid Facebook token
+ */
+router.post('/facebook', authLimiter, loginWithFacebook);
 
 /**
  * @swagger

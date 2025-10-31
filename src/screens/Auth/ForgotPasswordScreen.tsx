@@ -1,30 +1,33 @@
 /**
  * Forgot Password Screen
- * Reset password with phone OTP verification
+ * Reset password with phone OTP verification via Firebase Phone Auth
  */
+import { useCustomAlert } from '@/hooks/useCustomAlert';
 import * as authService from '@/services/auth.service';
+import firebase from '@/services/firebase';
 import { Ionicons } from '@expo/vector-icons';
+import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  ImageBackground,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    ImageBackground,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 const ForgotPasswordScreen: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation();
+  const { showAlert } = useCustomAlert();
 
   const [step, setStep] = useState<'phone' | 'otp' | 'password'>('phone');
   const [phone, setPhone] = useState('');
@@ -32,6 +35,7 @@ const ForgotPasswordScreen: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [verifiedPhone, setVerifiedPhone] = useState('');
+  const [verificationId, setVerificationId] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,6 +44,7 @@ const ForgotPasswordScreen: React.FC = () => {
   const otpInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
   const confirmPasswordInputRef = useRef<TextInput>(null);
+  const recaptchaVerifier = useRef(null);
 
   // Countdown timer
   useEffect(() => {
@@ -58,17 +63,27 @@ const ForgotPasswordScreen: React.FC = () => {
   };
 
   /**
-   * Send OTP to phone
+   * Send OTP to phone via Firebase Phone Auth
    */
   const handleSendOTP = async () => {
     try {
       if (!phone.trim()) {
-        Alert.alert(t('common.error'), t('auth.phoneRequired'));
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: t('auth.phoneRequired'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
         return;
       }
 
       if (!isValidPhone(phone)) {
-        Alert.alert(t('common.error'), t('auth.invalidPhone'));
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: t('auth.invalidPhone'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
         return;
       }
 
@@ -76,36 +91,93 @@ const ForgotPasswordScreen: React.FC = () => {
 
       const fullPhone = `+84${phone}`;
 
-      // Send OTP via backend (Twilio)
-      await authService.sendOTP(fullPhone);
+      // Check if phone exists
+      const phoneExists = await authService.checkPhoneExists(fullPhone);
+      
+      if (!phoneExists) {
+        setIsLoading(false);
+        // Phone not registered - ask user if they want to register
+        showAlert({
+          type: 'info',
+          title: t('auth.phoneNotRegistered'),
+          message: t('auth.phoneNotRegisteredMessage'),
+          buttons: [
+            {
+              text: t('common.cancel'),
+              style: 'cancel',
+              onPress: () => {
+                // Do nothing, just close alert
+              },
+            },
+            {
+              text: t('auth.register'),
+              style: 'default',
+              onPress: () => {
+                // Navigate to OTP login for registration
+                router.push('/auth/otp-login');
+              },
+            },
+          ],
+        });
+        return;
+      }
 
+      // Phone exists - send OTP via Firebase Phone Auth
+      const phoneProvider = new firebase.auth.PhoneAuthProvider();
+      const verificationId = await phoneProvider.verifyPhoneNumber(
+        fullPhone,
+        recaptchaVerifier.current!
+      );
+
+      setVerificationId(verificationId);
       setStep('otp');
       setCountdown(60);
 
-      Alert.alert(t('common.success'), t('auth.otpSent', { phone: fullPhone }));
+      showAlert({
+        type: 'success',
+        title: t('common.success'),
+        message: t('auth.otpSent', { phone: fullPhone }),
+        buttons: [{ text: t('common.ok'), style: 'default' }],
+      });
 
       setTimeout(() => {
         otpInputRef.current?.focus();
       }, 500);
     } catch (error: any) {
-      Alert.alert(t('common.error'), error.message || 'Failed to send OTP');
+      console.error('OTP Send Error:', error);
+      showAlert({
+        type: 'error',
+        title: t('common.error'),
+        message: error.message || 'Failed to send OTP',
+        buttons: [{ text: t('common.ok'), style: 'default' }],
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   /**
-   * Verify OTP
+   * Verify OTP with Firebase
    */
   const handleVerifyOTP = async () => {
     try {
       if (!otp.trim()) {
-        Alert.alert(t('common.error'), t('auth.otpRequired'));
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: t('auth.otpRequired'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
         return;
       }
 
       if (otp.length !== 6) {
-        Alert.alert(t('common.error'), t('auth.invalidOTP'));
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: t('auth.invalidOTP'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
         return;
       }
 
@@ -113,12 +185,30 @@ const ForgotPasswordScreen: React.FC = () => {
 
       const fullPhone = `+84${phone}`;
 
-      // Verify OTP with backend (Twilio)
-      const result = await authService.verifyPhoneOTP(fullPhone, otp);
+      // Create Firebase credential and sign in
+      const credential = firebase.auth.PhoneAuthProvider.credential(
+        verificationId,
+        otp
+      );
+      const result = await firebase.auth().signInWithCredential(credential);
+      const firebaseToken = await result.user!.getIdToken();
 
-      if (!result.userExists) {
-        Alert.alert(t('common.error'), 'Phone number not registered');
-        setStep('phone');
+      // Verify with backend
+      const verifyResult = await authService.verifyFirebaseOTP(fullPhone, firebaseToken);
+
+      if (!verifyResult.userExists) {
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: 'Phone number not registered',
+          buttons: [
+            {
+              text: t('common.ok'),
+              style: 'default',
+              onPress: () => setStep('phone'),
+            },
+          ],
+        });
         setIsLoading(false);
         return;
       }
@@ -126,13 +216,24 @@ const ForgotPasswordScreen: React.FC = () => {
       setVerifiedPhone(fullPhone);
       setStep('password');
 
-      Alert.alert(t('common.success'), t('auth.otpVerifySuccess'));
+      showAlert({
+        type: 'success',
+        title: t('common.success'),
+        message: t('auth.otpVerifySuccess'),
+        buttons: [{ text: t('common.ok'), style: 'default' }],
+      });
 
       setTimeout(() => {
         passwordInputRef.current?.focus();
       }, 500);
     } catch (error: any) {
-      Alert.alert(t('common.error'), error.message || t('auth.invalidOTP'));
+      console.error('OTP Verify Error:', error);
+      showAlert({
+        type: 'error',
+        title: t('common.error'),
+        message: error.message || t('auth.invalidOTP'),
+        buttons: [{ text: t('common.ok'), style: 'default' }],
+      });
     } finally {
       setIsLoading(false);
     }
@@ -144,17 +245,32 @@ const ForgotPasswordScreen: React.FC = () => {
   const handleResetPassword = async () => {
     try {
       if (!password.trim()) {
-        Alert.alert(t('common.error'), t('auth.passwordRequired'));
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: t('auth.passwordRequired'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
         return;
       }
 
       if (password.length < 6) {
-        Alert.alert(t('common.error'), t('auth.passwordTooShort'));
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: t('auth.passwordTooShort'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
         return;
       }
 
       if (password !== confirmPassword) {
-        Alert.alert(t('common.error'), t('auth.passwordsNotMatch'));
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: t('auth.passwordsNotMatch'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
         return;
       }
 
@@ -163,18 +279,25 @@ const ForgotPasswordScreen: React.FC = () => {
       // Reset password
       await authService.resetPassword(verifiedPhone, password);
 
-      Alert.alert(
-        t('common.success'),
-        t('auth.passwordResetSuccess'),
-        [
+      showAlert({
+        type: 'success',
+        title: t('common.success'),
+        message: t('auth.passwordResetSuccess'),
+        buttons: [
           {
             text: t('common.ok'),
+            style: 'default',
             onPress: () => router.replace('/auth/login'),
           },
-        ]
-      );
+        ],
+      });
     } catch (error: any) {
-      Alert.alert(t('common.error'), error.message || 'Password reset failed');
+      showAlert({
+        type: 'error',
+        title: t('common.error'),
+        message: error.message || 'Password reset failed',
+        buttons: [{ text: t('common.ok'), style: 'default' }],
+      });
     } finally {
       setIsLoading(false);
     }
@@ -194,6 +317,13 @@ const ForgotPasswordScreen: React.FC = () => {
       style={styles.background}
       resizeMode="cover"
     >
+      {/* Firebase Recaptcha Verifier */}
+      <FirebaseRecaptchaVerifierModal
+        ref={recaptchaVerifier}
+        firebaseConfig={firebase.app().options}
+        attemptInvisibleVerification={true}
+      />
+
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}

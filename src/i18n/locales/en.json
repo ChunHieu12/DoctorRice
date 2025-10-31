@@ -77,7 +77,6 @@
     "logoutSuccess": "Logout successful",
     "otpVerifySuccess": "Verification successful",
     "passwordResetSuccess": "Password reset successful",
-    "facebookLoginFailed": "Facebook login failed",
     "sendingOTP": "Sending OTP...",
     "verifying": "Verifying...",
     "loggingIn": "Logging in...",

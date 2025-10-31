@@ -123,25 +123,6 @@ export const completeRegistration = async (
 };
 
 /**
- * Login with Facebook access token
- */
-export const loginWithFacebook = async (
-  facebookAccessToken: string
-): Promise<LoginResponse> => {
-  const response = await apiPost<LoginResponse>('/auth/facebook', {
-    accessToken: facebookAccessToken,
-  });
-
-  if (response.success && response.data) {
-    // Save tokens
-    await saveTokens(response.data.accessToken, response.data.refreshToken);
-    return response.data;
-  } else {
-    throw new Error(response.error?.message || 'Facebook login failed');
-  }
-};
-
-/**
  * Check if phone number is registered
  */
 export const checkPhoneExists = async (phone: string): Promise<boolean> => {
@@ -255,7 +236,6 @@ export const clearSavedCredentials = async (): Promise<void> => {
 
 export default {
   loginWithPassword,
-  loginWithFacebook,
   sendOTP,
   verifyFirebaseOTP,
   completeRegistration,

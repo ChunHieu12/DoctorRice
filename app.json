@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "DoctorRice",
+    "name": "Bác sĩ Lúa",
     "slug": "DoctorRice",
     "displayName": "Bác sĩ Lúa",
     "version": "1.0.0",
@@ -15,7 +15,7 @@
     },
     "android": {
       "package": "com.doctorrice.app",
-      "googleServicesFile": "./android/app/google-services.json",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },

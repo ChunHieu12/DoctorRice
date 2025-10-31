@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import Constants from 'expo-constants';
 import * as SecureStore from 'expo-secure-store';
 
 // Constants
@@ -8,12 +9,26 @@ const RETRY_DELAY = 1000; // 1 second
 const TOKEN_KEY = 'accessToken';
 
 /**
- * Get API base URL from environment
- * You can use expo-constants to get from app.config.js extra fields
+ * Get API base URL from app.json extra config
+ * Priority: 1. app.json extra.apiUrl, 2. env vars, 3. default production URL
  */
 const getApiUrl = (): string => {
-  // For now, use a default. In production, this should come from .env via expo-constants
-  return process.env.API_URL || 'http://localhost:3000';
+  // Get from app.json extra.apiUrl (recommended for production)
+  const configUrl = Constants.expoConfig?.extra?.apiUrl;
+  if (configUrl) {
+    console.log('📡 API URL from app.json:', configUrl);
+    return configUrl;
+  }
+  
+  // Fallback to env vars (for development override)
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    console.log('📡 API URL from env:', process.env.EXPO_PUBLIC_API_URL);
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+  
+  // Final fallback
+  console.log('📡 API URL (default):', 'https://doctorrice.onrender.com/api');
+  return 'https://doctorrice.onrender.com/api';
 };
 
 /**

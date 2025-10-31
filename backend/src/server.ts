@@ -9,6 +9,7 @@ import { swaggerSpec } from './config/swagger';
 import { startKeepAliveJob } from './jobs/keepAlive';
 import { apiLimiter } from './middleware/rateLimiter.middleware';
 import routes from './routes';
+import { initializeTwilio } from './services/twilio.service';
 import { logger } from './utils/logger';
 
 // Load environment variables
@@ -76,6 +77,9 @@ async function startServer() {
   try {
     // Connect to MongoDB
     await connectDatabase();
+
+    // Initialize Twilio
+    initializeTwilio();
 
     // Start keep-alive job
     startKeepAliveJob();

@@ -18,8 +18,8 @@ const options = {
         description: 'Development server',
       },
       {
-        url: 'https://your-app.onrender.com',
-        description: 'Production server',
+        url: 'https://doctorrice.onrender.com',
+        description: 'Production server (Render)',
       },
     ],
     components: {

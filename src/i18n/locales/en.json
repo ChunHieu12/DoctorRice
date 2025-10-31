@@ -67,17 +67,25 @@
     "invalidEmail": "Invalid email address",
     "invalidPhone": "Invalid phone number",
     "invalidOTP": "Invalid OTP code",
-    "passwordTooShort": "Password must be at least 6 characters",
+    "passwordTooShort": "Password must be more than 6 characters",
+    "passwordNeedsUppercase": "Password needs at least 1 uppercase letter (A-Z)",
+    "passwordNeedsLowercase": "Password needs at least 1 lowercase letter (a-z)",
+    "passwordNeedsNumber": "Password needs at least 1 number (0-9)",
     "passwordsNotMatch": "Passwords do not match",
     "loginSuccess": "Login successful",
     "registerSuccess": "Registration successful",
     "logoutSuccess": "Logout successful",
     "otpVerifySuccess": "Verification successful",
     "passwordResetSuccess": "Password reset successful",
+    "facebookLoginFailed": "Facebook login failed",
     "sendingOTP": "Sending OTP...",
     "verifying": "Verifying...",
     "loggingIn": "Logging in...",
-    "registering": "Registering..."
+    "registering": "Registering...",
+    "newUser": "New User",
+    "completeRegistrationMessage": "Phone number not registered. Please complete your information to create an account.",
+    "phoneNotRegistered": "Phone Not Registered",
+    "phoneNotRegisteredMessage": "This phone number is not registered. Would you like to create a new account?"
   },
 
   "camera": {
@@ -126,7 +134,10 @@
     "about": "About",
     "version": "Version",
     "logout": "Logout",
-    "logoutConfirm": "Are you sure you want to logout?"
+    "logoutConfirm": "Are you sure you want to logout?",
+    "deleteAccount": "Delete Account",
+    "deleteAccountConfirm": "Are you sure you want to delete your account? This action cannot be undone!",
+    "deleteAccountSuccess": "Account has been deleted successfully"
   },
 
   "home": {
@@ -148,4 +159,3 @@
     "validationError": "Invalid data"
   }
 }
-

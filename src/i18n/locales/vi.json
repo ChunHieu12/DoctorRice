@@ -67,17 +67,25 @@
     "invalidEmail": "Email không hợp lệ",
     "invalidPhone": "Số điện thoại không hợp lệ",
     "invalidOTP": "Mã OTP không hợp lệ",
-    "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
+    "passwordTooShort": "Mật khẩu phải có trên 6 ký tự",
+    "passwordNeedsUppercase": "Mật khẩu cần ít nhất 1 chữ HOA (A-Z)",
+    "passwordNeedsLowercase": "Mật khẩu cần ít nhất 1 chữ thường (a-z)",
+    "passwordNeedsNumber": "Mật khẩu cần ít nhất 1 chữ số (0-9)",
     "passwordsNotMatch": "Mật khẩu xác nhận không khớp",
     "loginSuccess": "Đăng nhập thành công",
     "registerSuccess": "Đăng ký thành công",
     "logoutSuccess": "Đăng xuất thành công",
     "otpVerifySuccess": "Xác thực thành công",
     "passwordResetSuccess": "Đặt lại mật khẩu thành công",
+    "facebookLoginFailed": "Đăng nhập Facebook thất bại",
     "sendingOTP": "Đang gửi mã OTP...",
     "verifying": "Đang xác thực...",
     "loggingIn": "Đang đăng nhập...",
-    "registering": "Đang đăng ký..."
+    "registering": "Đăng ký...",
+    "newUser": "Người dùng mới",
+    "completeRegistrationMessage": "Số điện thoại chưa được đăng ký. Vui lòng hoàn tất thông tin để tạo tài khoản.",
+    "phoneNotRegistered": "Số điện thoại chưa đăng ký",
+    "phoneNotRegisteredMessage": "Số điện thoại này chưa được đăng ký. Bạn có muốn đăng ký tài khoản mới không?"
   },
 
   "camera": {
@@ -126,7 +134,10 @@
     "about": "Giới thiệu",
     "version": "Phiên bản",
     "logout": "Đăng xuất",
-    "logoutConfirm": "Bạn có chắc muốn đăng xuất?"
+    "logoutConfirm": "Bạn có chắc muốn đăng xuất?",
+    "deleteAccount": "Xóa tài khoản",
+    "deleteAccountConfirm": "Bạn có chắc muốn xóa tài khoản? Hành động này không thể hoàn tác!",
+    "deleteAccountSuccess": "Tài khoản đã được xóa thành công"
   },
 
   "home": {
@@ -148,4 +159,3 @@
     "validationError": "Dữ liệu không hợp lệ"
   }
 }
-

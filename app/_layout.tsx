@@ -5,9 +5,11 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import 'react-native-reanimated';
 
+import { PermissionRequestModal } from '@/components/ui';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { CustomAlertProvider } from '@/hooks/useCustomAlert';
+import { usePermissions } from '@/hooks/usePermissions';
 import { initI18n } from '@/i18n';
 
 export const unstable_settings = {
@@ -56,6 +58,11 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
  */
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const {
+    showPermissionModal,
+    requestAllPermissions,
+    dismissPermissionModal,
+  } = usePermissions();
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -74,6 +81,13 @@ function RootLayoutNav() {
         </Stack>
       </AuthGuard>
       <StatusBar style="auto" />
+      
+      {/* Permission Request Modal */}
+      <PermissionRequestModal
+        visible={showPermissionModal}
+        onRequestPermissions={requestAllPermissions}
+        onDismiss={dismissPermissionModal}
+      />
     </ThemeProvider>
   );
 }

@@ -5,6 +5,7 @@
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { useAuth } from '@/hooks/useAuth';
 import { useCustomAlert } from '@/hooks/useCustomAlert';
+import { useFacebookAuth } from '@/hooks/useFacebookAuth';
 import * as authService from '@/services/auth.service';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -29,6 +30,7 @@ const LoginScreen: React.FC = () => {
   const { t } = useTranslation();
   const { login } = useAuth();
   const { showAlert } = useCustomAlert();
+  const { loginWithFacebook, isLoading: isFacebookLoading } = useFacebookAuth();
 
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -174,6 +176,54 @@ const LoginScreen: React.FC = () => {
    */
   const handleTerms = () => {
     router.push('/auth/privacy-policy');
+  };
+
+  /**
+   * Handle Facebook Login
+   */
+  const handleFacebookLogin = async () => {
+    try {
+      if (!agreeTerms) {
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: t('auth.mustAgreeTerms'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
+        return;
+      }
+
+      const result = await loginWithFacebook();
+
+      if (result.success) {
+        showAlert({
+          type: 'success',
+          title: t('common.success'),
+          message: t('auth.loginSuccess'),
+          buttons: [
+            {
+              text: t('common.ok'),
+              style: 'default',
+              onPress: () => router.replace('/(tabs)'),
+            },
+          ],
+        });
+      } else {
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: result.error || t('auth.facebookLoginFailed'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
+      }
+    } catch (error: any) {
+      showAlert({
+        type: 'error',
+        title: t('common.error'),
+        message: error.message || t('auth.facebookLoginFailed'),
+        buttons: [{ text: t('common.ok'), style: 'default' }],
+      });
+    }
   };
 
   if (loadingSavedCredentials) {
@@ -328,10 +378,21 @@ const LoginScreen: React.FC = () => {
 
             {/* Social Login Buttons */}
             <View style={styles.socialContainer}>
-              <TouchableOpacity style={styles.socialButton}>
-                <Ionicons name="logo-facebook" size={24} color="#1877F2" />
+              <TouchableOpacity 
+                style={styles.socialButton}
+                onPress={handleFacebookLogin}
+                disabled={isFacebookLoading || !agreeTerms}
+              >
+                {isFacebookLoading ? (
+                  <ActivityIndicator size="small" color="#1877F2" />
+                ) : (
+                  <Ionicons name="logo-facebook" size={24} color="#1877F2" />
+                )}
               </TouchableOpacity>
-              <TouchableOpacity style={styles.socialButton}>
+              <TouchableOpacity 
+                style={styles.socialButton}
+                disabled={!agreeTerms}
+              >
                 <Ionicons name="logo-google" size={24} color="#DB4437" />
               </TouchableOpacity>
             </View>
@@ -373,22 +434,15 @@ const styles = StyleSheet.create({
   },
   languageSwitcherContainer: {
     alignItems: 'flex-end',
-    marginBottom: 20,
-    marginTop: 40,
+    marginTop: 30,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 40,
   },
   logo: {
     width: 100,
     height: 100,
-    marginBottom: 12,
-  },
-  appName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#2E7D32',
+    marginBottom: 5,
   },
   formContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -405,7 +459,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1B5E20',
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -519,7 +573,7 @@ const styles = StyleSheet.create({
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 14,
   },
   dividerLine: {
     flex: 1,
@@ -535,7 +589,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 16,
-    marginBottom: 24,
+    marginBottom: 10,
   },
   socialButton: {
     width: 56,

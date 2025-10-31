@@ -5,12 +5,12 @@
 import { useCustomAlert } from '@/hooks/useCustomAlert';
 import React from 'react';
 import {
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const TestCustomAlertScreen: React.FC = () => {
   const { showAlert } = useCustomAlert();

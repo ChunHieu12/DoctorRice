@@ -619,6 +619,65 @@ export const checkPhone = async (req: Request, res: Response) => {
 };
 
 /**
+ * Delete user account
+ * @swagger
+ * /auth/delete-account:
+ *   delete:
+ *     summary: Delete user account (requires authentication)
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Account deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                       example: "Account deleted successfully"
+ *       401:
+ *         description: Unauthorized - token required
+ *       404:
+ *         description: User not found
+ */
+export const deleteAccount = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.userId;
+
+    if (!userId) {
+      return errorResponse(res, 'AUTH_001', 'Unauthorized', 401);
+    }
+
+    // Find user
+    const user = await User.findById(userId);
+    if (!user) {
+      return errorResponse(res, 'AUTH_010', 'User not found', 404);
+    }
+
+    // Delete all user sessions
+    await Session.deleteMany({ userId: user._id });
+
+    // Delete user
+    await User.findByIdAndDelete(userId);
+
+    return successResponse(res, {
+      message: 'Account deleted successfully',
+    });
+  } catch (error: any) {
+    return errorResponse(res, 'SERVER_001', error.message || 'Failed to delete account', 500);
+  }
+};
+
+/**
  * Reset password after OTP verification
  * @swagger
  * /auth/reset-password:

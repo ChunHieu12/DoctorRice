@@ -2,12 +2,14 @@ import { Router } from 'express';
 import {
     checkPhone,
     completeRegistration,
+    deleteAccount,
     loginWithPhone,
     refresh,
     resetPassword,
     sendOTPCode,
     verifyOTPCode
 } from '../controllers/auth.controller';
+import { auth } from '../middleware/auth.middleware';
 import { authLimiter } from '../middleware/rateLimiter.middleware';
 
 const router = Router();
@@ -400,6 +402,39 @@ router.post('/check-phone', authLimiter, checkPhone);
  *         description: User not found
  */
 router.post('/reset-password', authLimiter, resetPassword);
+
+/**
+ * @swagger
+ * /api/auth/delete-account:
+ *   delete:
+ *     summary: Delete user account
+ *     description: Permanently delete the authenticated user's account and all associated data
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Account deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                       example: "Account deleted successfully"
+ *       401:
+ *         description: Unauthorized - authentication required
+ *       404:
+ *         description: User not found
+ */
+router.delete('/delete-account', auth, deleteAccount);
 
 export default router;
 

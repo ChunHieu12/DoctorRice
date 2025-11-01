@@ -7,8 +7,8 @@
 import AWS from 'aws-sdk';
 import bcrypt from 'bcryptjs';
 import { Request, Response } from 'express';
-import Session from '../models/Session';
-import User from '../models/User';
+import { Session } from '../models/Session';
+import { User } from '../models/User';
 import { signToken } from '../utils/jwt';
 import { logger } from '../utils/logger';
 import { errorResponse, successResponse } from '../utils/responses';

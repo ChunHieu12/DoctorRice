@@ -24,6 +24,7 @@
   "author": "DoctorRice Team",
   "license": "MIT",
   "dependencies": {
+    "aws-sdk": "^2.1692.0",
     "axios": "^1.6.2",
     "bcrypt": "^5.1.1",
     "compression": "^1.7.4",

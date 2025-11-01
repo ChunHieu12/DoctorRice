@@ -19,8 +19,11 @@ export const useGoogleSignIn = () => {
       GoogleSignin.configure({
         webClientId: WEB_CLIENT_ID,
         offlineAccess: true,
+        // Request idToken explicitly
+        scopes: ['profile', 'email'],
       });
       setIsConfigured(true);
+      console.log('✅ Google Sign-In configured with webClientId:', WEB_CLIENT_ID.substring(0, 20) + '...');
     } catch (error) {
       console.error('❌ Failed to configure Google Sign-In:', error);
     }
@@ -42,11 +45,30 @@ export const useGoogleSignIn = () => {
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
 
       // Get user info and ID token
-      const { idToken } = await GoogleSignin.signIn();
+      // Version 16+ returns: { type: 'success', data: { idToken, user, ... } }
+      const response = await GoogleSignin.signIn();
+      
+      console.log('📱 Google Sign-In response type:', response.type);
+      
+      // Extract idToken based on response structure
+      let idToken: string | null = null;
+      
+      if (response.type === 'success') {
+        // New structure (v16+)
+        idToken = response.data.idToken;
+        console.log('✅ Got idToken from response.data.idToken');
+      } else if ('idToken' in response) {
+        // Old structure fallback
+        idToken = (response as any).idToken;
+        console.log('✅ Got idToken from response.idToken');
+      }
 
       if (!idToken) {
+        console.error('❌ Response structure:', JSON.stringify(response, null, 2));
         throw new Error('No ID token received from Google');
       }
+
+      console.log('🔑 Got idToken, length:', idToken.length);
 
       // Create Firebase credential with Google ID token
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
@@ -60,7 +82,7 @@ export const useGoogleSignIn = () => {
       console.error('❌ Google Sign-In error:', error);
 
       // Handle specific error codes
-      if (error.code === 'SIGN_IN_CANCELLED') {
+      if (error.code === 'SIGN_IN_CANCELLED' || error.code === '-5') {
         throw new Error('Sign in was cancelled');
       } else if (error.code === 'IN_PROGRESS') {
         throw new Error('Sign in already in progress');

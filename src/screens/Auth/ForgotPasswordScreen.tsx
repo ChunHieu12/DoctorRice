@@ -220,12 +220,44 @@ const ForgotPasswordScreen: React.FC = () => {
       }, 500);
     } catch (error: any) {
       console.error('OTP Verify Error:', error);
-      showAlert({
-        type: 'error',
-        title: t('common.error'),
-        message: error.message || t('auth.invalidOTP'),
-        buttons: [{ text: t('common.ok'), style: 'default' }],
-      });
+      
+      // Check if error is session-expired
+      const isExpiredError = 
+        error.message?.includes('expired') || 
+        error.code === 'auth/session-expired' ||
+        error.code === 'auth/code-expired';
+
+      if (isExpiredError) {
+        // OTP expired - offer to resend
+        showAlert({
+          type: 'warning',
+          title: t('auth.otpExpired'),
+          message: t('auth.otpExpiredMessage'),
+          buttons: [
+            {
+              text: t('common.cancel'),
+              style: 'cancel',
+            },
+            {
+              text: t('auth.resendOTP'),
+              style: 'default',
+              onPress: () => {
+                setOtp('');
+                setOtpSent(false);
+                setCountdown(0);
+              },
+            },
+          ],
+        });
+      } else {
+        // Other errors
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: error.message || t('auth.invalidOTP'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
+      }
     } finally {
       setIsLoading(false);
     }

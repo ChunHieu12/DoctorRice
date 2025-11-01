@@ -1,9 +1,8 @@
 /**
- * Language Switcher Component
- * Dropdown to switch between Vietnamese and English
+ * Simple Language Switcher Component (for Header)
+ * Minimal design without background and dropdown icon
  */
 import { changeLanguage } from '@/i18n';
-import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -14,7 +13,7 @@ import {
     View,
 } from 'react-native';
 
-const LanguageSwitcher: React.FC = () => {
+const SimpleLanguageSwitcher: React.FC = () => {
   const { i18n } = useTranslation();
   const [visible, setVisible] = useState(false);
 
@@ -38,15 +37,14 @@ const LanguageSwitcher: React.FC = () => {
 
   return (
     <>
-      {/* Language Button */}
+      {/* Language Button - Simple version */}
       <TouchableOpacity
         style={styles.button}
         onPress={() => setVisible(true)}
-        activeOpacity={0.8}
+        activeOpacity={0.7}
       >
         <Text style={styles.flag}>{currentLang.flag}</Text>
         <Text style={styles.languageCode}>{currentLang.code.toUpperCase()}</Text>
-        <Ionicons name="chevron-down" size={16} color="#4CAF50" />
       </TouchableOpacity>
 
       {/* Dropdown Modal */}
@@ -81,9 +79,6 @@ const LanguageSwitcher: React.FC = () => {
                 >
                   {lang.label}
                 </Text>
-                {currentLanguage === lang.code && (
-                  <Ionicons name="checkmark" size={20} color="#4CAF50" />
-                )}
               </TouchableOpacity>
             ))}
           </View>
@@ -97,27 +92,17 @@ const styles = StyleSheet.create({
   button: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: '#4CAF50',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
   },
   flag: {
-    fontSize: 18,
-    marginRight: 6,
+    fontSize: 20,
+    marginRight: 4,
   },
   languageCode: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#4CAF50',
-    marginRight: 4,
+    color: '#fff',
   },
   overlay: {
     flex: 1,
@@ -147,7 +132,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F0F0F0',
   },
   languageItemActive: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#E8F5E9',
   },
   languageFlag: {
     fontSize: 20,
@@ -164,5 +149,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LanguageSwitcher;
+export default SimpleLanguageSwitcher;
 

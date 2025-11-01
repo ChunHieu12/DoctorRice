@@ -23,6 +23,7 @@
     "login": "Login",
     "register": "Register",
     "logout": "Logout",
+    "name": "Name",
     "email": "Email",
     "password": "Password",
     "confirmPassword": "Confirm Password",
@@ -79,8 +80,10 @@
     "otpVerifySuccess": "Verification successful",
     "passwordResetSuccess": "Password reset successful",
     "sendingOTP": "Sending OTP...",
+    "verifyingOTP": "Verifying OTP...",
     "verifying": "Verifying...",
     "loggingIn": "Logging in...",
+    "signingInWithGoogle": "Signing in with Google...",
     "registering": "Registering...",
     "newUser": "New User",
     "completeRegistrationMessage": "Phone number not registered. Please complete your information to create an account.",
@@ -88,7 +91,10 @@
     "phoneNotRegisteredMessage": "This phone number is not registered. Would you like to create a new account?",
     "googleLoginSuccess": "Google Sign-In Successful!",
     "googleLoginFailed": "Google Sign-In Failed",
-    "pleaseAgreeTerms": "Please agree to the terms and privacy policy to continue"
+    "pleaseAgreeTerms": "Please agree to the terms and privacy policy to continue",
+    "otpExpired": "OTP Code Expired",
+    "otpExpiredMessage": "The OTP code has expired after 60 seconds. Would you like to request a new code?",
+    "verificationFailed": "Verification Failed"
   },
 
   "camera": {
@@ -140,7 +146,8 @@
     "logoutConfirm": "Are you sure you want to logout?",
     "deleteAccount": "Delete Account",
     "deleteAccountConfirm": "Are you sure you want to delete your account? This action cannot be undone!",
-    "deleteAccountSuccess": "Account has been deleted successfully"
+    "deleteAccountSuccess": "Account has been deleted successfully",
+    "userInfo": "User Information"
   },
 
   "home": {
@@ -148,7 +155,46 @@
     "subtitle": "Capture rice plants with GPS watermark",
     "getStarted": "Get Started",
     "recentPhotos": "Recent Photos",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "hello": "Hello"
+  },
+
+  "tabs": {
+    "home": "Home",
+    "weather": "Weather",
+    "camera": "Camera",
+    "farming": "Farming",
+    "account": "Account"
+  },
+
+  "weather": {
+    "title": "Weather",
+    "subtitle": "Weather information for agriculture",
+    "comingSoon": "Weather information is being updated..."
+  },
+
+  "farming": {
+    "title": "Farming",
+    "subtitle": "Manage farming information and rice plants",
+    "comingSoon": "Farming information is being updated..."
+  },
+
+  "permissions": {
+    "title": "Permission Request",
+    "description": "Doctor Rice needs the following permissions to work properly:",
+    "camera": {
+      "title": "Camera",
+      "description": "Take photos of rice plants to detect diseases and add watermarks"
+    },
+    "location": {
+      "title": "Location",
+      "description": "Determine location to embed geographic information in photos"
+    },
+    "infoText": "We respect your privacy. Information is only used when you take photos.",
+    "allow": "Allow",
+    "skip": "Skip",
+    "requesting": "Requesting...",
+    "openSettings": "Open System Settings"
   },
 
   "errors": {

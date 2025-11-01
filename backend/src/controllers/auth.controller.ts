@@ -5,6 +5,7 @@ import { Session } from '../models/Session';
 import { User } from '../models/User';
 import { verifyFirebaseToken } from '../services/firebase-admin.service';
 import { validatePassword } from '../utils/passwordValidator';
+import { isValidVietnamesePhone, normalizePhone } from '../utils/phoneNormalizer';
 import { errorResponse, successResponse } from '../utils/responses';
 
 // Define type for JWT SignOptions to avoid overload issues
@@ -236,8 +237,16 @@ export const loginWithPhone = async (req: Request, res: Response) => {
       return errorResponse(res, 'AUTH_004', 'Phone and password are required', 400);
     }
 
-    // Find user by phone
-    const user = await User.findOne({ phone }).select('+passwordHash');
+    // Normalize phone number
+    const normalizedPhone = normalizePhone(phone);
+
+    // Validate phone format
+    if (!isValidVietnamesePhone(normalizedPhone)) {
+      return errorResponse(res, 'AUTH_013', 'Invalid phone number format', 400);
+    }
+
+    // Find user by normalized phone
+    const user = await User.findOne({ phone: normalizedPhone }).select('+passwordHash');
     if (!user || !user.passwordHash) {
       return errorResponse(res, 'AUTH_001', 'Invalid credentials', 401);
     }
@@ -272,6 +281,7 @@ export const loginWithPhone = async (req: Request, res: Response) => {
       user: {
         id: user._id,
         phone: user.phone,
+        username: user.username,
         name: user.displayName,
         createdAt: user.createdAt,
       },
@@ -400,11 +410,14 @@ export const verifyOTPCode = async (req: Request, res: Response) => {
 
     // Verify Firebase token
     const decodedToken = await verifyFirebaseToken(firebaseToken);
-    const phone = decodedToken.phone_number;
+    const rawPhone = decodedToken.phone_number;
 
-    if (!phone) {
+    if (!rawPhone) {
       return errorResponse(res, 'AUTH_006', 'Phone number not found in Firebase token', 400);
     }
+
+    // Normalize phone number (convert +84xxx to 0xxx)
+    const phone = normalizePhone(rawPhone);
 
     // Check if user exists
     const user = await User.findOne({ phone });
@@ -441,6 +454,7 @@ export const verifyOTPCode = async (req: Request, res: Response) => {
         user: {
           id: user._id,
           phone: user.phone,
+          username: user.username,
           name: user.displayName,
         },
         accessToken,
@@ -450,7 +464,7 @@ export const verifyOTPCode = async (req: Request, res: Response) => {
       // User doesn't exist - require registration
       return successResponse(res, {
         userExists: false,
-        phone: phone,
+        phone: phone, // Already normalized (0xxx format)
       });
     }
   } catch (error: any) {
@@ -655,10 +669,18 @@ export const googleSignIn = async (req: Request, res: Response) => {
  */
 export const completeRegistration = async (req: Request, res: Response) => {
   try {
-    const { phone, name, password } = req.body;
+    const { phone, name, password, username } = req.body;
 
     if (!phone || !name || !password) {
-      return errorResponse(res, 'AUTH_008', 'All fields are required', 400);
+      return errorResponse(res, 'AUTH_008', 'Phone, name and password are required', 400);
+    }
+
+    // Normalize phone number
+    const normalizedPhone = normalizePhone(phone);
+
+    // Validate phone format
+    if (!isValidVietnamesePhone(normalizedPhone)) {
+      return errorResponse(res, 'AUTH_013', 'Invalid phone number format', 400);
     }
 
     // Validate password strength
@@ -673,7 +695,7 @@ export const completeRegistration = async (req: Request, res: Response) => {
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ phone });
+    const existingUser = await User.findOne({ phone: normalizedPhone });
     if (existingUser) {
       return errorResponse(res, 'AUTH_003', 'User already exists', 409);
     }
@@ -681,9 +703,13 @@ export const completeRegistration = async (req: Request, res: Response) => {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
 
+    // Generate username if not provided (use phone number)
+    const finalUsername = username || `user_${normalizedPhone.substring(normalizedPhone.length - 6)}`;
+
     // Create user
     const user = await User.create({
-      phone,
+      phone: normalizedPhone,
+      username: finalUsername,
       displayName: name,
       passwordHash,
       isPhoneVerified: true,
@@ -716,6 +742,7 @@ export const completeRegistration = async (req: Request, res: Response) => {
         user: {
           id: user._id,
           phone: user.phone,
+          username: user.username,
           name: user.displayName,
           createdAt: user.createdAt,
         },
@@ -772,11 +799,15 @@ export const checkPhone = async (req: Request, res: Response) => {
       return errorResponse(res, 'AUTH_012', 'Phone number is required', 400);
     }
 
+    // Normalize phone number
+    const normalizedPhone = normalizePhone(phone);
+
     // Check if user exists
-    const user = await User.findOne({ phone });
+    const user = await User.findOne({ phone: normalizedPhone });
 
     return successResponse(res, {
       exists: !!user,
+      phone: normalizedPhone, // Return normalized phone
     });
   } catch (error: any) {
     return errorResponse(res, 'SERVER_001', error.message || 'Check phone failed', 500);
@@ -876,6 +907,14 @@ export const resetPassword = async (req: Request, res: Response) => {
       return errorResponse(res, 'AUTH_009', 'Phone number and new password are required', 400);
     }
 
+    // Normalize phone number
+    const normalizedPhone = normalizePhone(phone);
+
+    // Validate phone format
+    if (!isValidVietnamesePhone(normalizedPhone)) {
+      return errorResponse(res, 'AUTH_013', 'Invalid phone number format', 400);
+    }
+
     // Validate password strength
     const passwordValidation = validatePassword(newPassword);
     if (!passwordValidation.isValid) {
@@ -888,7 +927,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     }
 
     // Find user
-    const user = await User.findOne({ phone });
+    const user = await User.findOne({ phone: normalizedPhone });
     if (!user) {
       return errorResponse(res, 'AUTH_010', 'User not found', 404);
     }

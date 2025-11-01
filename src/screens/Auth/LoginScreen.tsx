@@ -3,6 +3,7 @@
  * Main authentication screen with phone/password login
  */
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import { LoadingModal } from '@/components/ui/LoadingModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useCustomAlert } from '@/hooks/useCustomAlert';
 import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
@@ -13,23 +14,23 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-    ActivityIndicator,
-    Image,
-    ImageBackground,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Image,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const LoginScreen: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation();
-  const { login } = useAuth();
+  const { login, setAuthUser } = useAuth();
   const { showAlert } = useCustomAlert();
   const { signInWithGoogle, isLoading: isGoogleLoading } = useGoogleSignIn();
 
@@ -39,6 +40,7 @@ const LoginScreen: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('Loading...');
   const [loadingSavedCredentials, setLoadingSavedCredentials] = useState(true);
 
   const passwordInputRef = useRef<TextInput>(null);
@@ -120,6 +122,7 @@ const LoginScreen: React.FC = () => {
       }
 
       setIsLoading(true);
+      setLoadingMessage(t('auth.loggingIn') || 'Đang đăng nhập...');
 
       // Format phone with country code
       const fullPhone = `+84${phone}`;
@@ -166,8 +169,13 @@ const LoginScreen: React.FC = () => {
         return;
       }
 
+      setIsLoading(true);
+      setLoadingMessage(t('auth.signingInWithGoogle') || 'Đang đăng nhập với Google...');
+
       // Sign in with Google
       const userCredential = await signInWithGoogle();
+
+      setLoadingMessage(t('auth.verifying') || 'Đang xác thực...');
 
       // Get Firebase ID token
       const firebaseToken = await auth().currentUser?.getIdToken();
@@ -180,21 +188,31 @@ const LoginScreen: React.FC = () => {
       const result = await authService.signInWithGoogle(firebaseToken);
 
       if (result.userExists && result.accessToken && result.refreshToken && result.user) {
-        // Auto-login success
-        await login(result.accessToken, result.refreshToken);
-
-        showAlert({
-          type: 'success',
-          title: t('common.success'),
-          message: t('auth.googleLoginSuccess'),
-          buttons: [
-            {
-              text: t('common.ok'),
-              style: 'default',
-              onPress: () => router.replace('/(tabs)'),
-            },
-          ],
+        // Auto-login success - tokens already saved by authService
+        console.log('✅ Google Sign-In successful, user:', result.user.name);
+        
+        // Update auth context with user data immediately
+        setAuthUser({
+          id: result.user.id,
+          email: result.user.email,
+          name: result.user.name,
+          avatar: result.user.avatar,
         });
+        
+        console.log('✅ Auth state updated, navigating to home...');
+        
+        // Navigate to home immediately
+        router.replace('/(tabs)');
+        
+        // Show success notification after navigation
+        setTimeout(() => {
+          showAlert({
+            type: 'success',
+            title: t('common.success'),
+            message: `${t('auth.googleLoginSuccess')} ${result.user?.name || ''}`,
+            buttons: [{ text: t('common.ok'), style: 'default' }],
+          });
+        }, 500);
       }
     } catch (error: any) {
       console.error('Google Sign-In Error:', error);
@@ -204,6 +222,8 @@ const LoginScreen: React.FC = () => {
         message: error.message || t('auth.googleLoginFailed'),
         buttons: [{ text: t('common.ok'), style: 'default' }],
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -418,6 +438,9 @@ const LoginScreen: React.FC = () => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Loading Modal */}
+      <LoadingModal visible={isLoading} message={loadingMessage} />
     </ImageBackground>
   );
 };

@@ -1,35 +1,61 @@
+import { AppHeader } from '@/components/ui';
+import CustomTabBar from '@/components/ui/CustomTabBar';
 import { Tabs } from 'expo-router';
 import React from 'react';
-
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { View } from 'react-native';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+    <View style={{ flex: 1 }}>
+      {/* Global App Header */}
+      <AppHeader />
+      
+      {/* Tab Navigator */}
+      <Tabs
+        tabBar={(props) => <CustomTabBar {...props} />}
+        screenOptions={{
+          headerShown: false,
         }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Settings',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="gearshape.fill" color={color} />,
-        }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'Trang chủ',
+          }}
+        />
+        <Tabs.Screen
+          name="weather"
+          options={{
+            title: 'Thời tiết',
+          }}
+        />
+        <Tabs.Screen
+          name="camera"
+          options={{
+            title: 'Camera',
+          }}
+        />
+        <Tabs.Screen
+          name="farming"
+          options={{
+            title: 'Nông vụ',
+          }}
+        />
+        <Tabs.Screen
+          name="account"
+          options={{
+            title: 'Tài khoản',
+          }}
+        />
+        {/* Keep explore for backwards compatibility but hide it */}
+        <Tabs.Screen
+          name="explore"
+          options={{
+            title: 'Explore',
+            href: null, // Hide from tab bar
+          }}
+        />
+      </Tabs>
+    </View>
   );
 }

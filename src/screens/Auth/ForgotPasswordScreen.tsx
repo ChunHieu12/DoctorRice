@@ -1,12 +1,11 @@
 /**
  * Forgot Password Screen
- * Reset password with phone OTP verification via Firebase Phone Auth
+ * Reset password with phone OTP verification via Firebase
  */
 import { useCustomAlert } from '@/hooks/useCustomAlert';
+import { useFirebasePhoneAuth } from '@/hooks/useFirebasePhoneAuth';
 import * as authService from '@/services/auth.service';
-import firebase from '@/services/firebase';
 import { Ionicons } from '@expo/vector-icons';
-import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +27,7 @@ const ForgotPasswordScreen: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation();
   const { showAlert } = useCustomAlert();
+  const { sendOTP, verifyOTP, getFirebaseToken, isLoading: otpLoading } = useFirebasePhoneAuth();
 
   const [step, setStep] = useState<'phone' | 'otp' | 'password'>('phone');
   const [phone, setPhone] = useState('');
@@ -35,7 +35,6 @@ const ForgotPasswordScreen: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [verifiedPhone, setVerifiedPhone] = useState('');
-  const [verificationId, setVerificationId] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -44,7 +43,6 @@ const ForgotPasswordScreen: React.FC = () => {
   const otpInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
   const confirmPasswordInputRef = useRef<TextInput>(null);
-  const recaptchaVerifier = useRef(null);
 
   // Countdown timer
   useEffect(() => {
@@ -63,7 +61,7 @@ const ForgotPasswordScreen: React.FC = () => {
   };
 
   /**
-   * Send OTP to phone via Firebase Phone Auth
+   * Send OTP to phone via Backend
    */
   const handleSendOTP = async () => {
     try {
@@ -122,14 +120,9 @@ const ForgotPasswordScreen: React.FC = () => {
         return;
       }
 
-      // Phone exists - send OTP via Firebase Phone Auth
-      const phoneProvider = new firebase.auth.PhoneAuthProvider();
-      const verificationId = await phoneProvider.verifyPhoneNumber(
-        fullPhone,
-        recaptchaVerifier.current!
-      );
+      // Phone exists - send OTP via Firebase
+      await sendOTP(fullPhone);
 
-      setVerificationId(verificationId);
       setStep('otp');
       setCountdown(60);
 
@@ -157,7 +150,7 @@ const ForgotPasswordScreen: React.FC = () => {
   };
 
   /**
-   * Verify OTP with Firebase
+   * Verify OTP with Backend
    */
   const handleVerifyOTP = async () => {
     try {
@@ -185,15 +178,13 @@ const ForgotPasswordScreen: React.FC = () => {
 
       const fullPhone = `+84${phone}`;
 
-      // Create Firebase credential and sign in
-      const credential = firebase.auth.PhoneAuthProvider.credential(
-        verificationId,
-        otp
-      );
-      const result = await firebase.auth().signInWithCredential(credential);
-      const firebaseToken = await result.user!.getIdToken();
+      // Step 1: Verify OTP with Firebase
+      await verifyOTP(otp);
 
-      // Verify with backend
+      // Step 2: Get Firebase ID Token
+      const firebaseToken = await getFirebaseToken();
+
+      // Step 3: Verify with Backend
       const verifyResult = await authService.verifyFirebaseOTP(fullPhone, firebaseToken);
 
       if (!verifyResult.userExists) {
@@ -213,6 +204,7 @@ const ForgotPasswordScreen: React.FC = () => {
         return;
       }
 
+      // OTP verified successfully, proceed to password reset
       setVerifiedPhone(fullPhone);
       setStep('password');
 
@@ -317,13 +309,6 @@ const ForgotPasswordScreen: React.FC = () => {
       style={styles.background}
       resizeMode="cover"
     >
-      {/* Firebase Recaptcha Verifier */}
-      <FirebaseRecaptchaVerifierModal
-        ref={recaptchaVerifier}
-        firebaseConfig={firebase.app().options}
-        attemptInvisibleVerification={true}
-      />
-
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}

@@ -11,8 +11,10 @@ import React, { createContext, ReactNode, useContext, useEffect, useState } from
  */
 export interface User {
   id: string;
-  phone: string;
+  phone?: string;
+  email?: string;
   name: string;
+  avatar?: string;
   createdAt?: string;
 }
 
@@ -28,6 +30,7 @@ interface AuthContextType {
   completeRegistration: (phone: string, name: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
+  setAuthUser: (user: User) => void;
 }
 
 /**
@@ -148,6 +151,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   /**
+   * Set authenticated user (for Google Sign-In, etc.)
+   */
+  const setAuthUser = (userData: User) => {
+    setUser(userData);
+    console.log('✅ Auth user set:', userData.name);
+  };
+
+  /**
    * Check auth on mount
    */
   useEffect(() => {
@@ -163,6 +174,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     completeRegistration,
     logout,
     checkAuth,
+    setAuthUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

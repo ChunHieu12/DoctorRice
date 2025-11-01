@@ -26,6 +26,13 @@ export const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     textAlign: 'center',
   },
+  userInfo: {
+    fontSize: 18,
+    color: COLORS.text,
+    textAlign: 'center',
+    marginTop: 10,
+    fontWeight: '500',
+  },
   actionsContainer: {
     marginBottom: 30,
   },

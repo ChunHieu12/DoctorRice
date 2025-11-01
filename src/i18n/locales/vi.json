@@ -23,6 +23,7 @@
     "login": "Đăng nhập",
     "register": "Đăng ký",
     "logout": "Đăng xuất",
+    "name": "Tên",
     "email": "Email",
     "password": "Mật khẩu",
     "confirmPassword": "Xác nhận mật khẩu",
@@ -79,8 +80,10 @@
     "otpVerifySuccess": "Xác thực thành công",
     "passwordResetSuccess": "Đặt lại mật khẩu thành công",
     "sendingOTP": "Đang gửi mã OTP...",
+    "verifyingOTP": "Đang xác thực OTP...",
     "verifying": "Đang xác thực...",
     "loggingIn": "Đang đăng nhập...",
+    "signingInWithGoogle": "Đang đăng nhập với Google...",
     "registering": "Đăng ký...",
     "newUser": "Người dùng mới",
     "completeRegistrationMessage": "Số điện thoại chưa được đăng ký. Vui lòng hoàn tất thông tin để tạo tài khoản.",
@@ -88,7 +91,10 @@
     "phoneNotRegisteredMessage": "Số điện thoại này chưa được đăng ký. Bạn có muốn đăng ký tài khoản mới không?",
     "googleLoginSuccess": "Đăng nhập Google thành công!",
     "googleLoginFailed": "Đăng nhập Google thất bại",
-    "pleaseAgreeTerms": "Vui lòng đồng ý với điều khoản và chính sách để tiếp tục"
+    "pleaseAgreeTerms": "Vui lòng đồng ý với điều khoản và chính sách để tiếp tục",
+    "otpExpired": "Mã OTP đã hết hạn",
+    "otpExpiredMessage": "Mã OTP đã hết hạn sau 60 giây. Bạn có muốn gửi lại mã mới không?",
+    "verificationFailed": "Xác thực thất bại"
   },
 
   "camera": {
@@ -140,7 +146,8 @@
     "logoutConfirm": "Bạn có chắc muốn đăng xuất?",
     "deleteAccount": "Xóa tài khoản",
     "deleteAccountConfirm": "Bạn có chắc muốn xóa tài khoản? Hành động này không thể hoàn tác!",
-    "deleteAccountSuccess": "Tài khoản đã được xóa thành công"
+    "deleteAccountSuccess": "Tài khoản đã được xóa thành công",
+    "userInfo": "Thông tin người dùng"
   },
 
   "home": {
@@ -148,7 +155,46 @@
     "subtitle": "Chụp ảnh cây lúa với watermark GPS",
     "getStarted": "Bắt đầu",
     "recentPhotos": "Ảnh gần đây",
-    "viewAll": "Xem tất cả"
+    "viewAll": "Xem tất cả",
+    "hello": "Xin chào"
+  },
+
+  "tabs": {
+    "home": "Trang chủ",
+    "weather": "Thời tiết",
+    "camera": "Camera",
+    "farming": "Nông vụ",
+    "account": "Tài khoản"
+  },
+
+  "weather": {
+    "title": "Thời tiết",
+    "subtitle": "Thông tin thời tiết phục vụ nông nghiệp",
+    "comingSoon": "Thông tin thời tiết đang được cập nhật..."
+  },
+
+  "farming": {
+    "title": "Nông vụ",
+    "subtitle": "Quản lý thông tin nông vụ và cây lúa",
+    "comingSoon": "Thông tin nông vụ đang được cập nhật..."
+  },
+
+  "permissions": {
+    "title": "Yêu cầu quyền truy cập",
+    "description": "Bác sĩ Lúa cần các quyền sau để hoạt động tốt nhất:",
+    "camera": {
+      "title": "Camera",
+      "description": "Chụp ảnh cây lúa để phát hiện bệnh và gán watermark"
+    },
+    "location": {
+      "title": "Vị trí",
+      "description": "Xác định vị trí để gán thông tin địa lý vào ảnh"
+    },
+    "infoText": "Chúng tôi tôn trọng quyền riêng tư của bạn. Thông tin chỉ được sử dụng khi bạn chụp ảnh.",
+    "allow": "Cho phép",
+    "skip": "Bỏ qua",
+    "requesting": "Đang yêu cầu...",
+    "openSettings": "Mở cài đặt hệ thống"
   },
 
   "errors": {

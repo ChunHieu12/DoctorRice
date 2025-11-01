@@ -2,6 +2,8 @@
  * OTP Login Screen
  * Quick login with phone OTP verification via Firebase
  */
+import { LoadingModal } from '@/components/ui/LoadingModal';
+import { useAuth } from '@/hooks/useAuth';
 import { useCustomAlert } from '@/hooks/useCustomAlert';
 import { useFirebasePhoneAuth } from '@/hooks/useFirebasePhoneAuth';
 import * as authService from '@/services/auth.service';
@@ -26,13 +28,16 @@ import {
 const OTPLoginScreen: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation();
+  const { setAuthUser } = useAuth();
   const { showAlert } = useCustomAlert();
-  const { sendOTP, verifyOTP, getFirebaseToken, isLoading } = useFirebasePhoneAuth();
+  const { sendOTP, verifyOTP, getFirebaseToken, isLoading: isFirebaseLoading } = useFirebasePhoneAuth();
 
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('Loading...');
 
   const otpInputRef = useRef<TextInput>(null);
 
@@ -79,9 +84,13 @@ const OTPLoginScreen: React.FC = () => {
 
       const fullPhone = `+84${phone}`;
 
+      setIsLoading(true);
+      setLoadingMessage(t('auth.sendingOTP') || 'Đang gửi mã OTP...');
+
       // Send OTP via Firebase Phone Auth
       await sendOTP(fullPhone);
 
+      setIsLoading(false);
       setOtpSent(true);
       setCountdown(60);
       otpInputRef.current?.focus();
@@ -94,6 +103,7 @@ const OTPLoginScreen: React.FC = () => {
       });
     } catch (error: any) {
       console.error('OTP Send Error:', error);
+      setIsLoading(false);
       showAlert({
         type: 'error',
         title: t('common.error'),
@@ -120,8 +130,13 @@ const OTPLoginScreen: React.FC = () => {
 
       const fullPhone = `+84${phone}`;
 
+      setIsLoading(true);
+      setLoadingMessage(t('auth.verifyingOTP') || 'Đang xác thực OTP...');
+
       // Step 1: Verify OTP with Firebase
       await verifyOTP(otp);
+
+      setLoadingMessage(t('auth.verifying') || 'Đang xác thực...');
 
       // Step 2: Get Firebase ID Token
       const firebaseToken = await getFirebaseToken();
@@ -129,23 +144,36 @@ const OTPLoginScreen: React.FC = () => {
       // Step 3: Verify with Backend
       const result = await authService.verifyFirebaseOTP(fullPhone, firebaseToken);
 
-      if (result.userExists) {
+      if (result.userExists && result.user) {
         // User exists - logged in successfully
-        // Store tokens (handled by API interceptor)
-        showAlert({
-          type: 'success',
-          title: t('common.success'),
-          message: t('auth.loginSuccess'),
-          buttons: [
-            {
-              text: t('common.ok'),
-              style: 'default',
-              onPress: () => router.replace('/(tabs)'),
-            },
-          ],
+        console.log('✅ OTP Login successful, user:', result.user.name);
+        
+        // Update auth context with user data
+        setAuthUser({
+          id: result.user.id,
+          phone: result.user.phone,
+          name: result.user.name,
         });
+        
+        console.log('✅ Auth state updated, navigating to home...');
+        
+        setIsLoading(false);
+        
+        // Navigate to home immediately
+        router.replace('/(tabs)');
+        
+        // Show success notification after navigation
+        setTimeout(() => {
+          showAlert({
+            type: 'success',
+            title: t('common.success'),
+            message: t('auth.loginSuccess'),
+            buttons: [{ text: t('common.ok'), style: 'default' }],
+          });
+        }, 500);
       } else {
         // New user - navigate to complete registration
+        setIsLoading(false);
         router.push({
           pathname: '/auth/complete-registration',
           params: { phone: fullPhone },
@@ -153,12 +181,45 @@ const OTPLoginScreen: React.FC = () => {
       }
     } catch (error: any) {
       console.error('OTP Verification Error:', error);
-      showAlert({
-        type: 'error',
-        title: t('common.error'),
-        message: error.message || t('auth.verificationFailed'),
-        buttons: [{ text: t('common.ok'), style: 'default' }],
-      });
+      setIsLoading(false);
+      
+      // Check if error is session-expired
+      const isExpiredError = 
+        error.message?.includes('expired') || 
+        error.code === 'auth/session-expired' ||
+        error.code === 'auth/code-expired';
+
+      if (isExpiredError) {
+        // OTP expired - offer to resend
+        showAlert({
+          type: 'warning',
+          title: t('auth.otpExpired'),
+          message: t('auth.otpExpiredMessage'),
+          buttons: [
+            {
+              text: t('common.cancel'),
+              style: 'cancel',
+            },
+            {
+              text: t('auth.resendOTP'),
+              style: 'default',
+              onPress: () => {
+                setOtp('');
+                setOtpSent(false);
+                setCountdown(0);
+              },
+            },
+          ],
+        });
+      } else {
+        // Other errors
+        showAlert({
+          type: 'error',
+          title: t('common.error'),
+          message: error.message || t('auth.verificationFailed'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
+      }
     }
   };
 
@@ -298,6 +359,9 @@ const OTPLoginScreen: React.FC = () => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Loading Modal */}
+      <LoadingModal visible={isLoading} message={loadingMessage} />
     </ImageBackground>
   );
 };

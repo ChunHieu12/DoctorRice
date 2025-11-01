@@ -30,7 +30,7 @@
       "output": "static",
       "favicon": "./src/assets/images/text-logo.png"
     },
-      "plugins": [
+    "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
@@ -59,6 +59,6 @@
         "projectId": "45fd028f-bb4c-4921-8b02-ed70b3082ebe"
       }
     },
-    "owner": "hungnguyenthanh11112002"
+    "owner": "doctorrice"
   }
 }

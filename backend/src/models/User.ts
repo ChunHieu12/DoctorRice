@@ -49,7 +49,8 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IUser extends Document {
   email?: string; // Optional - for future use
-  phone?: string; // Required in practice (unique identifier)
+  phone?: string; // Required in practice (unique identifier) - Format: 0xxxxxxxxx
+  username?: string; // Username for display
   passwordHash?: string;
   displayName: string;
   avatar?: string;
@@ -72,6 +73,10 @@ const UserSchema = new Schema<IUser>(
       trim: true,
     },
     phone: {
+      type: String,
+      trim: true,
+    },
+    username: {
       type: String,
       trim: true,
     },

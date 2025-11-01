@@ -24,7 +24,7 @@ export const initializeFirebaseAdmin = (): void => {
     if (FIREBASE_CLIENT_EMAIL && FIREBASE_PRIVATE_KEY) {
       app = admin.initializeApp({
         credential: admin.credential.cert({
-          projectId: FIREBASE_PROJECT_ID || 'doctorrice-4e19f',
+          projectId: FIREBASE_PROJECT_ID || 'doctor-3c3ef',
           clientEmail: FIREBASE_CLIENT_EMAIL,
           privateKey: FIREBASE_PRIVATE_KEY,
         }),
@@ -40,7 +40,7 @@ export const initializeFirebaseAdmin = (): void => {
     
     app = admin.initializeApp({
       credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
-      projectId: 'doctorrice-4e19f',
+      projectId: 'doctor-3c3ef',
     });
 
     logger.info('🔥 Firebase Admin initialized from service account file');

@@ -4,12 +4,12 @@
  */
 import express from 'express';
 import { sendOTP, verifyOTP } from '../controllers/otp.controller';
-import { rateLimiter } from '../middleware/rateLimiter.middleware';
+import { authLimiter } from '../middleware/rateLimiter.middleware';
 
 const router = express.Router();
 
-// Rate limiter for OTP endpoints (stricter than normal)
-const otpLimiter = rateLimiter(5, 15); // 5 requests per 15 minutes
+// Use authLimiter for OTP endpoints (5 requests per 15 minutes)
+const otpLimiter = authLimiter;
 
 /**
  * @swagger

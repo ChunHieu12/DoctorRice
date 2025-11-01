@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1083778765486:android:54b174bb733e3e9b8f533f",
+        "mobilesdk_app_id": "1:1083778765486:android:80cbc62b2cac8e8c8f533f",
         "android_client_info": {
-          "package_name": "app.com"
+          "package_name": "com.doctorrice.app"
         }
       },
       "oauth_client": [],

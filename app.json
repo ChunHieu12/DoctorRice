@@ -2,7 +2,6 @@
   "expo": {
     "name": "Bác sĩ Lúa",
     "slug": "DoctorRice",
-    "displayName": "Bác sĩ Lúa",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/images/logo2.png",

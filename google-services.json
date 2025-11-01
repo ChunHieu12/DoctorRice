@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "1083778765486",
-    "project_id": "doctorrice-4e19f",
-    "storage_bucket": "doctorrice-4e19f.firebasestorage.app"
+    "project_number": "95898980634",
+    "project_id": "doctor-3c3ef",
+    "storage_bucket": "doctor-3c3ef.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1083778765486:android:80cbc62b2cac8e8c8f533f",
+        "mobilesdk_app_id": "1:95898980634:android:0c2b2429101840ad8ddca3",
         "android_client_info": {
           "package_name": "com.doctorrice.app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyA9EKcMOEtsSKjQITlWDXBTVZEX2lu0zeU"
+          "current_key": "AIzaSyD1ehvlhAiCtTIUj8sjhEX0rrCheLYyPf0"
         }
       ],
       "services": {

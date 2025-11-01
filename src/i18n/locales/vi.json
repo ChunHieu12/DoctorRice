@@ -11,6 +11,7 @@
     "loading": "Đang tải...",
     "error": "Có lỗi xảy ra",
     "success": "Thành công",
+    "warning": "Cảnh báo",
     "ok": "OK",
     "back": "Quay lại",
     "next": "Tiếp theo",
@@ -84,7 +85,10 @@
     "newUser": "Người dùng mới",
     "completeRegistrationMessage": "Số điện thoại chưa được đăng ký. Vui lòng hoàn tất thông tin để tạo tài khoản.",
     "phoneNotRegistered": "Số điện thoại chưa đăng ký",
-    "phoneNotRegisteredMessage": "Số điện thoại này chưa được đăng ký. Bạn có muốn đăng ký tài khoản mới không?"
+    "phoneNotRegisteredMessage": "Số điện thoại này chưa được đăng ký. Bạn có muốn đăng ký tài khoản mới không?",
+    "googleLoginSuccess": "Đăng nhập Google thành công!",
+    "googleLoginFailed": "Đăng nhập Google thất bại",
+    "pleaseAgreeTerms": "Vui lòng đồng ý với điều khoản và chính sách để tiếp tục"
   },
 
   "camera": {

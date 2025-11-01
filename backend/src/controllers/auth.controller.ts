@@ -459,6 +459,171 @@ export const verifyOTPCode = async (req: Request, res: Response) => {
 };
 
 /**
+ * Google Sign-In
+ * @swagger
+ * /auth/google:
+ *   post:
+ *     summary: Sign in with Google
+ *     description: Verify Firebase token from Google Sign-In and login/register user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - firebaseToken
+ *             properties:
+ *               firebaseToken:
+ *                 type: string
+ *                 description: Firebase ID token from Google Sign-In
+ *                 example: "eyJhbGciOiJSUzI1NiIsImtpZCI6IjFl..."
+ *     responses:
+ *       200:
+ *         description: Google sign-in successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     userExists:
+ *                       type: boolean
+ *                     user:
+ *                       type: object
+ *                     accessToken:
+ *                       type: string
+ *                     refreshToken:
+ *                       type: string
+ *       400:
+ *         description: Invalid Firebase token
+ */
+export const googleSignIn = async (req: Request, res: Response) => {
+  try {
+    const { firebaseToken } = req.body;
+
+    if (!firebaseToken) {
+      return errorResponse(res, 'AUTH_008', 'Firebase token is required', 400);
+    }
+
+    // Verify Firebase token
+    const decodedToken = await verifyFirebaseToken(firebaseToken);
+    const email = decodedToken.email;
+    const displayName = decodedToken.name;
+    const photoURL = decodedToken.picture;
+    const uid = decodedToken.uid;
+
+    if (!email) {
+      return errorResponse(res, 'AUTH_009', 'Email not found in Google account', 400);
+    }
+
+    // Check if user exists (by email or Google UID)
+    let user = await User.findOne({ 
+      $or: [
+        { email },
+        { 'socialIds.google': uid }
+      ]
+    });
+
+    if (user) {
+      // User exists - update Google UID if not set
+      if (!user.socialIds?.google) {
+        user.socialIds = { ...user.socialIds, google: uid };
+        await user.save();
+      }
+
+      // Mark email as verified
+      if (!user.isEmailVerified) {
+        user.isEmailVerified = true;
+        await user.save();
+      }
+
+      // Generate tokens
+      const accessToken = signToken(
+        { userId: user._id, email: user.email, roles: user.roles },
+        JWT_SECRET,
+        JWT_EXPIRES
+      );
+
+      const refreshToken = signToken(
+        { userId: user._id },
+        REFRESH_TOKEN_SECRET,
+        REFRESH_TOKEN_EXPIRES
+      );
+
+      // Save refresh token
+      await Session.create({
+        userId: user._id,
+        refreshToken: await bcrypt.hash(refreshToken, 10),
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+      });
+
+      return successResponse(res, {
+        userExists: true,
+        user: {
+          id: user._id,
+          email: user.email,
+          name: user.displayName,
+          avatar: user.avatar,
+        },
+        accessToken,
+        refreshToken,
+      });
+    } else {
+      // New user - auto-register with Google info
+      const newUser = await User.create({
+        email,
+        displayName: displayName || email.split('@')[0],
+        avatar: photoURL,
+        socialIds: { google: uid },
+        roles: ['user'],
+        isEmailVerified: true,
+        isPhoneVerified: false,
+      });
+
+      // Generate tokens
+      const accessToken = signToken(
+        { userId: newUser._id, email: newUser.email, roles: newUser.roles },
+        JWT_SECRET,
+        JWT_EXPIRES
+      );
+
+      const refreshToken = signToken(
+        { userId: newUser._id },
+        REFRESH_TOKEN_SECRET,
+        REFRESH_TOKEN_EXPIRES
+      );
+
+      // Save refresh token
+      await Session.create({
+        userId: newUser._id,
+        refreshToken: await bcrypt.hash(refreshToken, 10),
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      });
+
+      return successResponse(res, {
+        userExists: true, // Auto-registered, so return true
+        user: {
+          id: newUser._id,
+          email: newUser.email,
+          name: newUser.displayName,
+          avatar: newUser.avatar,
+        },
+        accessToken,
+        refreshToken,
+      });
+    }
+  } catch (error: any) {
+    return errorResponse(res, 'AUTH_010', error.message || 'Google sign-in failed', 500);
+  }
+};
+
+/**
  * Complete registration after OTP verification
  * @swagger
  * /auth/complete-registration:

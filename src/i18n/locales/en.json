@@ -11,6 +11,7 @@
     "loading": "Loading...",
     "error": "An error occurred",
     "success": "Success",
+    "warning": "Warning",
     "ok": "OK",
     "back": "Back",
     "next": "Next",
@@ -84,7 +85,10 @@
     "newUser": "New User",
     "completeRegistrationMessage": "Phone number not registered. Please complete your information to create an account.",
     "phoneNotRegistered": "Phone Not Registered",
-    "phoneNotRegisteredMessage": "This phone number is not registered. Would you like to create a new account?"
+    "phoneNotRegisteredMessage": "This phone number is not registered. Would you like to create a new account?",
+    "googleLoginSuccess": "Google Sign-In Successful!",
+    "googleLoginFailed": "Google Sign-In Failed",
+    "pleaseAgreeTerms": "Please agree to the terms and privacy policy to continue"
   },
 
   "camera": {

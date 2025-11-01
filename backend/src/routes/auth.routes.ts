@@ -3,6 +3,7 @@ import {
     checkPhone,
     completeRegistration,
     deleteAccount,
+    googleSignIn,
     loginWithPhone,
     refresh,
     resetPassword,
@@ -247,6 +248,11 @@ router.post('/send-otp', authLimiter, sendOTPCode);
  *         description: OTP verification failed
  */
 router.post('/verify-otp', authLimiter, verifyOTPCode);
+
+/**
+ * Google Sign-In endpoint
+ */
+router.post('/google', authLimiter, googleSignIn);
 
 /**
  * @swagger

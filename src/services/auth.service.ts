@@ -100,6 +100,44 @@ export const verifyFirebaseOTP = async (
 };
 
 /**
+ * Google Sign-In Response
+ */
+export interface GoogleSignInResponse {
+  userExists: boolean;
+  accessToken?: string;
+  refreshToken?: string;
+  user?: {
+    id: string;
+    email: string;
+    name: string;
+    avatar?: string;
+  };
+}
+
+/**
+ * Sign in with Google
+ * Backend will verify the Firebase token and return JWT tokens
+ */
+export const signInWithGoogle = async (
+  firebaseToken: string
+): Promise<GoogleSignInResponse> => {
+  const response = await apiPost<GoogleSignInResponse>('/auth/google', {
+    firebaseToken,
+  });
+
+  if (response.success && response.data) {
+    // If user exists, save tokens
+    if (response.data.userExists && response.data.accessToken && response.data.refreshToken) {
+      await saveTokens(response.data.accessToken, response.data.refreshToken);
+    }
+    
+    return response.data;
+  } else {
+    throw new Error(response.error?.message || 'Google sign-in failed');
+  }
+};
+
+/**
  * Complete registration after OTP verification
  */
 export const completeRegistration = async (

@@ -5,23 +5,25 @@
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { useAuth } from '@/hooks/useAuth';
 import { useCustomAlert } from '@/hooks/useCustomAlert';
+import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
 import * as authService from '@/services/auth.service';
 import { Ionicons } from '@expo/vector-icons';
+import auth from '@react-native-firebase/auth';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ActivityIndicator,
-  Image,
-  ImageBackground,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    ImageBackground,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 const LoginScreen: React.FC = () => {
@@ -29,6 +31,7 @@ const LoginScreen: React.FC = () => {
   const { t } = useTranslation();
   const { login } = useAuth();
   const { showAlert } = useCustomAlert();
+  const { signInWithGoogle, isLoading: isGoogleLoading } = useGoogleSignIn();
 
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -145,6 +148,62 @@ const LoginScreen: React.FC = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  /**
+   * Handle Google Sign-In
+   */
+  const handleGoogleSignIn = async () => {
+    try {
+      if (!agreeTerms) {
+        showAlert({
+          type: 'warning',
+          title: t('common.warning'),
+          message: t('auth.pleaseAgreeTerms'),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
+        return;
+      }
+
+      // Sign in with Google
+      const userCredential = await signInWithGoogle();
+
+      // Get Firebase ID token
+      const firebaseToken = await auth().currentUser?.getIdToken();
+
+      if (!firebaseToken) {
+        throw new Error('Failed to get Firebase token');
+      }
+
+      // Send token to backend
+      const result = await authService.signInWithGoogle(firebaseToken);
+
+      if (result.userExists && result.accessToken && result.refreshToken && result.user) {
+        // Auto-login success
+        await login(result.accessToken, result.refreshToken);
+
+        showAlert({
+          type: 'success',
+          title: t('common.success'),
+          message: t('auth.googleLoginSuccess'),
+          buttons: [
+            {
+              text: t('common.ok'),
+              style: 'default',
+              onPress: () => router.replace('/(tabs)'),
+            },
+          ],
+        });
+      }
+    } catch (error: any) {
+      console.error('Google Sign-In Error:', error);
+      showAlert({
+        type: 'error',
+        title: t('common.error'),
+        message: error.message || t('auth.googleLoginFailed'),
+        buttons: [{ text: t('common.ok'), style: 'default' }],
+      });
     }
   };
 
@@ -331,16 +390,21 @@ const LoginScreen: React.FC = () => {
               <TouchableOpacity 
                 style={[
                   styles.socialButton,
-                  !agreeTerms && styles.socialButtonDisabled
+                  (!agreeTerms || isGoogleLoading) && styles.socialButtonDisabled
                 ]}
-                disabled={!agreeTerms}
+                disabled={!agreeTerms || isGoogleLoading}
+                onPress={handleGoogleSignIn}
                 activeOpacity={0.7}
               >
-                <Ionicons 
-                  name="logo-google" 
-                  size={24} 
-                  color={!agreeTerms ? '#999' : '#DB4437'} 
-                />
+                {isGoogleLoading ? (
+                  <ActivityIndicator size="small" color="#DB4437" />
+                ) : (
+                  <Ionicons 
+                    name="logo-google" 
+                    size={24} 
+                    color={!agreeTerms ? '#999' : '#DB4437'} 
+                  />
+                )}
               </TouchableOpacity>
             </View>
 

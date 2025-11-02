@@ -302,13 +302,101 @@ npm run build
 
 ---
 
+## 📚 API Documentation (Swagger)
+
+### Access Swagger UI
+
+**Local:**
+```
+http://localhost:3000/api/docs
+```
+
+**Production:**
+```
+https://doctorrice.onrender.com/api/docs
+```
+
+### Available Endpoints
+
+#### **Photos Endpoints** (NEW)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/photos/upload` | Upload photo with AI detection & watermark |
+| `GET` | `/api/photos` | Get user photos (with pagination) |
+| `GET` | `/api/photos/:id` | Get single photo details |
+| `GET` | `/api/photos/map` | Get photos for map view |
+| `GET` | `/api/photos/stats` | Get photo statistics |
+| `DELETE` | `/api/photos/:id` | Delete photo |
+
+#### **Auth Endpoints**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/auth/register` | Register with email/phone |
+| `POST` | `/api/auth/login` | Login with credentials |
+| `POST` | `/api/auth/social` | Social login (Google/Facebook) |
+| `POST` | `/api/auth/refresh` | Refresh access token |
+
+### Testing with Swagger UI
+
+1. **Open Swagger UI** at `/api/docs`
+2. **Authorize**: Click "Authorize" button
+3. **Enter JWT token**: `Bearer <your_access_token>`
+4. **Try endpoints**: Click "Try it out" on any endpoint
+
+### Upload Photo Example
+
+```bash
+curl -X POST http://localhost:3000/api/photos/upload \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -F "photo=@/path/to/image.jpg" \
+  -F 'metadata={"lat":10.8231,"lng":106.6297,"timestamp":1698765432000,"device":"iOS 17.0","orientation":"portrait"}'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "photoId": "507f1f77bcf86cd799439011",
+    "originalUrl": "https://res.cloudinary.com/...",
+    "watermarkedUrl": "https://res.cloudinary.com/...",
+    "thumbnailUrl": "https://res.cloudinary.com/...",
+    "prediction": {
+      "class": "blast",
+      "classVi": "Bệnh đạo ôn",
+      "confidence": 99.4,
+      "allPredictions": {
+        "bacterial_leaf_blight": 0.2,
+        "blast": 99.4,
+        "brown_spot": 0.3,
+        "healthy": 0.1
+      }
+    },
+    "status": "completed",
+    "createdAt": "2025-11-02T..."
+  }
+}
+```
+
+### External Services
+
+- **AI Service**: https://doctorrice-ai-service.onrender.com
+- **Cloudinary**: Image storage & watermarking
+- **MongoDB Atlas**: Database
+
+---
+
 ## 📞 Support
 
-- **Documentation:** See `../BackendConfig.Md`
+- **API Documentation:** `/api/docs` (Swagger UI)
+- **Implementation Guide:** See `../IMPLEMENTATION_GUIDE.md`
+- **Backend Config:** See `../BackendConfig.Md`
 - **Issues:** GitHub Issues
 - **Email:** support@doctorrice.com
 
 ---
 
-**Built with ❤️ for Vietnamese farmers**
+**Built with ❤️ for Vietnamese farmers** 🌾
 

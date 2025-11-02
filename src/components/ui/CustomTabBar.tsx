@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePermissions } from '@/hooks/usePermissions';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -24,6 +25,7 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
   const { permissionsState, requestCameraPermission } = usePermissions();
   const [showPermissionModal, setShowPermissionModal] = useState(false);
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   const tabs = [
     {
@@ -63,9 +65,9 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
   const handleCameraPress = async () => {
     // Check camera permission
     if (permissionsState.camera === 'granted') {
-      // TODO: Open camera modal directly
+      // Navigate to camera modal
       console.log('Opening camera...');
-      // navigation.navigate('camera');
+      router.push('/camera-modal');
     } else {
       // Show permission request modal
       setShowPermissionModal(true);
@@ -76,8 +78,9 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
     const granted = await requestCameraPermission();
     if (granted) {
       setShowPermissionModal(false);
-      // TODO: Open camera modal
+      // Open camera modal after permission granted
       console.log('Permission granted, opening camera...');
+      router.push('/camera-modal');
     }
     return granted;
   };

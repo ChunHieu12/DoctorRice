@@ -10,17 +10,17 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-    ActivityIndicator,
-    Image,
-    ImageBackground,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Image,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const ForgotPasswordScreen: React.FC = () => {
@@ -243,7 +243,7 @@ const ForgotPasswordScreen: React.FC = () => {
               style: 'default',
               onPress: () => {
                 setOtp('');
-                setOtpSent(false);
+                setStep('phone');
                 setCountdown(0);
               },
             },

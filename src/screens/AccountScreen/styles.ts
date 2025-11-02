@@ -103,5 +103,36 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 8,
   },
+  biometricOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  biometricInfo: {
+    flex: 1,
+    marginRight: 12,
+  },
+  biometricHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  biometricTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginLeft: 10,
+  },
+  biometricDescription: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    lineHeight: 18,
+    marginLeft: 34,
+  },
 });
 

@@ -1,7 +1,14 @@
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
-import { deletePhoto, getPhotos, uploadPhoto } from '../controllers/photo.controller';
+import {
+    deletePhoto,
+    getPhotoById,
+    getPhotos,
+    getPhotosForMap,
+    getPhotoStats,
+    uploadPhoto,
+} from '../controllers/photo.controller';
 import { auth } from '../middleware/auth.middleware';
 
 const router = Router();
@@ -32,8 +39,12 @@ const upload = multer({
   },
 });
 
+// Photo management
 router.post('/upload', auth, upload.single('photo'), uploadPhoto);
 router.get('/', auth, getPhotos);
+router.get('/stats', auth, getPhotoStats);
+router.get('/map', auth, getPhotosForMap);
+router.get('/:id', auth, getPhotoById);
 router.delete('/:id', auth, deletePhoto);
 
 export default router;

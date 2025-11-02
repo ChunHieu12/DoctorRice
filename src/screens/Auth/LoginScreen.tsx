@@ -1,10 +1,12 @@
 /**
  * Login Screen
- * Main authentication screen with phone/password login
+ * Main authentication screen with phone/password login + biometric
  */
+import BiometricEnableModal from '@/components/ui/BiometricEnableModal';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { LoadingModal } from '@/components/ui/LoadingModal';
 import { useAuth } from '@/hooks/useAuth';
+import { useBiometricAuth } from '@/hooks/useBiometricAuth';
 import { useCustomAlert } from '@/hooks/useCustomAlert';
 import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
 import * as authService from '@/services/auth.service';
@@ -30,9 +32,20 @@ import {
 const LoginScreen: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation();
-  const { login, setAuthUser } = useAuth();
+  const { login, setAuthUser, setBlockAutoNavigation } = useAuth();
   const { showAlert } = useCustomAlert();
   const { signInWithGoogle, isLoading: isGoogleLoading } = useGoogleSignIn();
+  
+  // Biometric auth hook
+  const {
+    isBiometricSupported,
+    isBiometricEnrolled,
+    isBiometricEnabled,
+    isLoading: isBiometricLoading,
+    getBiometricType,
+    biometricLogin,
+    enableBiometric,
+  } = useBiometricAuth();
 
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -42,15 +55,60 @@ const LoginScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('Loading...');
   const [loadingSavedCredentials, setLoadingSavedCredentials] = useState(true);
+  const [showBiometricModal, setShowBiometricModal] = useState(false);
+  const [biometricType, setBiometricType] = useState('Biometric');
+  const [pendingBiometricCredentials, setPendingBiometricCredentials] = useState<{
+    phone: string;
+    password: string;
+  } | null>(null);
 
   const passwordInputRef = useRef<TextInput>(null);
 
   /**
-   * Load saved credentials on mount
+   * Initialize: Load credentials and check biometric
    */
   useEffect(() => {
-    loadSavedCredentials();
+    initialize();
   }, []);
+
+  /**
+   * Debug: Component mount/unmount tracking
+   */
+  useEffect(() => {
+    console.log('🟢 LoginScreen MOUNTED');
+    return () => {
+      console.log('🔴 LoginScreen UNMOUNTING');
+    };
+  }, []);
+
+  /**
+   * Debug: Track modal visibility state
+   */
+  useEffect(() => {
+    console.log('👁️ Modal Visibility Changed:', {
+      showBiometricModal,
+      isLoading,
+      timestamp: new Date().toLocaleTimeString()
+    });
+  }, [showBiometricModal, isLoading]);
+
+  /**
+   * Debug: Log biometric states whenever they change
+   */
+  useEffect(() => {
+    console.log('🔄 Biometric States Updated:', {
+      isBiometricSupported,
+      isBiometricEnrolled,
+      isBiometricEnabled,
+      isBiometricLoading,
+      timestamp: new Date().toLocaleTimeString()
+    });
+  }, [isBiometricSupported, isBiometricEnrolled, isBiometricEnabled, isBiometricLoading]);
+
+  const initialize = async () => {
+    await loadSavedCredentials();
+    await initializeBiometric();
+  };
 
   const loadSavedCredentials = async () => {
     try {
@@ -68,11 +126,139 @@ const LoginScreen: React.FC = () => {
   };
 
   /**
+   * Initialize biometric and auto-login if enabled
+   */
+  const initializeBiometric = async () => {
+    try {
+      const type = await getBiometricType();
+      setBiometricType(type);
+
+      // Auto-login with biometric if enabled
+      if (isBiometricEnabled && isBiometricSupported && isBiometricEnrolled) {
+        const credentials = await biometricLogin();
+        if (credentials) {
+          // Auto-login with saved credentials
+          await performLogin(credentials.phone, credentials.password, false, true);
+        }
+      }
+    } catch (error) {
+      console.error('Biometric initialization failed:', error);
+    }
+  };
+
+  /**
    * Validate phone number (Vietnamese format)
    */
   const isValidPhone = (phoneNumber: string): boolean => {
     const phoneRegex = /^[0-9]{9,10}$/;
     return phoneRegex.test(phoneNumber);
+  };
+
+  /**
+   * Perform login (used by both manual and biometric login)
+   */
+  const performLogin = async (
+    phoneNumber: string,
+    pwd: string,
+    remember: boolean = false,
+    skipBiometricPrompt: boolean = false
+  ) => {
+    try {
+      // CRITICAL: Check if we need to show biometric modal BEFORE login
+      // If yes, block AuthGuard NOW (before login sets user and triggers AuthGuard)
+      const shouldShowBiometricModal = 
+        !skipBiometricPrompt &&
+        !isBiometricEnabled &&
+        isBiometricSupported &&
+        isBiometricEnrolled &&
+        !isBiometricLoading;
+
+      if (shouldShowBiometricModal) {
+        console.log('🔒 Blocking AuthGuard BEFORE login (will show biometric modal)');
+        setBlockAutoNavigation(true);
+      }
+
+      setIsLoading(true);
+      setLoadingMessage(t('auth.loggingIn') || 'Đang đăng nhập...');
+
+      // Format phone - handle both 0xxx and xxx formats
+      let formattedPhone = phoneNumber;
+      if (!formattedPhone.startsWith('+')) {
+        // Remove leading 0 if present, then add +84
+        const cleanPhone = formattedPhone.startsWith('0')
+          ? formattedPhone.substring(1)
+          : formattedPhone;
+        formattedPhone = `+84${cleanPhone}`;
+      }
+
+      // Login
+      await login(formattedPhone, pwd, remember);
+
+      // IMPORTANT: Stop loading BEFORE showing modal
+      setIsLoading(false);
+
+      // Wait a bit for LoadingModal to unmount completely
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Debug: Log biometric states
+      console.log('🔍 Biometric Check:', {
+        skipBiometricPrompt,
+        isBiometricEnabled,
+        isBiometricSupported,
+        isBiometricEnrolled,
+        isBiometricLoading,
+        shouldShowModal: !skipBiometricPrompt && !isBiometricEnabled && isBiometricSupported && isBiometricEnrolled
+      });
+
+      // Show biometric enable modal if supported and not already enabled
+      // Modal must show AFTER loading is done and BEFORE navigation
+      if (
+        !skipBiometricPrompt &&
+        !isBiometricEnabled &&
+        isBiometricSupported &&
+        isBiometricEnrolled &&
+        !isBiometricLoading
+      ) {
+        console.log('✅ Showing biometric modal');
+        
+        // Store credentials to save if user enables biometric
+        setPendingBiometricCredentials({
+          phone: phoneNumber,
+          password: pwd,
+        });
+        setShowBiometricModal(true);
+        // Navigation will happen in modal callbacks (handleEnableBiometric/handleSkipBiometric)
+      } else {
+        console.log('❌ Skipping biometric modal, navigating immediately. Reasons:', {
+          skipBiometricPrompt: skipBiometricPrompt ? 'Skip prompted' : null,
+          alreadyEnabled: isBiometricEnabled ? 'Already enabled' : null,
+          notSupported: !isBiometricSupported ? 'Not supported' : null,
+          notEnrolled: !isBiometricEnrolled ? 'Not enrolled' : null,
+          stillLoading: isBiometricLoading ? 'Still loading' : null,
+        });
+        // No biometric needed - navigate immediately
+        router.replace('/(tabs)');
+        
+        // Show success message after navigation
+        setTimeout(() => {
+          showAlert({
+            type: 'success',
+            title: t('common.success'),
+            message: t('auth.loginSuccess'),
+            buttons: [{ text: t('common.ok'), style: 'default' }],
+          });
+        }, 500);
+      }
+    } catch (error: any) {
+      setIsLoading(false); // Stop loading on error
+      showAlert({
+        type: 'error',
+        title: t('common.error'),
+        message: error.message || t('auth.invalidCredentials'),
+        buttons: [{ text: t('common.ok'), style: 'default' }],
+      });
+      throw error;
+    }
   };
 
   /**
@@ -121,37 +307,117 @@ const LoginScreen: React.FC = () => {
         return;
       }
 
-      setIsLoading(true);
-      setLoadingMessage(t('auth.loggingIn') || 'Đang đăng nhập...');
+      await performLogin(phone, password, rememberMe);
+    } catch (error) {
+      // Error already handled in performLogin
+    }
+  };
 
-      // Format phone with country code
-      const fullPhone = `+84${phone}`;
+  /**
+   * Handle biometric login button press
+   */
+  const handleBiometricLogin = async () => {
+    try {
+      if (!isBiometricEnabled) {
+        showAlert({
+          type: 'warning',
+          title: t('common.warning'),
+          message: t('biometric.notEnabled', {
+            defaultValue: 'Vui lòng bật đăng nhập sinh trắc học trong Cài đặt.',
+          }),
+          buttons: [{ text: t('common.ok'), style: 'default' }],
+        });
+        return;
+      }
 
-      // Login
-      await login(fullPhone, password, rememberMe);
-
-      showAlert({
-        type: 'success',
-        title: t('common.success'),
-        message: t('auth.loginSuccess'),
-        buttons: [
-          {
-            text: t('common.ok'),
-            style: 'default',
-            onPress: () => router.replace('/(tabs)'),
-          },
-        ],
-      });
+      const credentials = await biometricLogin();
+      if (credentials) {
+        await performLogin(credentials.phone, credentials.password, false, true);
+      }
     } catch (error: any) {
       showAlert({
         type: 'error',
         title: t('common.error'),
-        message: error.message || t('auth.invalidCredentials'),
+        message: error.message || t('biometric.failed', { defaultValue: 'Xác thực thất bại' }),
         buttons: [{ text: t('common.ok'), style: 'default' }],
       });
-    } finally {
-      setIsLoading(false);
     }
+  };
+
+  /**
+   * Handle enable biometric from modal
+   */
+  const handleEnableBiometric = async () => {
+    try {
+      if (!pendingBiometricCredentials) {
+        return;
+      }
+
+      const success = await enableBiometric(pendingBiometricCredentials);
+      
+      // Close modal and navigate regardless of success
+      setShowBiometricModal(false);
+      setPendingBiometricCredentials(null);
+      
+      // Unblock AuthGuard navigation
+      setBlockAutoNavigation(false);
+      
+      // Navigate to home
+      router.replace('/(tabs)');
+      
+      // Show result message after navigation
+      setTimeout(() => {
+        if (success) {
+          showAlert({
+            type: 'success',
+            title: t('common.success'),
+            message: t('biometric.enabled', {
+              defaultValue: 'Đã bật đăng nhập sinh trắc học thành công!',
+            }),
+            buttons: [{ text: t('common.ok'), style: 'default' }],
+          });
+        } else {
+          showAlert({
+            type: 'error',
+            title: t('common.error'),
+            message: t('biometric.enableFailed', {
+              defaultValue: 'Không thể bật đăng nhập sinh trắc học',
+            }),
+            buttons: [{ text: t('common.ok'), style: 'default' }],
+          });
+        }
+      }, 500);
+    } catch (error) {
+      console.error('Enable biometric error:', error);
+      
+      // Still navigate even if error
+      setShowBiometricModal(false);
+      router.replace('/(tabs)');
+    }
+  };
+
+  /**
+   * Handle skip biometric from modal
+   */
+  const handleSkipBiometric = () => {
+    setShowBiometricModal(false);
+    setPendingBiometricCredentials(null);
+    
+    // Unblock AuthGuard navigation
+    setBlockAutoNavigation(false);
+    
+    // Navigate to home
+    router.replace('/(tabs)');
+    
+    // Show success message after navigation
+    setTimeout(() => {
+      showAlert({
+        type: 'success',
+        title: t('common.success'),
+        message: t('auth.loginSuccess'),
+        buttons: [{ text: t('common.ok'), style: 'default' }],
+      });
+    }, 500);
   };
 
   /**
@@ -191,6 +457,19 @@ const LoginScreen: React.FC = () => {
         // Auto-login success - tokens already saved by authService
         console.log('✅ Google Sign-In successful, user:', result.user.name);
         
+        // CRITICAL: Check if we need to show biometric modal BEFORE updating auth state
+        // If yes, block AuthGuard NOW (before setAuthUser triggers AuthGuard)
+        const shouldShowBiometricModal = 
+          !isBiometricEnabled &&
+          isBiometricSupported &&
+          isBiometricEnrolled &&
+          !isBiometricLoading;
+
+        if (shouldShowBiometricModal) {
+          console.log('🔒 Blocking AuthGuard BEFORE setAuthUser (will show biometric modal)');
+          setBlockAutoNavigation(true);
+        }
+        
         // Update auth context with user data immediately
         setAuthUser({
           id: result.user.id,
@@ -199,22 +478,58 @@ const LoginScreen: React.FC = () => {
           avatar: result.user.avatar,
         });
         
-        console.log('✅ Auth state updated, navigating to home...');
+        console.log('✅ Auth state updated');
         
-        // Navigate to home immediately
-        router.replace('/(tabs)');
+        // IMPORTANT: Stop loading BEFORE showing modal
+        setIsLoading(false);
         
-        // Show success notification after navigation
-        setTimeout(() => {
-          showAlert({
-            type: 'success',
-            title: t('common.success'),
-            message: `${t('auth.googleLoginSuccess')} ${result.user?.name || ''}`,
-            buttons: [{ text: t('common.ok'), style: 'default' }],
-          });
-        }, 500);
+        // Wait a bit for LoadingModal to unmount completely
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        console.log('🔍 Biometric Check (Google):', {
+          isBiometricEnabled,
+          isBiometricSupported,
+          isBiometricEnrolled,
+          isBiometricLoading,
+        });
+        
+        // Show biometric enable modal if supported and not already enabled
+        // Modal must show AFTER loading is done and BEFORE navigation
+        // Note: For Google login, we don't have password, so biometric won't work for password-based login
+        // But we still show the modal for consistency
+        if (
+          !isBiometricEnabled &&
+          isBiometricSupported &&
+          isBiometricEnrolled &&
+          !isBiometricLoading
+        ) {
+        console.log('✅ Showing biometric modal (Google)');
+        
+        // Store phone/email for biometric (no password for Google login)
+        setPendingBiometricCredentials({
+          phone: result.user.email || '',
+          password: '', // No password for Google login
+        });
+        setShowBiometricModal(true);
+        // Navigation will happen in modal callbacks
+        } else {
+          console.log('❌ Skipping biometric modal (Google)');
+          // No biometric needed - navigate immediately
+          router.replace('/(tabs)');
+          
+          // Show success notification after navigation
+          setTimeout(() => {
+            showAlert({
+              type: 'success',
+              title: t('common.success'),
+              message: `${t('auth.googleLoginSuccess')} ${result.user?.name || ''}`,
+              buttons: [{ text: t('common.ok'), style: 'default' }],
+            });
+          }, 500);
+        }
       }
     } catch (error: any) {
+      setIsLoading(false); // Stop loading on error
       console.error('Google Sign-In Error:', error);
       showAlert({
         type: 'error',
@@ -222,8 +537,6 @@ const LoginScreen: React.FC = () => {
         message: error.message || t('auth.googleLoginFailed'),
         buttons: [{ text: t('common.ok'), style: 'default' }],
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -405,8 +718,9 @@ const LoginScreen: React.FC = () => {
               <View style={styles.dividerLine} />
             </View>
 
-            {/* Google Login Button */}
+            {/* Social & Biometric Login Buttons */}
             <View style={styles.socialContainer}>
+              {/* Google Login */}
               <TouchableOpacity 
                 style={[
                   styles.socialButton,
@@ -426,6 +740,30 @@ const LoginScreen: React.FC = () => {
                   />
                 )}
               </TouchableOpacity>
+
+              {/* Biometric Login */}
+              {isBiometricSupported && isBiometricEnrolled && (
+                <TouchableOpacity 
+                  style={[
+                    styles.socialButton,
+                    styles.biometricButton,
+                    (!agreeTerms || isBiometricLoading || !isBiometricEnabled) && styles.socialButtonDisabled
+                  ]}
+                  disabled={!agreeTerms || isBiometricLoading || !isBiometricEnabled}
+                  onPress={handleBiometricLogin}
+                  activeOpacity={0.7}
+                >
+                  {isBiometricLoading ? (
+                    <ActivityIndicator size="small" color="#4CAF50" />
+                  ) : (
+                    <Ionicons 
+                      name={biometricType.toLowerCase().includes('face') ? 'scan' : 'finger-print'} 
+                      size={24} 
+                      color={(!agreeTerms || !isBiometricEnabled) ? '#999' : '#4CAF50'} 
+                    />
+                  )}
+                </TouchableOpacity>
+              )}
             </View>
 
             {/* OTP Login Link */}
@@ -441,6 +779,14 @@ const LoginScreen: React.FC = () => {
 
       {/* Loading Modal */}
       <LoadingModal visible={isLoading} message={loadingMessage} />
+
+      {/* Biometric Enable Modal */}
+      <BiometricEnableModal
+        visible={showBiometricModal}
+        biometricType={biometricType}
+        onEnable={handleEnableBiometric}
+        onSkip={handleSkipBiometric}
+      />
     </ImageBackground>
   );
 };
@@ -622,6 +968,7 @@ const styles = StyleSheet.create({
   socialContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
+    gap: 16,
     marginBottom: 16,
   },
   socialButton: {
@@ -633,6 +980,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#E0E0E0',
+  },
+  biometricButton: {
+    borderColor: '#4CAF50',
+    backgroundColor: '#E8F5E9',
   },
   socialButtonDisabled: {
     opacity: 0.5,

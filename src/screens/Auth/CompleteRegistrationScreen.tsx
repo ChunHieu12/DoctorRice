@@ -2,11 +2,13 @@
  * Complete Registration Screen
  * For new users after OTP verification
  */
+import BiometricEnableModal from '@/components/ui/BiometricEnableModal';
 import { useAuth } from '@/hooks/useAuth';
+import { useBiometricAuth } from '@/hooks/useBiometricAuth';
 import { useCustomAlert } from '@/hooks/useCustomAlert';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
@@ -25,9 +27,18 @@ import {
 const CompleteRegistrationScreen: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation();
-  const { completeRegistration } = useAuth();
+  const { completeRegistration, setBlockAutoNavigation } = useAuth();
   const { showAlert } = useCustomAlert();
   const params = useLocalSearchParams();
+  
+  // Biometric auth hook
+  const {
+    isBiometricSupported,
+    isBiometricEnrolled,
+    isBiometricEnabled,
+    getBiometricType,
+    enableBiometric,
+  } = useBiometricAuth();
 
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
@@ -35,11 +46,26 @@ const CompleteRegistrationScreen: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showBiometricModal, setShowBiometricModal] = useState(false);
+  const [biometricType, setBiometricType] = useState('Biometric');
+  const [pendingBiometricCredentials, setPendingBiometricCredentials] = useState<{
+    phone: string;
+    password: string;
+  } | null>(null);
 
   const passwordInputRef = useRef<TextInput>(null);
   const confirmPasswordInputRef = useRef<TextInput>(null);
 
   const phone = params.phone as string;
+
+  // Initialize biometric type
+  useEffect(() => {
+    const initBiometric = async () => {
+      const type = await getBiometricType();
+      setBiometricType(type);
+    };
+    initBiometric();
+  }, []);
 
   /**
    * Validate password strength
@@ -131,33 +157,139 @@ const CompleteRegistrationScreen: React.FC = () => {
         return;
       }
 
+      // CRITICAL: Check if we need to show biometric modal BEFORE registration
+      // If yes, block AuthGuard NOW (before completeRegistration sets user and triggers AuthGuard)
+      const shouldShowBiometricModal = 
+        !isBiometricEnabled &&
+        isBiometricSupported &&
+        isBiometricEnrolled;
+
+      if (shouldShowBiometricModal) {
+        console.log('🔒 Blocking AuthGuard BEFORE completeRegistration (will show biometric modal)');
+        setBlockAutoNavigation(true);
+      }
+
       setIsLoading(true);
 
       // Complete registration
       await completeRegistration(phone, name, password);
+      
+      // IMPORTANT: Stop loading BEFORE showing modal
+      setIsLoading(false);
 
-      showAlert({
-        type: 'success',
-        title: t('common.success'),
-        message: t('auth.registerSuccess'),
-        buttons: [
-          {
-            text: t('common.ok'),
-            style: 'default',
-            onPress: () => router.replace('/(tabs)'),
-          },
-        ],
-      });
+      // Show biometric enable modal if supported and not already enabled
+      // Modal must show AFTER loading is done and BEFORE navigation
+      if (
+        !isBiometricEnabled &&
+        isBiometricSupported &&
+        isBiometricEnrolled
+      ) {
+        // Store credentials to save if user enables biometric
+        setPendingBiometricCredentials({
+          phone,
+          password,
+        });
+        setShowBiometricModal(true);
+        // Navigation will happen in modal callbacks
+      } else {
+        // No biometric needed - navigate immediately
+        router.replace('/(tabs)');
+        
+        // Show success message after navigation
+        setTimeout(() => {
+          showAlert({
+            type: 'success',
+            title: t('common.success'),
+            message: t('auth.registerSuccess'),
+            buttons: [{ text: t('common.ok'), style: 'default' }],
+          });
+        }, 500);
+      }
     } catch (error: any) {
+      setIsLoading(false); // Stop loading on error
       showAlert({
         type: 'error',
         title: t('common.error'),
         message: error.message || 'Registration failed',
         buttons: [{ text: t('common.ok'), style: 'default' }],
       });
-    } finally {
-      setIsLoading(false);
     }
+  };
+
+  /**
+   * Handle enable biometric from modal
+   */
+  const handleEnableBiometric = async () => {
+    try {
+      if (!pendingBiometricCredentials) {
+        return;
+      }
+
+      const success = await enableBiometric(pendingBiometricCredentials);
+      
+      // Close modal and navigate regardless of success
+      setShowBiometricModal(false);
+      setPendingBiometricCredentials(null);
+      
+      // Unblock AuthGuard navigation
+      setBlockAutoNavigation(false);
+      
+      // Navigate to home
+      router.replace('/(tabs)');
+      
+      // Show result message after navigation
+      setTimeout(() => {
+        if (success) {
+          showAlert({
+            type: 'success',
+            title: t('common.success'),
+            message: t('biometric.enabled', {
+              defaultValue: 'Đã bật đăng nhập sinh trắc học thành công!',
+            }),
+            buttons: [{ text: t('common.ok'), style: 'default' }],
+          });
+        } else {
+          showAlert({
+            type: 'error',
+            title: t('common.error'),
+            message: t('biometric.enableFailed', {
+              defaultValue: 'Không thể bật đăng nhập sinh trắc học',
+            }),
+            buttons: [{ text: t('common.ok'), style: 'default' }],
+          });
+        }
+      }, 500);
+    } catch (error) {
+      console.error('Enable biometric error:', error);
+      
+      // Still navigate even if error
+      setShowBiometricModal(false);
+      router.replace('/(tabs)');
+    }
+  };
+
+  /**
+   * Handle skip biometric from modal
+   */
+  const handleSkipBiometric = () => {
+    setShowBiometricModal(false);
+    setPendingBiometricCredentials(null);
+    
+    // Unblock AuthGuard navigation
+    setBlockAutoNavigation(false);
+    
+    // Navigate to home
+    router.replace('/(tabs)');
+    
+    // Show success message after navigation
+    setTimeout(() => {
+      showAlert({
+        type: 'success',
+        title: t('common.success'),
+        message: t('auth.registerSuccess'),
+        buttons: [{ text: t('common.ok'), style: 'default' }],
+      });
+    }, 500);
   };
 
   return (
@@ -324,6 +456,14 @@ const CompleteRegistrationScreen: React.FC = () => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Biometric Enable Modal */}
+      <BiometricEnableModal
+        visible={showBiometricModal}
+        biometricType={biometricType}
+        onEnable={handleEnableBiometric}
+        onSkip={handleSkipBiometric}
+      />
     </ImageBackground>
   );
 };

@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
+import { validateCloudinaryConfig } from './config/cloudinary';
 import { connectDatabase } from './config/database';
 import { swaggerSpec } from './config/swagger';
 import { startKeepAliveJob } from './jobs/keepAlive';
@@ -81,6 +82,9 @@ async function startServer() {
     // Initialize Firebase Admin
     initializeFirebaseAdmin();
 
+    // Validate Cloudinary configuration
+    validateCloudinaryConfig();
+
     // Start keep-alive job
     startKeepAliveJob();
 
@@ -89,6 +93,7 @@ async function startServer() {
       logger.info(`🚀 Server running on port ${PORT}`);
       logger.info(`📚 API Docs: http://localhost:${PORT}/api/docs`);
       logger.info(`🏥 Health: http://localhost:${PORT}/api/health`);
+      logger.info(`🤖 AI Service: ${process.env.AI_SERVICE_URL || 'Not configured'}`);
     });
   } catch (error) {
     logger.error('Failed to start server:', error);

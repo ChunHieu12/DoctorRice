@@ -31,6 +31,7 @@ export const useGoogleSignIn = () => {
 
   /**
    * Sign in with Google
+   * Always shows account picker (no cached account)
    * @returns Firebase User Credential
    */
   const signInWithGoogle = async () => {
@@ -43,6 +44,18 @@ export const useGoogleSignIn = () => {
 
       // Check if device supports Google Play Services
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+
+      // Sign out first to force account picker dialog
+      // This ensures user always sees account selection modal
+      try {
+        const isSignedIn = await GoogleSignin.isSignedIn();
+        if (isSignedIn) {
+          await GoogleSignin.signOut();
+        }
+      } catch (signOutError) {
+        // Ignore signOut errors - continue with sign in
+        console.log('Sign out before sign in (expected):', signOutError);
+      }
 
       // Get user info and ID token
       // Version 16+ returns: { type: 'success', data: { idToken, user, ... } }

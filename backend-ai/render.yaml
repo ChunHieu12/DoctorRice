@@ -1,0 +1,19 @@
+services:
+  # Python AI Service
+  - type: web
+    name: doctorrice-ai-service
+    env: docker
+    region: singapore
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: MODEL_PATH
+        value: model/model.tflite
+      - key: PYTHON_VERSION
+        value: 3.11
+    healthCheckPath: /health
+    autoDeploy: true
+

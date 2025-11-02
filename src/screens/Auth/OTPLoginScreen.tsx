@@ -2,8 +2,10 @@
  * OTP Login Screen
  * Quick login with phone OTP verification via Firebase
  */
+import BiometricEnableModal from '@/components/ui/BiometricEnableModal';
 import { LoadingModal } from '@/components/ui/LoadingModal';
 import { useAuth } from '@/hooks/useAuth';
+import { useBiometricAuth } from '@/hooks/useBiometricAuth';
 import { useCustomAlert } from '@/hooks/useCustomAlert';
 import { useFirebasePhoneAuth } from '@/hooks/useFirebasePhoneAuth';
 import * as authService from '@/services/auth.service';
@@ -28,9 +30,18 @@ import {
 const OTPLoginScreen: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation();
-  const { setAuthUser } = useAuth();
+  const { setAuthUser, setBlockAutoNavigation } = useAuth();
   const { showAlert } = useCustomAlert();
   const { sendOTP, verifyOTP, getFirebaseToken, isLoading: isFirebaseLoading } = useFirebasePhoneAuth();
+  
+  // Biometric auth hook
+  const {
+    isBiometricSupported,
+    isBiometricEnrolled,
+    isBiometricEnabled,
+    getBiometricType,
+    enableBiometric,
+  } = useBiometricAuth();
 
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
@@ -38,8 +49,23 @@ const OTPLoginScreen: React.FC = () => {
   const [countdown, setCountdown] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('Loading...');
+  const [showBiometricModal, setShowBiometricModal] = useState(false);
+  const [biometricType, setBiometricType] = useState('Biometric');
+  const [pendingBiometricCredentials, setPendingBiometricCredentials] = useState<{
+    phone: string;
+    password: string;
+  } | null>(null);
 
   const otpInputRef = useRef<TextInput>(null);
+
+  // Initialize biometric type
+  useEffect(() => {
+    const initBiometric = async () => {
+      const type = await getBiometricType();
+      setBiometricType(type);
+    };
+    initBiometric();
+  }, []);
 
   // Countdown timer
   useEffect(() => {
@@ -148,6 +174,18 @@ const OTPLoginScreen: React.FC = () => {
         // User exists - logged in successfully
         console.log('✅ OTP Login successful, user:', result.user.name);
         
+        // CRITICAL: Check if we need to show biometric modal BEFORE updating auth state
+        // If yes, block AuthGuard NOW (before setAuthUser triggers AuthGuard)
+        const shouldShowBiometricModal = 
+          !isBiometricEnabled &&
+          isBiometricSupported &&
+          isBiometricEnrolled;
+
+        if (shouldShowBiometricModal) {
+          console.log('🔒 Blocking AuthGuard BEFORE setAuthUser (will show biometric modal)');
+          setBlockAutoNavigation(true);
+        }
+        
         // Update auth context with user data
         setAuthUser({
           id: result.user.id,
@@ -155,22 +193,42 @@ const OTPLoginScreen: React.FC = () => {
           name: result.user.name,
         });
         
-        console.log('✅ Auth state updated, navigating to home...');
+        console.log('✅ Auth state updated');
         
         setIsLoading(false);
         
-        // Navigate to home immediately
-        router.replace('/(tabs)');
-        
-        // Show success notification after navigation
-        setTimeout(() => {
-          showAlert({
-            type: 'success',
-            title: t('common.success'),
-            message: t('auth.loginSuccess'),
-            buttons: [{ text: t('common.ok'), style: 'default' }],
+        // Show biometric enable modal if supported and not already enabled
+        // IMPORTANT: Show modal BEFORE navigation
+        // Note: We don't have password for OTP login, so we use phone as identifier
+        if (
+          !isBiometricEnabled &&
+          isBiometricSupported &&
+          isBiometricEnrolled
+        ) {
+          // For OTP login, we can't save credentials (no password)
+          // But we can still offer biometric for future password-based logins
+          
+          // Store phone only for now
+          setPendingBiometricCredentials({
+            phone: fullPhone,
+            password: '', // No password in OTP flow
           });
-        }, 500);
+          setShowBiometricModal(true);
+          // Navigation will happen in modal callbacks
+        } else {
+          // No biometric needed - navigate immediately
+          router.replace('/(tabs)');
+          
+          // Show success message after navigation
+          setTimeout(() => {
+            showAlert({
+              type: 'success',
+              title: t('common.success'),
+              message: t('auth.loginSuccess'),
+              buttons: [{ text: t('common.ok'), style: 'default' }],
+            });
+          }, 500);
+        }
       } else {
         // New user - navigate to complete registration
         setIsLoading(false);
@@ -221,6 +279,84 @@ const OTPLoginScreen: React.FC = () => {
         });
       }
     }
+  };
+
+  /**
+   * Handle enable biometric from modal
+   */
+  const handleEnableBiometric = async () => {
+    try {
+      if (!pendingBiometricCredentials) {
+        return;
+      }
+
+      // Note: For OTP login, we only have phone (no password)
+      // Biometric will only work if user sets up password later
+      const success = await enableBiometric(pendingBiometricCredentials);
+      
+      // Close modal and navigate regardless of success
+      setShowBiometricModal(false);
+      setPendingBiometricCredentials(null);
+      
+      // Unblock AuthGuard navigation
+      setBlockAutoNavigation(false);
+      
+      // Navigate to home
+      router.replace('/(tabs)');
+      
+      // Show result message after navigation
+      setTimeout(() => {
+        if (success) {
+          showAlert({
+            type: 'success',
+            title: t('common.success'),
+            message: t('biometric.enabled', {
+              defaultValue: 'Đã bật đăng nhập sinh trắc học thành công!',
+            }),
+            buttons: [{ text: t('common.ok'), style: 'default' }],
+          });
+        } else {
+          showAlert({
+            type: 'error',
+            title: t('common.error'),
+            message: t('biometric.enableFailed', {
+              defaultValue: 'Không thể bật đăng nhập sinh trắc học',
+            }),
+            buttons: [{ text: t('common.ok'), style: 'default' }],
+          });
+        }
+      }, 500);
+    } catch (error) {
+      console.error('Enable biometric error:', error);
+      
+      // Still navigate even if error
+      setShowBiometricModal(false);
+      router.replace('/(tabs)');
+    }
+  };
+
+  /**
+   * Handle skip biometric from modal
+   */
+  const handleSkipBiometric = () => {
+    setShowBiometricModal(false);
+    setPendingBiometricCredentials(null);
+    
+    // Unblock AuthGuard navigation
+    setBlockAutoNavigation(false);
+    
+    // Navigate to home
+    router.replace('/(tabs)');
+    
+    // Show success message after navigation
+    setTimeout(() => {
+      showAlert({
+        type: 'success',
+        title: t('common.success'),
+        message: t('auth.loginSuccess'),
+        buttons: [{ text: t('common.ok'), style: 'default' }],
+      });
+    }, 500);
   };
 
   /**
@@ -362,6 +498,14 @@ const OTPLoginScreen: React.FC = () => {
 
       {/* Loading Modal */}
       <LoadingModal visible={isLoading} message={loadingMessage} />
+
+      {/* Biometric Enable Modal */}
+      <BiometricEnableModal
+        visible={showBiometricModal}
+        biometricType={biometricType}
+        onEnable={handleEnableBiometric}
+        onSkip={handleSkipBiometric}
+      />
     </ImageBackground>
   );
 };

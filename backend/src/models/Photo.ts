@@ -5,15 +5,24 @@ export interface IPhoto extends Document {
   originalUrl: string;
   watermarkedUrl: string;
   thumbnailUrl?: string;
+  cloudinaryPublicId?: string;
   metadata: {
     lat: number;
     lng: number;
     timestamp: number;
     device: string;
     orientation: 'portrait' | 'landscape';
+    address?: string;
+  };
+  prediction?: {
+    class: string; // 'bacterial_leaf_blight' | 'blast' | 'brown_spot' | 'healthy'
+    classVi: string; // Vietnamese label
+    confidence: number; // 0-100
+    allPredictions?: Record<string, number>;
   };
   status: 'processing' | 'completed' | 'failed';
   fileSize: number;
+  errorMessage?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,6 +44,9 @@ const PhotoSchema = new Schema<IPhoto>(
       required: true,
     },
     thumbnailUrl: {
+      type: String,
+    },
+    cloudinaryPublicId: {
       type: String,
     },
     metadata: {
@@ -59,6 +71,27 @@ const PhotoSchema = new Schema<IPhoto>(
         enum: ['portrait', 'landscape'],
         default: 'portrait',
       },
+      address: {
+        type: String,
+      },
+    },
+    prediction: {
+      class: {
+        type: String,
+        enum: ['bacterial_leaf_blight', 'blast', 'brown_spot', 'healthy'],
+      },
+      classVi: {
+        type: String,
+      },
+      confidence: {
+        type: Number,
+        min: 0,
+        max: 100,
+      },
+      allPredictions: {
+        type: Map,
+        of: Number,
+      },
     },
     status: {
       type: String,
@@ -68,6 +101,9 @@ const PhotoSchema = new Schema<IPhoto>(
     fileSize: {
       type: Number,
       required: true,
+    },
+    errorMessage: {
+      type: String,
     },
   },
   {

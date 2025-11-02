@@ -28,6 +28,24 @@ const signToken = (payload: object, secret: string, expiresIn: string): string =
 };
 
 /**
+ * Helper function to clean up old sessions before creating new one
+ * Prevents session accumulation and potential conflicts
+ */
+const cleanupOldSessions = async (userId: any): Promise<void> => {
+  try {
+    const result = await Session.deleteMany({ 
+      userId,
+      expiresAt: { $lt: new Date() } // Only delete expired sessions
+    });
+    if (result.deletedCount > 0) {
+      console.log(`🧹 Cleaned up ${result.deletedCount} expired session(s) for user: ${userId}`);
+    }
+  } catch (error) {
+    console.error('⚠️ Failed to cleanup old sessions (non-critical):', error);
+  }
+};
+
+/**
  * @swagger
  * /auth/register:
  *   post:
@@ -436,6 +454,9 @@ export const verifyOTPCode = async (req: Request, res: Response) => {
         REFRESH_TOKEN_EXPIRES
       );
 
+      // Cleanup old sessions
+      await cleanupOldSessions(user._id);
+      
       // Save refresh token
       await Session.create({
         userId: user._id,

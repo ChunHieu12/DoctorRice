@@ -1,11 +1,12 @@
 import { useAuth } from '@/hooks/useAuth';
+import { useBiometricAuth } from '@/hooks/useBiometricAuth';
 import { useCustomAlert } from '@/hooks/useCustomAlert';
 import * as authService from '@/services/auth.service';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 
 import { changeLanguage } from '@/i18n';
 import { styles } from './styles';
@@ -21,8 +22,100 @@ export default function AccountScreen() {
   const currentLanguage = i18n.language;
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Biometric auth
+  const {
+    isBiometricSupported,
+    isBiometricEnrolled,
+    isBiometricEnabled,
+    getBiometricType,
+    enableBiometric: enableBio,
+    disableBiometric,
+    checkBiometricEnabled,
+  } = useBiometricAuth();
+
+  const [biometricType, setBiometricType] = useState('Biometric');
+  const [isBiometricSwitching, setIsBiometricSwitching] = useState(false);
+
+  /**
+   * Initialize biometric type on mount
+   */
+  useEffect(() => {
+    const init = async () => {
+      const type = await getBiometricType();
+      setBiometricType(type);
+    };
+    init();
+  }, []);
+
   const handleChangeLanguage = async (lang: 'vi' | 'en') => {
     await changeLanguage(lang);
+  };
+
+  /**
+   * Handle toggle biometric
+   */
+  const handleToggleBiometric = async (value: boolean) => {
+    try {
+      setIsBiometricSwitching(true);
+
+      if (value) {
+        // Enable biometric - need credentials
+        showAlert({
+          type: 'info',
+          title: t('biometric.setupRequired', { defaultValue: 'Cần xác thực' }),
+          message: t('biometric.setupMessage', {
+            defaultValue: 'Để bật đăng nhập sinh trắc học, bạn cần đăng nhập lại để lưu thông tin xác thực.',
+          }),
+          buttons: [
+            {
+              text: t('common.cancel'),
+              style: 'cancel',
+            },
+            {
+              text: t('common.ok'),
+              style: 'default',
+              onPress: async () => {
+                // Logout and redirect to login
+                await logout();
+                router.replace('/auth/login');
+              },
+            },
+          ],
+        });
+      } else {
+        // Disable biometric
+        const success = await disableBiometric();
+        if (success) {
+          await checkBiometricEnabled(); // Refresh state
+          showAlert({
+            type: 'success',
+            title: t('common.success'),
+            message: t('biometric.disabled', {
+              defaultValue: 'Đã tắt đăng nhập sinh trắc học.',
+            }),
+            buttons: [{ text: t('common.ok'), style: 'default' }],
+          });
+        } else {
+          showAlert({
+            type: 'error',
+            title: t('common.error'),
+            message: t('biometric.disableFailed', {
+              defaultValue: 'Không thể tắt đăng nhập sinh trắc học.',
+            }),
+            buttons: [{ text: t('common.ok'), style: 'default' }],
+          });
+        }
+      }
+    } catch (error: any) {
+      showAlert({
+        type: 'error',
+        title: t('common.error'),
+        message: error.message || 'Failed to toggle biometric',
+        buttons: [{ text: t('common.ok'), style: 'default' }],
+      });
+    } finally {
+      setIsBiometricSwitching(false);
+    }
   };
 
   /**
@@ -159,6 +252,42 @@ export default function AccountScreen() {
           {currentLanguage === 'en' && <Text style={styles.checkmark}>✓</Text>}
         </TouchableOpacity>
       </View>
+
+      {/* Biometric Section */}
+      {isBiometricSupported && isBiometricEnrolled && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
+            {t('settings.security', { defaultValue: 'Bảo mật' })}
+          </Text>
+          
+          <View style={styles.biometricOption}>
+            <View style={styles.biometricInfo}>
+              <View style={styles.biometricHeader}>
+                <Ionicons 
+                  name={biometricType.toLowerCase().includes('face') ? 'scan' : 'finger-print'} 
+                  size={24} 
+                  color="#4CAF50" 
+                />
+                <Text style={styles.biometricTitle}>
+                  {t('biometric.loginWith', { defaultValue: 'Đăng nhập bằng' })} {biometricType}
+                </Text>
+              </View>
+              <Text style={styles.biometricDescription}>
+                {t('biometric.description', {
+                  defaultValue: 'Đăng nhập nhanh chóng và bảo mật với sinh trắc học.',
+                })}
+              </Text>
+            </View>
+            <Switch
+              value={isBiometricEnabled}
+              onValueChange={handleToggleBiometric}
+              disabled={isBiometricSwitching}
+              trackColor={{ false: '#D0D0D0', true: '#81C784' }}
+              thumbColor={isBiometricEnabled ? '#4CAF50' : '#f4f3f4'}
+            />
+          </View>
+        </View>
+      )}
 
       {/* About Section */}
       <View style={styles.section}>

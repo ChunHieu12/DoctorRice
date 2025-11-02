@@ -60,14 +60,16 @@ export const useFirebasePhoneAuth = () => {
         console.log('🔑 Verification ID stored:', confirmationResult.verificationId.substring(0, 20) + '...');
       }
       
-      // Set expiration time with safety buffer (58s instead of 60s to account for network delays)
-      const expireTime = Date.now() + 58000;
+      // Set expiration time with realistic buffer
+      // Firebase Phone Auth typically expires after ~120s (SMS validity)
+      // But we'll use 90s as safety buffer for better UX
+      const expireTime = Date.now() + 90000;
       setOtpExpireTime(expireTime);
       
       console.log('✅ OTP sent successfully via Firebase to:', phoneNumber);
       console.log('⏰ OTP will expire at:', new Date(expireTime).toLocaleTimeString());
       console.log('⏰ Current time:', new Date().toLocaleTimeString());
-      console.log('⏰ Safety buffer: 58 seconds (instead of 60)');
+      console.log('⏰ Expire buffer: 90 seconds');
     } catch (error: any) {
       console.error('❌ Firebase sendOTP error:', error);
       throw new Error(error.message || 'Failed to send OTP');
@@ -95,6 +97,7 @@ export const useFirebasePhoneAuth = () => {
 
   /**
    * Verify OTP code
+   * Uses PhoneAuthProvider.credential() for better stability
    * @param code - 6-digit OTP code
    * @returns Firebase User Credential
    */
@@ -105,17 +108,13 @@ export const useFirebasePhoneAuth = () => {
       console.log('📋 OTP expire time:', otpExpireTime ? new Date(otpExpireTime).toLocaleTimeString() : 'Not set');
       console.log('📋 Time remaining:', otpExpireTime ? Math.max(0, Math.floor((otpExpireTime - Date.now()) / 1000)) + 's' : 'N/A');
       
-      if (!confirmation) {
-        console.error('❌ No confirmation object!');
-        throw new Error('No confirmation result. Please request OTP first.');
+      // Check if we have verificationId (more reliable than confirmation object)
+      if (!verificationId) {
+        console.error('❌ No verification ID!');
+        throw new Error('No verification ID found. Please request OTP first.');
       }
 
-      console.log('✅ Confirmation exists:', {
-        hasVerificationId: !!confirmation.verificationId,
-        storedVerificationId: verificationId?.substring(0, 20) + '...',
-        hasConfirmFunction: typeof confirmation.confirm === 'function',
-        confirmationAge: otpExpireTime ? `${Math.floor((60000 - (otpExpireTime - Date.now())) / 1000)}s old` : 'unknown',
-      });
+      console.log('✅ Verification ID exists:', verificationId.substring(0, 20) + '...');
 
       // Check if OTP expired before attempting verification
       const expired = isOTPExpired();
@@ -131,13 +130,19 @@ export const useFirebasePhoneAuth = () => {
 
       setIsLoading(true);
       
-      console.log('📤 Calling confirmation.confirm() with code...');
+      console.log('📤 Creating credential with verificationId and code...');
       const confirmStartTime = Date.now();
 
-      // Confirm the OTP code
-      const userCredential = await confirmation.confirm(code);
+      // Create credential using PhoneAuthProvider (more stable than confirmation.confirm())
+      const credential = auth.PhoneAuthProvider.credential(verificationId, code);
       
-      console.log('✅ confirmation.confirm() returned in', Date.now() - confirmStartTime + 'ms');
+      console.log('✅ Credential created in', Date.now() - confirmStartTime + 'ms');
+      console.log('📤 Signing in with credential...');
+      
+      // Sign in with the credential
+      const userCredential = await auth().signInWithCredential(credential);
+      
+      console.log('✅ signInWithCredential() completed in', Date.now() - confirmStartTime + 'ms');
       
       // Verify we got a valid credential
       if (!userCredential) {
@@ -151,6 +156,15 @@ export const useFirebasePhoneAuth = () => {
       console.log('✅ OTP verified successfully!');
       console.log('👤 User UID:', userCredential.user.uid);
       console.log('📧 User phone:', userCredential.user.phoneNumber);
+      
+      // IMPORTANT: Get fresh ID token immediately after verification
+      // This ensures token is valid when sent to backend
+      try {
+        const freshToken = await userCredential.user.getIdToken(true); // true = force refresh
+        console.log('🔑 Fresh token obtained immediately after verification');
+      } catch (tokenError) {
+        console.warn('⚠️ Failed to get fresh token (non-critical):', tokenError);
+      }
       
       return userCredential;
     } catch (error: any) {
@@ -178,6 +192,7 @@ export const useFirebasePhoneAuth = () => {
 
   /**
    * Get Firebase ID Token (for backend verification)
+   * Always gets a fresh token to avoid expiration issues
    * @returns Firebase ID Token
    */
   const getFirebaseToken = async (): Promise<string> => {
@@ -187,7 +202,12 @@ export const useFirebasePhoneAuth = () => {
         throw new Error('No authenticated user');
       }
 
-      const token = await currentUser.getIdToken();
+      // Force refresh token to get the most recent one (avoid expiration)
+      // This is critical for backend verification
+      console.log('🔄 Getting fresh Firebase token (force refresh)...');
+      const token = await currentUser.getIdToken(true); // true = force refresh
+      console.log('✅ Fresh token obtained, length:', token.length);
+      
       return token;
     } catch (error: any) {
       console.error('❌ Firebase getToken error:', error);

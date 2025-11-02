@@ -140,6 +140,7 @@
     "account": "Account",
     "profile": "Profile",
     "privacy": "Privacy",
+    "security": "Security",
     "about": "About",
     "version": "Version",
     "logout": "Logout",
@@ -148,6 +149,27 @@
     "deleteAccountConfirm": "Are you sure you want to delete your account? This action cannot be undone!",
     "deleteAccountSuccess": "Account has been deleted successfully",
     "userInfo": "User Information"
+  },
+
+  "biometric": {
+    "enableTitle": "Enable Quick Login?",
+    "enableDescription": "Use {{biometricType}} for quick and secure login next time.",
+    "feature1": "Quick login",
+    "feature2": "High security",
+    "feature3": "No need to remember password",
+    "enable": "Enable Now",
+    "skip": "Later",
+    "infoText": "You can enable/disable this feature in Settings anytime.",
+    "loginWith": "Login with",
+    "description": "Quick and secure login with biometric.",
+    "enabled": "Biometric login enabled successfully!",
+    "disabled": "Biometric login disabled.",
+    "enableFailed": "Failed to enable biometric login",
+    "disableFailed": "Failed to disable biometric login.",
+    "notEnabled": "Please enable biometric login in Settings.",
+    "failed": "Authentication failed",
+    "setupRequired": "Authentication Required",
+    "setupMessage": "To enable biometric login, you need to login again to save credentials."
   },
 
   "home": {

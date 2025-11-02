@@ -21,12 +21,18 @@ export const unstable_settings = {
  * Handles navigation based on auth state
  */
 function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, blockAutoNavigation } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
     if (isLoading) return;
+
+    // Don't auto-navigate if blocked (e.g., showing biometric modal)
+    if (blockAutoNavigation) {
+      console.log('🚫 Auto-navigation blocked (biometric modal may be showing)');
+      return;
+    }
 
     const inAuthGroup = segments[0] === 'auth';
 
@@ -37,9 +43,10 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     } else if (isAuthenticated && inAuthGroup) {
       // User authenticated but still in auth routes
       // Redirect to home
+      console.log('✅ AuthGuard: Auto-navigating to home');
       router.replace('/(tabs)');
     }
-  }, [isAuthenticated, isLoading, segments]);
+  }, [isAuthenticated, isLoading, segments, blockAutoNavigation]);
 
   // Show loading screen while checking auth
   if (isLoading) {

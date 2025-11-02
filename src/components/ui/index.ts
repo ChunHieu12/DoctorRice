@@ -4,11 +4,13 @@
 
 export { Alert, useAlert } from './Alert';
 export { default as AppHeader } from './AppHeader';
+export { default as BiometricEnableModal } from './BiometricEnableModal';
 export { Button } from './Button';
 export { default as CustomAlert } from './CustomAlert';
 export { default as CustomTabBar } from './CustomTabBar';
 export { Input } from './Input';
 export { default as LanguageSwitcher } from './LanguageSwitcher';
+export { LoadingModal } from './LoadingModal';
 export { Modal } from './Modal';
 export { default as PermissionRequestModal } from './PermissionRequestModal';
 export { default as SimpleLanguageSwitcher } from './SimpleLanguageSwitcher';

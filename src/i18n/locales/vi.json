@@ -102,6 +102,12 @@
     "takePicture": "Chụp ảnh",
     "retake": "Chụp lại",
     "usePhoto": "Sử dụng ảnh này",
+    "instruction": "Đặt cây của bạn vào giữa khung hình",
+    "tips": "Mẹo chụp",
+    "tipsTitle": "Mẹo chụp ảnh hiệu quả",
+    "tipsContent": "• Chụp ảnh trong điều kiện ánh sáng tốt\n• Đặt lá lúa ở trung tâm khung hình\n• Tránh bóng mờ và phản chiếu\n• Chụp cận cảnh các vết bệnh nếu có",
+    "loadingLocation": "Đang lấy vị trí...",
+    "locationRequired": "Đang lấy vị trí GPS...",
     "permissionRequired": "Cần cấp quyền",
     "cameraPermissionDenied": "Bạn cần cấp quyền camera để sử dụng tính năng này",
     "locationPermissionDenied": "Bạn cần cấp quyền vị trí để thêm watermark GPS",
@@ -116,6 +122,37 @@
     "uploadFailed": "Tải ảnh lên thất bại",
     "watermarkFailed": "Không thể thêm watermark",
     "locationNotAvailable": "Không thể lấy vị trí hiện tại"
+  },
+
+  "result": {
+    "title": "Kết quả phân tích",
+    "loading": "Đang tải kết quả...",
+    "confidence": "Độ tin cậy",
+    "viewOnMap": "Xem trên bản đồ",
+    "recapture": "Chụp lại",
+    "viewDetails": "Xem chi tiết về bệnh và cách điều trị",
+    "noPrediction": "Không có kết quả phân tích"
+  },
+
+  "map": {
+    "title": "Bản đồ nông trại",
+    "loading": "Đang tải bản đồ...",
+    "noPhotos": "Chưa có hình ảnh",
+    "noPhotosDesc": "Hãy chụp hoặc upload ảnh cây lúa để xem vị trí trên bản đồ",
+    "captureNow": "Chụp ngay",
+    "locations": "vị trí",
+    "confidence": "Độ tin cậy",
+    "viewDetail": "Xem chi tiết"
+  },
+
+  "photoDetail": {
+    "title": "Chi tiết phân tích",
+    "loading": "Đang tải...",
+    "confidence": "Độ tin cậy",
+    "diseaseInfo": "Thông tin bệnh",
+    "treatment": "Cách trị bệnh",
+    "viewOnMap": "Xem bản đồ",
+    "newPhoto": "Chụp mới"
   },
 
   "gallery": {
@@ -140,6 +177,7 @@
     "account": "Tài khoản",
     "profile": "Hồ sơ",
     "privacy": "Quyền riêng tư",
+    "security": "Bảo mật",
     "about": "Giới thiệu",
     "version": "Phiên bản",
     "logout": "Đăng xuất",
@@ -148,6 +186,27 @@
     "deleteAccountConfirm": "Bạn có chắc muốn xóa tài khoản? Hành động này không thể hoàn tác!",
     "deleteAccountSuccess": "Tài khoản đã được xóa thành công",
     "userInfo": "Thông tin người dùng"
+  },
+
+  "biometric": {
+    "enableTitle": "Bật đăng nhập nhanh?",
+    "enableDescription": "Sử dụng {{biometricType}} để đăng nhập nhanh chóng và bảo mật hơn trong các lần tới.",
+    "feature1": "Đăng nhập nhanh chóng",
+    "feature2": "Bảo mật cao",
+    "feature3": "Không cần nhớ mật khẩu",
+    "enable": "Bật ngay",
+    "skip": "Để sau",
+    "infoText": "Bạn có thể bật/tắt tính năng này trong Cài đặt bất cứ lúc nào.",
+    "loginWith": "Đăng nhập bằng",
+    "description": "Đăng nhập nhanh chóng và bảo mật với sinh trắc học.",
+    "enabled": "Đã bật đăng nhập sinh trắc học thành công!",
+    "disabled": "Đã tắt đăng nhập sinh trắc học.",
+    "enableFailed": "Không thể bật đăng nhập sinh trắc học",
+    "disableFailed": "Không thể tắt đăng nhập sinh trắc học.",
+    "notEnabled": "Vui lòng bật đăng nhập sinh trắc học trong Cài đặt.",
+    "failed": "Xác thực thất bại",
+    "setupRequired": "Cần xác thực",
+    "setupMessage": "Để bật đăng nhập sinh trắc học, bạn cần đăng nhập lại để lưu thông tin xác thực."
   },
 
   "home": {

@@ -4,6 +4,8 @@
  */
 import { clearTokens, getAccessToken } from '@/services/api';
 import * as authService from '@/services/auth.service';
+import auth from '@react-native-firebase/auth';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 /**
@@ -25,6 +27,8 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  blockAutoNavigation: boolean; // Block AuthGuard auto-navigation (e.g., when showing biometric modal)
+  setBlockAutoNavigation: (block: boolean) => void;
   login: (phone: string, password: string, rememberMe?: boolean) => Promise<void>;
   loginWithOTP: (phone: string, firebaseToken: string) => Promise<{ userExists: boolean; user?: User }>;
   completeRegistration: (phone: string, name: string, password: string) => Promise<void>;
@@ -51,6 +55,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [blockAutoNavigation, setBlockAutoNavigation] = useState(false);
 
   /**
    * Check if user is authenticated on app start
@@ -140,13 +145,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   /**
    * Logout user
+   * Clears JWT tokens, Firebase session, and Google session
    */
   const logout = async () => {
     try {
+      // Clear JWT tokens and saved credentials
       await authService.logout();
+      
+      // Sign out from Firebase Auth
+      try {
+        const firebaseUser = auth().currentUser;
+        if (firebaseUser) {
+          await auth().signOut();
+        }
+      } catch (firebaseError) {
+        console.log('Firebase sign out (expected if not logged in):', firebaseError);
+      }
+      
+      // Sign out from Google to clear account cache
+      try {
+        const isSignedIn = await GoogleSignin.isSignedIn();
+        if (isSignedIn) {
+          await GoogleSignin.signOut();
+        }
+      } catch (googleError) {
+        console.log('Google sign out (expected if not logged in):', googleError);
+      }
+      
+      // Clear user state
       setUser(null);
     } catch (error) {
       console.error('Logout failed:', error);
+      // Still clear user state even if logout partially fails
+      setUser(null);
+      throw error;
     }
   };
 
@@ -169,6 +201,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     isLoading,
     isAuthenticated: !!user,
+    blockAutoNavigation,
+    setBlockAutoNavigation,
     login,
     loginWithOTP,
     completeRegistration,

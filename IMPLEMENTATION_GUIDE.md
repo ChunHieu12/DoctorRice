@@ -332,7 +332,7 @@ PORT=5000
 MODEL_PATH=model/model.tflite
 ```
 
-**Result**: `https://doctorrice-ai-service.onrender.com`
+**Result**: `https://doctorrice-ai-service.onrender.com` ✅ **DEPLOYED**
 
 ### **2. Deploy Backend Node.js to Render**
 

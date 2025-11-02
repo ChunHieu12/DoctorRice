@@ -85,6 +85,28 @@ function RootLayoutNav() {
           {/* Protected routes */}
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+          <Stack.Screen 
+            name="camera-modal" 
+            options={{ 
+              presentation: 'fullScreenModal',
+              headerShown: false,
+              animation: 'fade',
+            }} 
+          />
+          <Stack.Screen 
+            name="result" 
+            options={{ 
+              headerShown: false,
+              animation: 'slide_from_right',
+            }} 
+          />
+          <Stack.Screen 
+            name="photo-detail" 
+            options={{ 
+              headerShown: false,
+              animation: 'slide_from_right',
+            }} 
+          />
         </Stack>
       </AuthGuard>
       <StatusBar style="auto" />

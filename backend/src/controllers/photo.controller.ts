@@ -89,10 +89,18 @@ export const uploadPhoto = async (req: Request, res: Response) => {
     logger.info(`📸 Processing photo ${photo._id} for user ${userId} at [${lat}, ${lng}]`);
 
     // Run AI prediction and Cloudinary upload in parallel
+    logger.info(`🔄 Starting parallel processing: AI + Cloudinary upload`);
+    logger.info(`🤖 AI Service URL: ${process.env.AI_SERVICE_URL || 'http://localhost:5000'}`);
+    
     const [aiPrediction, cloudinaryResult] = await Promise.all([
       // 1. AI Prediction
       AIService.predictFromFile(localFilePath).catch((error) => {
-        logger.error(`AI prediction failed for photo ${photo._id}:`, error);
+        logger.error(`❌ AI prediction failed for photo ${photo._id}:`, error);
+        logger.error(`❌ AI error details:`, {
+          message: error.message,
+          code: error.code,
+          response: error.response?.data,
+        });
         return null; // Don't fail the entire upload if AI fails
       }),
 

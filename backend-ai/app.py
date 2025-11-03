@@ -239,13 +239,21 @@ def file_too_large(e):
         'code': 'FILE_TOO_LARGE'
     }), 413
 
+# Load model immediately when module is imported (for gunicorn workers)
+logger.info("=" * 60)
+logger.info("🌾 Rice Leaf Disease Detection API Starting...")
+logger.info(f"📁 Model path: {MODEL_PATH}")
+logger.info(f"🔌 Port: {PORT}")
+logger.info("=" * 60)
+
+if not load_model():
+    logger.error("❌ CRITICAL: Failed to load model on startup!")
+    logger.error(f"❌ Make sure {MODEL_PATH} exists and is a valid TFLite model")
+else:
+    logger.info("✅ Model loaded successfully, API ready!")
+
 if __name__ == '__main__':
-    # Load model on startup
-    if not load_model():
-        logger.error("Failed to start: model not loaded")
-        exit(1)
-    
-    # Start server
-    logger.info(f"🚀 Starting server on port {PORT}")
+    # Start server (for development only)
+    logger.info(f"🚀 Starting development server on port {PORT}")
     app.run(host='0.0.0.0', port=PORT, debug=False)
 

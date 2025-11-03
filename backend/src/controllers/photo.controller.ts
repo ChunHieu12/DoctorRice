@@ -24,26 +24,48 @@ export const uploadPhoto = async (req: Request, res: Response) => {
   let localFilePath: string | null = null;
 
   try {
+    logger.info('📤 Photo upload request received');
+    logger.info('Request body keys:', Object.keys(req.body));
+    logger.info('Has file:', !!req.file);
+    
     // Validate file upload
     if (!req.file) {
+      logger.error('No file in request');
       return errorResponse(res, 'PHOTO_002', 'No file uploaded', 400);
     }
 
     localFilePath = req.file.path;
+    logger.info(`File received: ${req.file.originalname}, size: ${req.file.size} bytes`);
 
-    // Parse metadata
-    let metadata;
-    try {
-      metadata = JSON.parse(req.body.metadata || '{}');
-    } catch (e) {
-      return errorResponse(res, 'PHOTO_002', 'Invalid metadata format', 400);
+    // Parse metadata - support both JSON object and individual form fields
+    let lat: number, lng: number, timestamp: number, device: string, orientation: string;
+    
+    if (req.body.metadata) {
+      // Format 1: JSON metadata object
+      try {
+        const metadata = JSON.parse(req.body.metadata);
+        lat = metadata.lat;
+        lng = metadata.lng;
+        timestamp = metadata.timestamp;
+        device = metadata.device || 'Unknown';
+        orientation = metadata.orientation || 'portrait';
+      } catch (e) {
+        return errorResponse(res, 'PHOTO_002', 'Invalid metadata format', 400);
+      }
+    } else if (req.body.latitude && req.body.longitude) {
+      // Format 2: Individual form fields (from mobile app)
+      lat = parseFloat(req.body.latitude);
+      lng = parseFloat(req.body.longitude);
+      timestamp = req.body.timestamp ? parseInt(req.body.timestamp) : Date.now();
+      device = req.body.device || 'Unknown';
+      orientation = req.body.orientation || 'portrait';
+    } else {
+      return errorResponse(res, 'PHOTO_002', 'Missing GPS coordinates (latitude/longitude)', 400);
     }
 
-    const { lat, lng, timestamp, device, orientation } = metadata;
-
-    // Validate required GPS data
-    if (lat === undefined || lng === undefined || !timestamp) {
-      return errorResponse(res, 'PHOTO_002', 'Missing GPS metadata (lat, lng, timestamp)', 400);
+    // Validate GPS data
+    if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      return errorResponse(res, 'PHOTO_002', 'Invalid GPS coordinates', 400);
     }
 
     const userId = req.user!.userId;
@@ -54,17 +76,17 @@ export const uploadPhoto = async (req: Request, res: Response) => {
       originalUrl: '', // Will be updated after Cloudinary upload
       watermarkedUrl: '',
       metadata: {
-        lat: parseFloat(lat),
-        lng: parseFloat(lng),
-        timestamp: parseInt(timestamp),
-        device: device || 'Unknown',
-        orientation: orientation || 'portrait',
+        lat,
+        lng,
+        timestamp,
+        device,
+        orientation,
       },
       fileSize: req.file.size,
       status: 'processing',
     });
 
-    logger.info(`📸 Processing photo ${photo._id} for user ${userId}`);
+    logger.info(`📸 Processing photo ${photo._id} for user ${userId} at [${lat}, ${lng}]`);
 
     // Run AI prediction and Cloudinary upload in parallel
     const [aiPrediction, cloudinaryResult] = await Promise.all([
@@ -78,9 +100,9 @@ export const uploadPhoto = async (req: Request, res: Response) => {
       CloudinaryService.uploadWithWatermark(
         localFilePath,
         {
-          lat: parseFloat(lat),
-          lng: parseFloat(lng),
-          timestamp: parseInt(timestamp),
+          lat,
+          lng,
+          timestamp,
         },
         {
           folder: 'doctorrice/photos',
@@ -109,10 +131,15 @@ export const uploadPhoto = async (req: Request, res: Response) => {
         confidence: aiPrediction.confidence,
         allPredictions: aiPrediction.allPredictions,
       };
+      logger.info(`🤖 AI Prediction: ${aiPrediction.classVi} (${aiPrediction.confidence.toFixed(2)}%)`);
+    } else {
+      logger.warn(`⚠️ No AI prediction available for photo ${photo._id}`);
     }
 
     photo.status = 'completed';
     await photo.save();
+
+    logger.info(`💾 Photo saved to database: ${photo._id}`);
 
     // Cleanup local file
     CloudinaryService.cleanupLocalFile(localFilePath);
@@ -120,20 +147,26 @@ export const uploadPhoto = async (req: Request, res: Response) => {
     logger.info(`✅ Photo ${photo._id} processed successfully`);
 
     // Return response
-    return successResponse(
-      res,
-      {
-        photoId: photo._id,
-        originalUrl: photo.originalUrl,
-        watermarkedUrl: photo.watermarkedUrl,
-        thumbnailUrl: photo.thumbnailUrl,
-        metadata: photo.metadata,
-        prediction: photo.prediction,
-        status: photo.status,
-        createdAt: photo.createdAt,
+    return res.status(201).json({
+      success: true,
+      message: 'Photo uploaded and processed successfully',
+      data: {
+        photo: {
+          _id: photo._id,
+          userId: photo.userId,
+          originalUrl: photo.originalUrl,
+          watermarkedUrl: photo.watermarkedUrl,
+          thumbnailUrl: photo.thumbnailUrl,
+          cloudinaryPublicId: photo.cloudinaryPublicId,
+          metadata: photo.metadata,
+          prediction: photo.prediction,
+          status: photo.status,
+          fileSize: photo.fileSize,
+          createdAt: photo.createdAt,
+          updatedAt: photo.updatedAt,
+        },
       },
-      201
-    );
+    });
   } catch (error: any) {
     logger.error('Photo upload error:', error);
 

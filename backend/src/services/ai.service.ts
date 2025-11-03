@@ -8,7 +8,7 @@ import fs from 'fs';
 import { logger } from '../utils/logger';
 
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:5000';
-const AI_REQUEST_TIMEOUT = 30000; // 30 seconds
+const AI_REQUEST_TIMEOUT = 60000; // 60 seconds (for Render free tier cold start)
 
 export interface AIPredictionResult {
   class: string; // 'bacterial_leaf_blight' | 'blast' | 'brown_spot' | 'healthy'

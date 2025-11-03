@@ -19,6 +19,10 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy - Required for Render.com and other reverse proxies
+// This allows express-rate-limit to correctly identify users by IP
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(helmet());
 app.use(compression());

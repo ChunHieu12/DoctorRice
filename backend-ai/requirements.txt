@@ -3,7 +3,7 @@ Flask==3.0.0
 flask-cors==4.0.0
 
 # TensorFlow Lite (updated for Python 3.11+)
-tensorflow==2.18.0
+tensorflow==2.20.0
 
 # Image processing
 Pillow==10.1.0

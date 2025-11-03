@@ -37,11 +37,13 @@ const PhotoSchema = new Schema<IPhoto>(
     },
     originalUrl: {
       type: String,
-      required: true,
+      required: false, // Will be set after Cloudinary upload
+      default: '',
     },
     watermarkedUrl: {
       type: String,
-      required: true,
+      required: false, // Will be set after Cloudinary upload
+      default: '',
     },
     thumbnailUrl: {
       type: String,

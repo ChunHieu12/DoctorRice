@@ -11,12 +11,12 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ActivityIndicator,
-  Alert,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -276,36 +276,75 @@ export default function CameraModal() {
         </View>
 
         {/* Location display */}
-        {location && (
+        {location ? (
           <View style={styles.locationContainer}>
+            <Ionicons name="location" size={16} color="#4CAF50" />
             <Text style={styles.locationText}>
-              📍 {location.coords.latitude.toFixed(6)}, {location.coords.longitude.toFixed(6)}
+              {location.coords.latitude.toFixed(6)}, {location.coords.longitude.toFixed(6)}
             </Text>
+          </View>
+        ) : (
+          <View style={styles.locationLoadingContainer}>
+            <ActivityIndicator size="small" color="#FF9800" />
+            <Text style={styles.locationLoadingText}>
+              Đang lấy vị trí GPS...
+            </Text>
+          </View>
+        )}
+
+        {/* GPS Warning Overlay */}
+        {!location && (
+          <View style={styles.gpsWarningOverlay}>
+            <Ionicons name="location-outline" size={48} color="#FF9800" />
+            <Text style={styles.gpsWarningTitle}>Đang lấy thông tin vị trí</Text>
+            <Text style={styles.gpsWarningText}>
+              Vui lòng đợi để có tọa độ GPS chính xác
+            </Text>
+            <ActivityIndicator size="large" color="#FF9800" style={{ marginTop: 16 }} />
           </View>
         )}
 
         {/* Bottom controls */}
         <View style={[styles.bottomControls, { paddingBottom: Math.max(insets.bottom, 20) }]}>
           <TouchableOpacity 
-            style={styles.galleryButton}
+            style={[
+              styles.galleryButton,
+              (isLoading || !location) && styles.buttonDisabled,
+            ]}
             onPress={handlePickImage}
-            disabled={isLoading}
+            disabled={isLoading || !location}
           >
-            <Ionicons name="images" size={32} color="#fff" />
+            <Ionicons
+              name="images"
+              size={32}
+              color={isLoading || !location ? '#999' : '#fff'}
+            />
           </TouchableOpacity>
           <TouchableOpacity 
-            style={styles.captureButton}
+            style={[
+              styles.captureButton,
+              (isLoading || !location) && styles.captureButtonDisabled,
+            ]}
             onPress={handleCapture}
             disabled={isLoading || !location}
           >
-            <View style={styles.captureButtonInner} />
+            {isLoading ? (
+              <ActivityIndicator size="large" color="#4CAF50" />
+            ) : !location ? (
+              <ActivityIndicator size="large" color="#999" />
+            ) : (
+              <View style={styles.captureButtonInner} />
+            )}
           </TouchableOpacity>
           <TouchableOpacity 
-            style={styles.tipsButton}
+            style={[
+              styles.tipsButton,
+              isLoading && styles.buttonDisabled,
+            ]}
             onPress={() => Alert.alert('Mẹo chụp', 'Đặt lá lúa vào giữa khung hình\nĐảm bảo ánh sáng đủ\nGiữ máy thật vững')}
             disabled={isLoading}
           >
-            <Ionicons name="bulb" size={32} color="#fff" />
+            <Ionicons name="bulb" size={32} color={isLoading ? '#999' : '#fff'} />
           </TouchableOpacity>
         </View>
       </CameraView>
@@ -422,15 +461,64 @@ const styles = StyleSheet.create({
     top: 120,
     left: 20,
     right: 20,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 12,
+    backgroundColor: 'rgba(76, 175, 80, 0.9)',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
   },
   locationText: {
     color: '#fff',
     fontSize: 14,
+    fontWeight: '600',
+  },
+  locationLoadingContainer: {
+    position: 'absolute',
+    top: 120,
+    left: 20,
+    right: 20,
+    backgroundColor: 'rgba(255, 152, 0, 0.9)',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  locationLoadingText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  gpsWarningOverlay: {
+    position: 'absolute',
+    top: '40%',
+    left: 40,
+    right: 40,
+    backgroundColor: 'rgba(255, 152, 0, 0.95)',
+    padding: 24,
+    borderRadius: 20,
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#FF9800',
+  },
+  gpsWarningTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginTop: 12,
+    marginBottom: 8,
     textAlign: 'center',
+  },
+  gpsWarningText: {
+    fontSize: 14,
+    color: '#fff',
+    textAlign: 'center',
+    lineHeight: 20,
   },
   bottomControls: {
     flexDirection: 'row',
@@ -462,6 +550,13 @@ const styles = StyleSheet.create({
     height: 64,
     borderRadius: 32,
     backgroundColor: '#fff',
+  },
+  captureButtonDisabled: {
+    opacity: 0.5,
+    backgroundColor: '#E0E0E0',
+  },
+  buttonDisabled: {
+    opacity: 0.4,
   },
   tipsButton: {
     width: 50,

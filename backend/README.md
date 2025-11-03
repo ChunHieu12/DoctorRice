@@ -122,25 +122,63 @@ Authorization: Bearer <access_token>
 
 ## 📸 Photo Upload Example
 
+### Option 1: With JSON metadata (API clients)
+
 ```bash
 curl -X POST http://localhost:3000/api/photos/upload \
   -H "Authorization: Bearer YOUR_TOKEN" \
-  -F "photo=@image.jpg" \
-  -F 'metadata={"lat":10.762622,"lng":106.660172,"timestamp":1698765432000,"device":"Samsung S21"}'
+  -F "photo=@rice_leaf.jpg" \
+  -F 'metadata={"lat":10.825123,"lng":106.629456,"timestamp":1699234567890,"device":"Android","orientation":"portrait"}'
 ```
 
-Response:
+### Option 2: With individual fields (Mobile apps)
+
+```bash
+curl -X POST http://localhost:3000/api/photos/upload \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -F "photo=@rice_leaf.jpg" \
+  -F "latitude=10.825123" \
+  -F "longitude=106.629456" \
+  -F "device=Android"
+```
+
+### Response
+
 ```json
 {
   "success": true,
+  "message": "Photo uploaded and processed successfully",
   "data": {
-    "photoId": "64a1b2c3...",
-    "originalUrl": "/uploads/photo-123.jpg",
-    "watermarkedUrl": "/uploads/watermarked_photo-123.jpg",
-    "metadata": {
-      "lat": 10.762622,
-      "lng": 106.660172,
-      "timestamp": 1698765432000
+    "photo": {
+      "_id": "67890abcdef1234567890abc",
+      "userId": "yTxXUSC5DLbB6JS6ckmZzV2kLZG2",
+      "originalUrl": "https://res.cloudinary.com/doivrdij4/image/upload/v123/doctorrice/photos/photo_user123_1699234567890.jpg",
+      "watermarkedUrl": "https://res.cloudinary.com/doivrdij4/image/upload/l_text:Arial_32:Lat%3A%2010.825123%2C%20Lng%3A%20106.629456,co_rgb:FFFFFF,g_south_east/v123/doctorrice/photos/photo_user123_1699234567890.jpg",
+      "thumbnailUrl": "https://res.cloudinary.com/doivrdij4/image/upload/c_fill,w_200,h_200/doctorrice/photos/photo_user123_1699234567890.jpg",
+      "cloudinaryPublicId": "doctorrice/photos/photo_user123_1699234567890",
+      "metadata": {
+        "lat": 10.825123,
+        "lng": 106.629456,
+        "timestamp": 1699234567890,
+        "device": "Android",
+        "orientation": "portrait",
+        "address": "123 Nguyen Hue, District 1, Ho Chi Minh City, Vietnam"
+      },
+      "prediction": {
+        "class": "blast",
+        "classVi": "Bệnh đạo ôn",
+        "confidence": 87.5,
+        "allPredictions": {
+          "bacterial_leaf_blight": 2.3,
+          "blast": 87.5,
+          "brown_spot": 8.1,
+          "healthy": 2.1
+        }
+      },
+      "status": "completed",
+      "fileSize": 245678,
+      "createdAt": "2024-11-06T12:30:00.000Z",
+      "updatedAt": "2024-11-06T12:30:05.000Z"
     }
   }
 }
@@ -219,22 +257,43 @@ Keep-alive cron job automatically pings `/api/health` every 2 minutes.
 
 ```typescript
 {
-  userId: ObjectId;
-  originalUrl: string;
-  watermarkedUrl: string;
+  userId: ObjectId;                    // User ID reference
+  originalUrl: string;                 // Cloudinary URL - original image
+  watermarkedUrl: string;              // Cloudinary URL - with GPS watermark
+  thumbnailUrl?: string;               // Cloudinary URL - thumbnail (200x200)
+  cloudinaryPublicId?: string;         // Cloudinary public ID for transformations
   metadata: {
-    lat: number;
-    lng: number;
-    timestamp: number;
-    device: string;
+    lat: number;                       // Latitude (-90 to 90)
+    lng: number;                       // Longitude (-180 to 180)
+    timestamp: number;                 // Unix timestamp
+    device: string;                    // Device type (Android, iOS)
     orientation: 'portrait' | 'landscape';
+    address?: string;                  // Reverse geocoded address
+  };
+  prediction?: {                       // AI disease detection result
+    class: 'bacterial_leaf_blight' | 'blast' | 'brown_spot' | 'healthy';
+    classVi: string;                   // Vietnamese label
+    confidence: number;                // 0-100
+    allPredictions?: {                 // All class probabilities
+      bacterial_leaf_blight: number;
+      blast: number;
+      brown_spot: number;
+      healthy: number;
+    };
   };
   status: 'processing' | 'completed' | 'failed';
-  fileSize: number;
+  fileSize: number;                    // File size in bytes
+  errorMessage?: string;               // Error if status is 'failed'
   createdAt: Date;
   updatedAt: Date;
 }
 ```
+
+**Disease Classes:**
+- `bacterial_leaf_blight` → `Bệnh bạc lá vi khuẩn`
+- `blast` → `Bệnh đạo ôn`
+- `brown_spot` → `Bệnh đốm nâu`
+- `healthy` → `Lá khỏe mạnh`
 
 ---
 

@@ -98,6 +98,9 @@ export default function CameraModal() {
 
       // Upload to backend
       const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.114:5001';
+      console.log('📤 Uploading to:', `${API_URL}/api/photos/upload`);
+      console.log('📍 GPS:', location.coords.latitude, location.coords.longitude);
+      
       const response = await fetch(`${API_URL}/api/photos/upload`, {
         method: 'POST',
         headers: {
@@ -106,23 +109,40 @@ export default function CameraModal() {
         body: formData,
       });
 
+      console.log('Response status:', response.status);
+      
       const data = await response.json();
+      console.log('Response data:', JSON.stringify(data, null, 2));
 
       if (!response.ok) {
-        throw new Error(data.message || 'Upload failed');
+        const errorMsg = data.error?.message || data.message || 'Upload failed';
+        console.error('❌ Upload failed:', response.status, errorMsg);
+        throw new Error(errorMsg);
       }
 
-      console.log('✅ Upload success:', data);
+      console.log('✅ Upload success! Photo ID:', data.data?.photo?._id);
 
       // Navigate to result screen
-      router.push({
-        pathname: '/result',
-        params: { photoId: data.data.photo._id },
-      } as any);
+      if (data.data?.photo?._id) {
+        router.push({
+          pathname: '/result',
+          params: { photoId: data.data.photo._id },
+        } as any);
+      } else {
+        throw new Error('No photo ID in response');
+      }
 
     } catch (error: any) {
       console.error('❌ Upload error:', error);
-      Alert.alert('Lỗi', error.message || 'Không thể upload ảnh');
+      console.error('Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      });
+      Alert.alert(
+        'Lỗi upload', 
+        error.message || 'Không thể upload ảnh. Vui lòng thử lại.'
+      );
     } finally {
       setIsLoading(false);
       setLoadingMessage('');
@@ -175,7 +195,7 @@ export default function CameraModal() {
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'], // Updated from deprecated MediaTypeOptions
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,

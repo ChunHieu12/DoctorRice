@@ -8,12 +8,12 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ActivityIndicator,
-  Dimensions,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Dimensions,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import PermissionRequestModal from '../../components/ui/PermissionRequestModal';
 import { useCameraFlow } from '../../hooks/useCameraFlow';
@@ -246,7 +246,7 @@ export default function CameraScreen() {
         </TouchableOpacity>
 
         {/* Tips Button */}
-        <TouchableOpacity
+        <TouchableOpacity 
           style={styles.tipsButton}
           onPress={() => setShowTipsModal(true)}
           disabled={isUploading}

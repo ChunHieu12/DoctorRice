@@ -131,7 +131,19 @@
     "viewOnMap": "Xem trên bản đồ",
     "recapture": "Chụp lại",
     "viewDetails": "Xem chi tiết về bệnh và cách điều trị",
-    "noPrediction": "Không có kết quả phân tích"
+    "noPrediction": "Không có kết quả phân tích",
+    "healthy": "Lá khỏe mạnh",
+    "healthyMessage": "Chúc mừng! Cây lúa của bạn khỏe mạnh",
+    "diseaseDetected": "Phát hiện bệnh",
+    "location": "Vị trí",
+    "capturedAt": "Thời gian chụp"
+  },
+  
+  "diseases": {
+    "healthy": "Lá khỏe mạnh",
+    "bacterial_leaf_blight": "Bệnh bạc lá vi khuẩn",
+    "blast": "Bệnh đạo ôn",
+    "brown_spot": "Bệnh đốm nâu"
   },
 
   "map": {

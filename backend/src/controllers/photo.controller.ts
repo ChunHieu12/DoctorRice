@@ -108,8 +108,17 @@ export const uploadPhoto = async (req: Request, res: Response) => {
           folder: 'doctorrice/photos',
           public_id: `photo_${userId}_${Date.now()}`,
         }
-      ),
+      ).catch((error) => {
+        logger.error(`❌ Cloudinary upload failed for photo ${photo._id}:`, error);
+        throw error; // Cloudinary is critical - must succeed
+      }),
     ]);
+
+    // Validate Cloudinary result
+    if (!cloudinaryResult || !cloudinaryResult.original || !cloudinaryResult.watermarked) {
+      logger.error('❌ Invalid Cloudinary result:', cloudinaryResult);
+      throw new Error('Cloudinary upload failed - invalid result');
+    }
 
     // Generate thumbnail URL
     const thumbnailUrl = CloudinaryService.generateThumbnailUrl(

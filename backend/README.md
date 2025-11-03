@@ -92,16 +92,52 @@ backend/
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| POST | `/api/photos/upload` | Upload & watermark photo | Yes |
-| GET | `/api/photos` | Get user photos | Yes |
+| POST | `/api/photos/upload` | Upload photo with AI analysis | Yes |
+| GET | `/api/photos` | Get user photos (paginated) | Yes |
+| GET | `/api/photos/:id` | Get single photo by ID | Yes |
+| GET | `/api/photos/map` | Get all photos for map view | Yes |
+| GET | `/api/photos/stats` | Get photo statistics | Yes |
 | DELETE | `/api/photos/:id` | Delete photo | Yes |
 
 ### Utility
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| GET | `/api/health` | Health check | No |
-| GET | `/api/docs` | Swagger UI | No |
+| GET | `/health` | Root health check | No |
+| GET | `/api/health` | API health check | No |
+| GET | `/api/docs` | Swagger UI documentation | No |
+
+---
+
+## 📚 API Documentation (Swagger)
+
+Full interactive API documentation is available at `/api/docs` when the server is running.
+
+**Access Swagger UI:**
+- Local: http://localhost:3000/api/docs
+- Production: https://doctorrice.onrender.com/api/docs
+
+**Features:**
+- ✅ Complete endpoint documentation
+- ✅ Request/response schemas
+- ✅ Try out API calls directly
+- ✅ Authentication support (Bearer token)
+- ✅ Example requests and responses
+- ✅ Data model schemas
+
+**Main Schemas Available:**
+- `Photo` - Complete photo object with AI prediction
+- `PhotoMetadata` - GPS and device information
+- `Prediction` - AI disease detection result
+- `MapMarker` - Photo location data for maps
+- `PhotoStats` - Statistics and analytics
+- `Error` - Error response format
+
+**Testing Endpoints:**
+1. Go to `/api/docs`
+2. Click "Authorize" button
+3. Enter your Bearer token
+4. Try endpoints with "Try it out"
 
 ---
 
@@ -183,6 +219,60 @@ curl -X POST http://localhost:3000/api/photos/upload \
   }
 }
 ```
+
+---
+
+## 🤖 AI Disease Detection
+
+### AI Service Architecture
+
+```
+Mobile App (Photo Upload)
+    ↓
+Node.js Backend
+    ↓ (parallel processing)
+    ├─→ Cloudinary: Upload + Watermark
+    └─→ Python AI Service: Disease Detection
+    ↓
+Response with Photo + Prediction
+```
+
+### AI Service Integration
+
+**Python Microservice:**
+- URL: `https://doctorrice-ai-service.onrender.com`
+- Model: TensorFlow Lite
+- Input: 224x224 RGB image
+- Output: 4 disease classes with confidence scores
+
+**Environment Variable:**
+```env
+AI_SERVICE_URL=https://doctorrice-ai-service.onrender.com
+```
+
+### Disease Classification
+
+| English | Vietnamese | Description |
+|---------|-----------|-------------|
+| `bacterial_leaf_blight` | Bệnh bạc lá vi khuẩn | Bacterial infection causing white lesions |
+| `blast` | Bệnh đạo ôn | Fungal disease causing diamond-shaped spots |
+| `brown_spot` | Bệnh đốm nâu | Fungal disease with circular brown spots |
+| `healthy` | Lá khỏe mạnh | No disease detected |
+
+### Processing Flow
+
+1. **Photo Upload** → Backend receives image + GPS
+2. **Parallel Processing:**
+   - Cloudinary: Upload original → Add GPS watermark → Generate thumbnail
+   - AI Service: Analyze image → Return prediction
+3. **Save to DB** → Store all URLs + prediction
+4. **Return Response** → Photo with AI result
+
+**Typical Processing Time:**
+- Cloudinary: 3-5 seconds
+- AI Service (cold start): 10-20 seconds
+- AI Service (warm): 1-3 seconds
+- **Total**: 5-25 seconds
 
 ---
 

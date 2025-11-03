@@ -34,7 +34,19 @@ export class CloudinaryService {
     options: CloudinaryUploadOptions = {}
   ): Promise<UploadApiResponse> {
     try {
-      logger.info(`Uploading image to Cloudinary: ${filePath}`);
+      // Check if credentials are configured
+      if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+        const missing = [];
+        if (!process.env.CLOUDINARY_CLOUD_NAME) missing.push('CLOUDINARY_CLOUD_NAME');
+        if (!process.env.CLOUDINARY_API_KEY) missing.push('CLOUDINARY_API_KEY');
+        if (!process.env.CLOUDINARY_API_SECRET) missing.push('CLOUDINARY_API_SECRET');
+        
+        logger.error(`❌ Missing Cloudinary credentials: ${missing.join(', ')}`);
+        throw new Error(`Cloudinary not configured. Missing: ${missing.join(', ')}`);
+      }
+
+      logger.info(`📤 Uploading image to Cloudinary: ${filePath}`);
+      logger.info(`☁️ Cloud: ${process.env.CLOUDINARY_CLOUD_NAME}, Folder: ${options.folder || 'doctorrice/photos'}`);
 
       const result = await cloudinary.uploader.upload(filePath, {
         folder: options.folder || 'doctorrice/photos',
@@ -48,7 +60,11 @@ export class CloudinaryService {
       logger.info(`✅ Image uploaded: ${result.secure_url}`);
       return result;
     } catch (error: any) {
-      logger.error('Cloudinary upload error:', error);
+      logger.error('❌ Cloudinary upload error:', {
+        message: error.message,
+        code: error.error?.http_code,
+        details: error.error?.message,
+      });
       throw new Error(`Failed to upload image: ${error.message}`);
     }
   }

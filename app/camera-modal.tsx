@@ -97,11 +97,11 @@ export default function CameraModal() {
       formData.append('device', 'Android'); // or detect device
 
       // Upload to backend
-      const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.114:5001';
-      console.log('📤 Uploading to:', `${API_URL}/api/photos/upload`);
+      const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://doctorrice.onrender.com/api';
+      console.log('📤 Uploading to:', `${API_URL}/photos/upload`);
       console.log('📍 GPS:', location.coords.latitude, location.coords.longitude);
       
-      const response = await fetch(`${API_URL}/api/photos/upload`, {
+      const response = await fetch(`${API_URL}/photos/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -197,7 +197,7 @@ export default function CameraModal() {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'], // Updated from deprecated MediaTypeOptions
         allowsEditing: true,
-        aspect: [4, 3],
+        aspect: [6, 9],
         quality: 0.8,
       });
 

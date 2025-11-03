@@ -87,32 +87,55 @@ export class CloudinaryService {
       // Upload original image first
       const original = await this.uploadImage(filePath, uploadOptions);
 
-      // Generate watermark text
+      // Generate watermark text (simple ASCII only for better compatibility)
       const date = timestamp
-        ? new Date(timestamp).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })
-        : new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
-      const coordinates = `${lat.toFixed(6)}°N, ${lng.toFixed(6)}°E`;
-      const watermarkText = `📍 ${coordinates} | ${date} | Bác sĩ Lúa`;
+        ? new Date(timestamp).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })
+        : new Date().toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+      const time = timestamp
+        ? new Date(timestamp).toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' })
+        : new Date().toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' });
+      
+      // Simple watermark without special characters
+      const watermarkText = `Lat: ${lat.toFixed(6)}  Lng: ${lng.toFixed(6)}  ${date} ${time}`;
 
       // Generate watermarked URL with Cloudinary transformations
       const watermarkedUrl = cloudinary.url(original.public_id, {
         transformation: [
           {
+            // Add semi-transparent overlay background for text
+            overlay: 'black',
+            opacity: 40,
+            width: 'iw',
+            height: 60,
+            gravity: 'south',
+            y: 0,
+            crop: 'scale',
+          },
+          {
             // Add watermark text overlay
             overlay: {
               font_family: 'Arial',
-              font_size: 28,
+              font_size: 24,
               font_weight: 'bold',
               text: watermarkText,
             },
             gravity: 'south_west',
-            x: 20,
-            y: 20,
+            x: 15,
+            y: 15,
             color: '#FFFFFF',
           },
           {
-            // Add shadow/stroke for better visibility
-            effect: 'shadow:50',
+            // Add "Bac si Lua" branding (top right)
+            overlay: {
+              font_family: 'Arial',
+              font_size: 20,
+              font_weight: 'bold',
+              text: 'Bac si Lua',
+            },
+            gravity: 'south_east',
+            x: 15,
+            y: 15,
+            color: '#4CAF50',
           },
           {
             // Quality and format

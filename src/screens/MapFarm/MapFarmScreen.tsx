@@ -7,18 +7,16 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ActivityIndicator,
-  Alert,
-  Dimensions,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Dimensions,
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { MapMarker, getPhotosForMap } from '../../services/photo.service';
-import CustomAlert from '../../components/ui/CustomAlert';
 
 const { width, height } = Dimensions.get('window');
 
@@ -87,7 +85,7 @@ export default function MapFarmScreen() {
   };
 
   const handleCapturePhoto = () => {
-    router.push('/camera');
+    router.push('/camera-modal');
   };
 
   // Show alert if no photos

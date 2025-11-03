@@ -1,6 +1,6 @@
 /**
  * Farming Tab Screen - Map Farm (Bản đồ nông trại)
- * Import MapFarmScreen từ /src/screens
+ * Uses OpenStreetMap via WebView (No API key required)
  */
-export { default } from '@/screens/MapFarm/MapFarmScreen';
+export { default } from '@/screens/MapFarm/MapFarmScreenWebView';
 

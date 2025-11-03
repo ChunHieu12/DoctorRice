@@ -40,8 +40,15 @@ export default function ResultScreen() {
       setIsLoading(true);
       setError(null);
       const photoData = await getPhotoById(photoId);
+      console.log('📸 Photo loaded:', {
+        id: photoData._id,
+        watermarkedUrl: photoData.watermarkedUrl,
+        hasPrediction: !!photoData.prediction,
+        predictionClass: photoData.prediction?.class,
+      });
       setPhoto(photoData);
     } catch (err: any) {
+      console.error('❌ Failed to load photo:', err);
       setError(err.message || 'Failed to load photo');
     } finally {
       setIsLoading(false);
@@ -104,15 +111,25 @@ export default function ResultScreen() {
         {/* Image */}
         <View style={styles.imageContainer}>
           <Image
-            source={{ uri: photo.watermarkedUrl }}
+            source={{ uri: photo.watermarkedUrl || photo.originalUrl }}
             style={styles.image}
             contentFit="cover"
             transition={300}
+            onError={(error) => {
+              console.log('⚠️ Image failed to load:', error);
+              console.log('Watermarked URL:', photo.watermarkedUrl);
+              console.log('Original URL:', photo.originalUrl);
+            }}
           />
+          {!photo.watermarkedUrl && (
+            <View style={styles.noWatermarkBadge}>
+              <Text style={styles.noWatermarkText}>Original</Text>
+            </View>
+          )}
         </View>
 
         {/* Result Card */}
-        {photo.prediction ? (
+        {photo.prediction && photo.prediction.class && photo.prediction.classVi ? (
           <View style={styles.resultCard}>
             <View style={styles.resultHeader}>
               <Text style={styles.resultIcon}>
@@ -133,7 +150,7 @@ export default function ResultScreen() {
                 {t('result.confidence', { defaultValue: 'Độ tin cậy' })}:
               </Text>
               <Text style={styles.confidenceValue}>
-                {photo.prediction.confidence.toFixed(1)}%
+                {photo.prediction.confidence?.toFixed(1) || '0.0'}%
               </Text>
             </View>
 
@@ -143,7 +160,7 @@ export default function ResultScreen() {
                 style={[
                   styles.progressFill,
                   {
-                    width: `${photo.prediction.confidence}%`,
+                    width: `${photo.prediction.confidence || 0}%`,
                     backgroundColor: getDiseaseColor(photo.prediction.class),
                   },
                 ]}
@@ -190,7 +207,7 @@ export default function ResultScreen() {
 
           <TouchableOpacity
             style={[styles.actionButton, styles.recaptureButton]}
-            onPress={() => router.push('/camera')}
+            onPress={() => router.push('/camera-modal')}
           >
             <Ionicons name="camera" size={24} color="#fff" />
             <Text style={styles.actionButtonText}>
@@ -200,7 +217,7 @@ export default function ResultScreen() {
         </View>
 
         {/* View Details Button (if disease detected) */}
-        {photo.prediction && photo.prediction.class !== 'healthy' && (
+        {photo.prediction && photo.prediction.class && photo.prediction.class !== 'healthy' && (
           <TouchableOpacity
             style={styles.detailsButton}
             onPress={() => router.push(`/photo-detail?id=${photo._id}`)}
@@ -259,10 +276,25 @@ const styles = StyleSheet.create({
     width: width,
     height: width,
     backgroundColor: '#E0E0E0',
+    position: 'relative',
   },
   image: {
     width: '100%',
     height: '100%',
+  },
+  noWatermarkBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  noWatermarkText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
   },
   resultCard: {
     margin: 16,

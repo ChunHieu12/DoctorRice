@@ -19,20 +19,27 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Create model directory if not exists
-RUN mkdir -p model
+# Verify model file exists
+RUN ls -lh model/ && \
+    if [ ! -f "model/model.tflite" ]; then \
+        echo "ERROR: model/model.tflite not found!"; \
+        exit 1; \
+    else \
+        echo "✅ Model file found: $(du -h model/model.tflite)"; \
+    fi
 
-# Expose port
+# Expose port (will be overridden by Render's PORT env var)
 EXPOSE 5000
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV PORT=5000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:5000/health')"
+# Health check (removed - Render has its own health check)
+# HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+#     CMD python -c "import requests; requests.get('http://localhost:5000/health')"
 
 # Run with gunicorn for production
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--threads", "4", "--timeout", "120", "app:app"]
+# Use shell form to allow $PORT variable expansion
+CMD gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 300 --log-level info app:app
 

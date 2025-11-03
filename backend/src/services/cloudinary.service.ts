@@ -87,58 +87,48 @@ export class CloudinaryService {
       // Upload original image first
       const original = await this.uploadImage(filePath, uploadOptions);
 
-      // Generate watermark text (simple ASCII only for better compatibility)
-      const date = timestamp
-        ? new Date(timestamp).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })
-        : new Date().toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
-      const time = timestamp
-        ? new Date(timestamp).toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' })
-        : new Date().toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' });
+      // Generate simple watermark text (avoid special characters that need encoding)
+      const dateTime = timestamp
+        ? new Date(timestamp)
+        : new Date();
       
-      // Simple watermark without special characters
-      const watermarkText = `Lat: ${lat.toFixed(6)}  Lng: ${lng.toFixed(6)}  ${date} ${time}`;
+      // Format: DD-MM-YYYY HH:MM (no slashes to avoid URL encoding issues)
+      const dateStr = `${dateTime.getDate().toString().padStart(2, '0')}-${(dateTime.getMonth() + 1).toString().padStart(2, '0')}-${dateTime.getFullYear()}`;
+      const timeStr = `${dateTime.getHours().toString().padStart(2, '0')}:${dateTime.getMinutes().toString().padStart(2, '0')}`;
+      
+      // Simple coordinates text
+      const coordsText = `GPS: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+      const dateTimeText = `${dateStr} ${timeStr}`;
 
-      // Generate watermarked URL with Cloudinary transformations
+      // Generate watermarked URL - simple single text layer
       const watermarkedUrl = cloudinary.url(original.public_id, {
         transformation: [
           {
-            // Add semi-transparent overlay background for text
-            overlay: 'black',
-            opacity: 40,
-            width: 'iw',
-            height: 60,
-            gravity: 'south',
-            y: 0,
-            crop: 'scale',
+            overlay: {
+              font_family: 'Arial',
+              font_size: 32,
+              font_weight: 'bold',
+              text_align: 'left',
+              text: `${coordsText} | ${dateTimeText}`,
+            },
+            gravity: 'south_west',
+            x: 20,
+            y: 50,
+            color: 'white',
           },
           {
-            // Add watermark text overlay
             overlay: {
               font_family: 'Arial',
               font_size: 24,
               font_weight: 'bold',
-              text: watermarkText,
-            },
-            gravity: 'south_west',
-            x: 15,
-            y: 15,
-            color: '#FFFFFF',
-          },
-          {
-            // Add "Bac si Lua" branding (top right)
-            overlay: {
-              font_family: 'Arial',
-              font_size: 20,
-              font_weight: 'bold',
               text: 'Bac si Lua',
             },
-            gravity: 'south_east',
-            x: 15,
-            y: 15,
-            color: '#4CAF50',
+            gravity: 'south_west',
+            x: 20,
+            y: 20,
+            color: 'rgb:4CAF50',
           },
           {
-            // Quality and format
             quality: 'auto:good',
             fetch_format: 'auto',
           },

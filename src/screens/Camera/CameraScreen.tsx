@@ -8,12 +8,12 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-    ActivityIndicator,
-    Dimensions,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import PermissionRequestModal from '../../components/ui/PermissionRequestModal';
 import { useCameraFlow } from '../../hooks/useCameraFlow';
@@ -213,6 +213,21 @@ export default function CameraScreen() {
               </Text>
             </View>
           )}
+
+          {/* GPS Loading Overlay Warning */}
+          {!currentLocation && (
+            <View style={styles.gpsWarningContainer}>
+              <Ionicons name="location-outline" size={32} color="#FF9800" />
+              <Text style={styles.gpsWarningTitle}>
+                {t('camera.waitingGPS', { defaultValue: 'Đang lấy thông tin vị trí' })}
+              </Text>
+              <Text style={styles.gpsWarningText}>
+                {t('camera.waitingGPSDesc', {
+                  defaultValue: 'Vui lòng đợi để có tọa độ chính xác',
+                })}
+              </Text>
+            </View>
+          )}
         </View>
       </CameraView>
 
@@ -220,25 +235,39 @@ export default function CameraScreen() {
       <View style={styles.bottomBar}>
         {/* Gallery Button */}
         <TouchableOpacity
-          style={styles.galleryButton}
+          style={[
+            styles.galleryButton,
+            (!currentLocation || isUploading) && styles.galleryButtonDisabled,
+          ]}
           onPress={handleGalleryPick}
-          disabled={isUploading}
+          disabled={isUploading || !currentLocation}
           activeOpacity={0.8}
         >
-          <Ionicons name="images" size={28} color="#fff" />
+          <Ionicons
+            name="images"
+            size={28}
+            color={!currentLocation || isUploading ? '#999' : '#fff'}
+          />
         </TouchableOpacity>
 
         {/* Capture Button */}
         <TouchableOpacity
-          style={[styles.captureButton, isUploading && styles.captureButtonDisabled]}
+          style={[
+            styles.captureButton,
+            (isUploading || !currentLocation) && styles.captureButtonDisabled,
+          ]}
           onPress={handleCapture}
-          disabled={isUploading}
+          disabled={isUploading || !currentLocation}
           activeOpacity={0.8}
         >
           {isUploading ? (
             <View style={styles.uploadingContainer}>
               <ActivityIndicator size="large" color="#4CAF50" />
               <Text style={styles.uploadProgressText}>{uploadProgress}%</Text>
+            </View>
+          ) : !currentLocation ? (
+            <View style={styles.uploadingContainer}>
+              <ActivityIndicator size="large" color="#999" />
             </View>
           ) : (
             <View style={styles.captureButtonInner} />
@@ -393,6 +422,30 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
   },
+  gpsWarningContainer: {
+    marginTop: 20,
+    backgroundColor: 'rgba(255, 152, 0, 0.15)',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 152, 0, 0.3)',
+    maxWidth: '90%',
+  },
+  gpsWarningTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FF9800',
+    marginTop: 8,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  gpsWarningText: {
+    fontSize: 13,
+    color: '#FF9800',
+    textAlign: 'center',
+  },
   bottomBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -409,6 +462,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  galleryButtonDisabled: {
+    opacity: 0.4,
   },
   captureButton: {
     width: 80,

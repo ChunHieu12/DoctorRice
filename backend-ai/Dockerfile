@@ -35,11 +35,8 @@ EXPOSE 5000
 ENV PYTHONUNBUFFERED=1
 ENV PORT=5000
 
-# Health check (removed - Render has its own health check)
-# HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-#     CMD python -c "import requests; requests.get('http://localhost:5000/health')"
-
 # Run with gunicorn for production
 # Use shell form to allow $PORT variable expansion
-CMD gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 300 --log-level info app:app
-
+# Increased timeout to 600s for AI model processing
+# Single worker with 4 threads to optimize RAM usage on free tier
+CMD gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 600 --keep-alive 5 --log-level info --access-logfile - --error-logfile - app:app

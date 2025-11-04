@@ -4,6 +4,7 @@ Flask microservice for TFLite model inference
 """
 import os
 import logging
+import time
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
@@ -49,9 +50,11 @@ def load_model():
     global interpreter
     try:
         logger.info(f"Loading TFLite model from {MODEL_PATH}")
+        start_time = time.time()
         interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
         interpreter.allocate_tensors()
-        logger.info("✅ Model loaded successfully")
+        load_time = time.time() - start_time
+        logger.info(f"✅ Model loaded successfully in {load_time:.2f}s")
         return True
     except Exception as e:
         logger.error(f"❌ Failed to load model: {str(e)}")
@@ -73,6 +76,8 @@ def preprocess_image(img_bytes, target_size=(224, 224)):
         Preprocessed numpy array
     """
     try:
+        start_time = time.time()
+        
         # Load image from bytes
         img = Image.open(io.BytesIO(img_bytes))
         
@@ -91,6 +96,9 @@ def preprocess_image(img_bytes, target_size=(224, 224)):
         
         # Preprocess for EfficientNet
         img_array = tf.keras.applications.efficientnet.preprocess_input(img_array)
+        
+        preprocess_time = time.time() - start_time
+        logger.info(f"⏱️ Image preprocessed in {preprocess_time:.3f}s")
         
         return img_array.astype(np.float32)
     
@@ -112,6 +120,8 @@ def predict_disease(img_array):
         if interpreter is None:
             raise Exception("Model not loaded")
         
+        start_time = time.time()
+        
         # Get input and output details
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
@@ -124,6 +134,9 @@ def predict_disease(img_array):
         
         # Get output tensor
         predictions = interpreter.get_tensor(output_details[0]['index'])
+        
+        inference_time = time.time() - start_time
+        logger.info(f"⏱️ Inference completed in {inference_time:.3f}s")
         
         # Get prediction results
         pred_idx = np.argmax(predictions, axis=1)[0]
@@ -167,6 +180,8 @@ def predict():
     Returns:
         JSON with prediction results
     """
+    total_start_time = time.time()
+    
     try:
         # Check if image file is present
         if 'image' not in request.files:
@@ -192,19 +207,24 @@ def predict():
         
         # Read image bytes
         img_bytes = file.read()
+        file_size_kb = len(img_bytes) / 1024
+        
+        logger.info(f"📥 Processing image: {file.filename} ({file_size_kb:.1f} KB)")
         
         # Preprocess image
-        logger.info(f"Processing image: {file.filename}")
         img_array = preprocess_image(img_bytes)
         
         # Run prediction
         result = predict_disease(img_array)
         
+        total_time = time.time() - total_start_time
         logger.info(f"✅ Prediction: {result['classVi']} ({result['confidence']:.2f}%)")
+        logger.info(f"⏱️ Total processing time: {total_time:.2f}s")
         
         return jsonify({
             'success': True,
-            'prediction': result
+            'prediction': result,
+            'processingTime': round(total_time, 2)
         }), 200
         
     except Exception as e:
@@ -227,7 +247,8 @@ def index():
         'model': {
             'classes': CLASS_NAMES_VI,
             'input_size': '224x224',
-            'format': 'TFLite'
+            'format': 'TFLite',
+            'loaded': interpreter is not None
         }
     }), 200
 
@@ -256,4 +277,3 @@ if __name__ == '__main__':
     # Start server (for development only)
     logger.info(f"🚀 Starting development server on port {PORT}")
     app.run(host='0.0.0.0', port=PORT, debug=False)
-

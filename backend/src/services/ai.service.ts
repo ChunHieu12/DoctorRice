@@ -8,7 +8,7 @@ import fs from 'fs';
 import { logger } from '../utils/logger';
 
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:5000';
-const AI_REQUEST_TIMEOUT = 60000; // 60 seconds (for Render free tier cold start)
+const AI_REQUEST_TIMEOUT = 120000; // 120 seconds (for Render free tier cold start + processing)
 
 export interface AIPredictionResult {
   class: string; // 'bacterial_leaf_blight' | 'blast' | 'brown_spot' | 'healthy'
@@ -53,11 +53,17 @@ export class AIService {
       formData.append('image', fs.createReadStream(imagePath));
 
       // Call AI service
-      logger.info(`Calling AI service for prediction: ${imagePath}`);
+      const aiCallStart = Date.now();
+      logger.info(`🔄 Calling AI service for prediction: ${imagePath}`);
+      logger.info(`🌐 AI Service URL: ${AI_SERVICE_URL}`);
+      
       const response = await axios.post(`${AI_SERVICE_URL}/predict`, formData, {
         headers: formData.getHeaders(),
         timeout: AI_REQUEST_TIMEOUT,
       });
+
+      const aiCallDuration = Date.now() - aiCallStart;
+      logger.info(`⏱️ AI service response time: ${(aiCallDuration / 1000).toFixed(1)}s`);
 
       if (!response.data.success) {
         throw new Error('AI prediction failed');

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Base configuration for all connections -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <!-- Trust system CAs -->
+            <certificates src="system" />
+            <!-- Trust user-added CAs (for debugging with Charles/Proxyman) -->
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+    
+    <!-- Specific configuration for our backend domains -->
+    <domain-config cleartextTrafficPermitted="false">
+        <!-- Main backend API -->
+        <domain includeSubdomains="true">doctorrice.onrender.com</domain>
+        <!-- AI backend -->
+        <domain includeSubdomains="true">doctorrice-ai-service.onrender.com</domain>
+        <!-- Cloudinary CDN -->
+        <domain includeSubdomains="true">res.cloudinary.com</domain>
+        <domain includeSubdomains="true">cloudinary.com</domain>
+        <!-- Firebase -->
+        <domain includeSubdomains="true">firebaseapp.com</domain>
+        <domain includeSubdomains="true">googleapis.com</domain>
+        
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </domain-config>
+</network-security-config>
+

@@ -11,12 +11,12 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-    ActivityIndicator,
-    Alert,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -100,36 +100,81 @@ export default function CameraModal() {
       const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://doctorrice.onrender.com/api';
       console.log('📤 Uploading to:', `${API_URL}/photos/upload`);
       console.log('📍 GPS:', location.coords.latitude, location.coords.longitude);
+      console.log('🔑 Token:', token ? `${token.substring(0, 20)}...` : 'NO TOKEN');
       
-      const response = await fetch(`${API_URL}/photos/upload`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      console.log('Response status:', response.status);
+      // Wake up backend if sleeping (Render free tier cold start fix)
+      setLoadingMessage('Đang kết nối server...');
+      const wakeStartTime = Date.now();
       
-      const data = await response.json();
-      console.log('Response data:', JSON.stringify(data, null, 2));
-
-      if (!response.ok) {
-        const errorMsg = data.error?.message || data.message || 'Upload failed';
-        console.error('❌ Upload failed:', response.status, errorMsg);
-        throw new Error(errorMsg);
+      try {
+        // Parallel wake-up calls to both backend and AI service
+        const baseUrl = API_URL.replace('/api', '');
+        await Promise.all([
+          fetch(`${API_URL}/health`, { 
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+          }).catch(e => console.warn('Backend health check failed:', e)),
+          
+          fetch('https://doctorrice-ai-service.onrender.com/health', {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+          }).catch(e => console.warn('AI service health check failed:', e)),
+        ]);
+        
+        const wakeTime = Date.now() - wakeStartTime;
+        console.log(`⏱️ Services warmed up in ${wakeTime}ms`);
+      } catch (wakeError) {
+        console.warn('⚠️ Wake-up failed (continuing anyway):', wakeError);
       }
+      
+      setLoadingMessage('Đang upload...');
+      
+      // Create abort controller for timeout (3 minutes for cold start + AI processing)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 180000); // 180s = 3 minutes
+      
+      try {
+        const uploadStartTime = Date.now();
+        
+        const response = await fetch(`${API_URL}/photos/upload`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+          },
+          body: formData,
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
+        
+        const uploadDuration = Date.now() - uploadStartTime;
+        console.log(`⏱️ Upload completed in ${(uploadDuration / 1000).toFixed(1)}s`);
+        console.log('Response status:', response.status);
+        
+        const data = await response.json();
+        console.log('Response data:', JSON.stringify(data, null, 2));
 
-      console.log('✅ Upload success! Photo ID:', data.data?.photo?._id);
+        if (!response.ok) {
+          const errorMsg = data.error?.message || data.message || 'Upload failed';
+          console.error('❌ Upload failed:', response.status, errorMsg);
+          throw new Error(`${response.status}: ${errorMsg}`);
+        }
 
-      // Navigate to result screen
-      if (data.data?.photo?._id) {
-        router.push({
-          pathname: '/result',
-          params: { photoId: data.data.photo._id },
-        } as any);
-      } else {
-        throw new Error('No photo ID in response');
+        console.log('✅ Upload success! Photo ID:', data.data?.photo?._id);
+
+        // Navigate to result screen
+        if (data.data?.photo?._id) {
+          router.push({
+            pathname: '/result',
+            params: { photoId: data.data.photo._id },
+          } as any);
+        } else {
+          throw new Error('No photo ID in response');
+        }
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        throw fetchError;
       }
 
     } catch (error: any) {
@@ -137,12 +182,24 @@ export default function CameraModal() {
       console.error('Error details:', {
         name: error.name,
         message: error.message,
+        code: error.code,
         stack: error.stack,
       });
-      Alert.alert(
-        'Lỗi upload', 
-        error.message || 'Không thể upload ảnh. Vui lòng thử lại.'
-      );
+      
+      // More specific error messages
+      let errorMessage = 'Không thể upload ảnh. Vui lòng thử lại.';
+      
+      if (error.name === 'AbortError') {
+        errorMessage = 'Upload timeout. Vui lòng kiểm tra kết nối mạng.';
+      } else if (error.message.includes('Network request failed')) {
+        errorMessage = 'Lỗi kết nối mạng. Vui lòng kiểm tra internet.';
+      } else if (error.message.includes('401')) {
+        errorMessage = 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      Alert.alert('Lỗi upload', errorMessage);
     } finally {
       setIsLoading(false);
       setLoadingMessage('');

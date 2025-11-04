@@ -88,7 +88,14 @@ export const uploadPhoto = async (req: Request, res: Response) => {
 
     logger.info(`📸 Processing photo ${photo._id} for user ${userId} at [${lat}, ${lng}]`);
 
+    // Warm up AI service first (wake from sleep if needed)
+    const aiWakeStart = Date.now();
+    const aiHealthy = await AIService.healthCheck().catch(() => false);
+    const aiWakeTime = Date.now() - aiWakeStart;
+    logger.info(`🤖 AI Service health check: ${aiHealthy ? 'Ready' : 'Sleeping'} (${aiWakeTime}ms)`);
+
     // Run AI prediction and Cloudinary upload in parallel
+    const processingStart = Date.now();
     logger.info(`🔄 Starting parallel processing: AI + Cloudinary upload`);
     logger.info(`🤖 AI Service URL: ${process.env.AI_SERVICE_URL || 'http://localhost:5000'}`);
     
@@ -161,7 +168,9 @@ export const uploadPhoto = async (req: Request, res: Response) => {
     // Cleanup local file
     CloudinaryService.cleanupLocalFile(localFilePath);
 
+    const processingDuration = Date.now() - processingStart;
     logger.info(`✅ Photo ${photo._id} processed successfully`);
+    logger.info(`⏱️ Total processing time: ${(processingDuration / 1000).toFixed(1)}s`);
 
     // Return response
     return res.status(201).json({
@@ -171,11 +180,11 @@ export const uploadPhoto = async (req: Request, res: Response) => {
         photo: {
           _id: photo._id,
           userId: photo.userId,
-          originalUrl: photo.originalUrl,
-          watermarkedUrl: photo.watermarkedUrl,
+        originalUrl: photo.originalUrl,
+        watermarkedUrl: photo.watermarkedUrl,
           thumbnailUrl: photo.thumbnailUrl,
           cloudinaryPublicId: photo.cloudinaryPublicId,
-          metadata: photo.metadata,
+        metadata: photo.metadata,
           prediction: photo.prediction,
           status: photo.status,
           fileSize: photo.fileSize,

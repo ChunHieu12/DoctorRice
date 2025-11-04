@@ -17,7 +17,7 @@ router.get('/health', (_req: Request, res: Response) => {
 // Routes
 router.use('/auth', authRoutes);
 router.use('/photos', photoRoutes);
-router.use('/docs', docsRoutes);
+router.use('/detail', docsRoutes);
 
 export default router;
 

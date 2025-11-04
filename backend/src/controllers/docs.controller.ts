@@ -281,33 +281,4 @@ function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, (m) => map[m]);
 }
 
-/**
- * Get API documentation (Swagger JSON)
- */
-export const getApiDocs = async (_req: Request, res: Response) => {
-  try {
-    return res.json({
-      success: true,
-      data: {
-        message: 'API documentation available at /api/docs',
-        swaggerUI: '/api/docs',
-        systemArchitecture: '/api/docs/detail',
-        formats: {
-          markdown: '/api/docs/detail?format=markdown',
-          html: '/api/docs/detail?format=html',
-          json: '/api/docs/detail?format=json',
-        },
-      },
-    });
-  } catch (error: any) {
-    logger.error('Error getting API docs:', error);
-    return res.status(500).json({
-      success: false,
-      error: {
-        code: 'SERVER_ERROR',
-        message: 'Failed to get API documentation',
-      },
-    });
-  }
-};
 

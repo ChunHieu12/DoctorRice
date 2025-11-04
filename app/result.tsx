@@ -197,7 +197,7 @@ export default function ResultScreen() {
         <View style={styles.actionButtons}>
           <TouchableOpacity
             style={[styles.actionButton, styles.mapButton]}
-            onPress={() => router.push('/farming')}
+            onPress={() => router.push('/(tabs)/mapFarm')}
           >
             <Ionicons name="map" size={24} color="#fff" />
             <Text style={styles.actionButtonText}>

@@ -4,7 +4,7 @@
     "slug": "DoctorRice",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./src/assets/images/logo2.png",
+    "icon": "./src/assets/images/text-logo.png",
     "scheme": "doctorrice",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,

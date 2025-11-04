@@ -36,9 +36,9 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="farming"
+          name="mapFarm"
           options={{
-            title: 'Nông vụ',
+            title: 'Bản đồ',
           }}
         />
         <Tabs.Screen

@@ -87,43 +87,54 @@ export class CloudinaryService {
       // Upload original image first
       const original = await this.uploadImage(filePath, uploadOptions);
 
-      // Generate simple watermark text (avoid special characters that need encoding)
+      // Generate watermark text with Vietnam timezone
       const dateTime = timestamp
         ? new Date(timestamp)
         : new Date();
       
-      // Format: DD-MM-YYYY HH:MM (no slashes to avoid URL encoding issues)
-      const dateStr = `${dateTime.getDate().toString().padStart(2, '0')}-${(dateTime.getMonth() + 1).toString().padStart(2, '0')}-${dateTime.getFullYear()}`;
-      const timeStr = `${dateTime.getHours().toString().padStart(2, '0')}:${dateTime.getMinutes().toString().padStart(2, '0')}`;
+      // Format date/time with Asia/Ho_Chi_Minh timezone (UTC+7)
+      const vietnamDate = dateTime.toLocaleDateString('vi-VN', { 
+        timeZone: 'Asia/Ho_Chi_Minh',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }).replace(/\//g, '-'); // Replace slashes with dashes
+      
+      const vietnamTime = dateTime.toLocaleTimeString('vi-VN', {
+        timeZone: 'Asia/Ho_Chi_Minh',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
       
       // Simple coordinates text
       const coordsText = `GPS: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-      const dateTimeText = `${dateStr} ${timeStr}`;
+      const dateTimeText = `${vietnamDate} ${vietnamTime}`;
 
-      // Generate watermarked URL - simple single text layer
+      // Generate watermarked URL - text at top-right
       const watermarkedUrl = cloudinary.url(original.public_id, {
         transformation: [
           {
             overlay: {
               font_family: 'Arial',
-              font_size: 32,
+              font_size: 28,
               font_weight: 'bold',
-              text_align: 'left',
+              text_align: 'right',
               text: `${coordsText} | ${dateTimeText}`,
             },
-            gravity: 'south_west',
+            gravity: 'north_east', // Top-right corner
             x: 20,
-            y: 50,
+            y: 60,
             color: 'white',
           },
           {
             overlay: {
               font_family: 'Arial',
-              font_size: 24,
+              font_size: 22,
               font_weight: 'bold',
               text: 'Bac si Lua',
             },
-            gravity: 'south_west',
+            gravity: 'north_east', // Top-right corner
             x: 20,
             y: 20,
             color: 'rgb:4CAF50',

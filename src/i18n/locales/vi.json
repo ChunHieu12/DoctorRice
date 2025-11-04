@@ -152,9 +152,17 @@
     "noPhotos": "Chưa có hình ảnh",
     "noPhotosDesc": "Hãy chụp hoặc upload ảnh cây lúa để xem vị trí trên bản đồ",
     "captureNow": "Chụp ngay",
+    "capture": "Chụp ngay",
     "locations": "vị trí",
     "confidence": "Độ tin cậy",
-    "viewDetail": "Xem chi tiết"
+    "viewDetail": "Xem chi tiết",
+    "multiplePhotos": "{{count}} ảnh tại vị trí này",
+    "photosAtLocation": "ảnh tại vị trí này",
+    "analyzing": "Đang phân tích...",
+    "diseaseArea": "Vùng nguy cơ bệnh",
+    "areaRadius": "Bán kính: {{radius}}m",
+    "healthyArea": "Khu vực khỏe mạnh",
+    "diseaseZone": "Vùng dịch bệnh"
   },
 
   "photoDetail": {
@@ -164,7 +172,25 @@
     "diseaseInfo": "Thông tin bệnh",
     "treatment": "Cách trị bệnh",
     "viewOnMap": "Xem bản đồ",
-    "newPhoto": "Chụp mới"
+    "newPhoto": "Chụp mới",
+    "diseases": {
+      "bacterial_leaf_blight": {
+        "info": "Bệnh bạc lá vi khuẩn (Bacterial Leaf Blight)\n\n🦠 Nguyên nhân:\n- Vi khuẩn Xanthomonas oryzae pv. oryzae\n- Phát triển mạnh trong điều kiện ẩm ướt, nhiệt độ 25-30°C\n\n📋 Triệu chứng:\n- Lá có các vệt dài màu vàng nhạt đến xám trắng\n- Vệt bệnh thường xuất hiện ở rìa lá\n- Lá khô, chết dần từ đầu lá\n- Có thể gây thiệt hại nặng nếu không xử lý kịp thời\n\n⚠️ Mức độ nguy hiểm: Cao\n🌾 Giai đoạn dễ nhiễm: Đẻ nhánh đến trỗ bông",
+        "treatment": "Cách phòng trừ Bệnh bạc lá vi khuẩn:\n\n✅ Phòng ngừa:\n1. Chọn giống lúa kháng bệnh\n2. Xử lý hạt giống trước khi gieo bằng nước nóng 52-54°C trong 10 phút\n3. Tăng cường thoát nước, tránh ngập úng kéo dài\n4. Bón phân cân đối, không bón quá nhiều đạm\n5. Dọn sạch rơm rạ sau thu hoạch\n\n💊 Điều trị khi bị bệnh:\n1. Thuốc kháng sinh:\n   - Validamycin 5% (30ml/20 lít nước)\n   - Kasugamycin 2% (40ml/20 lít nước)\n\n2. Thuốc đồng:\n   - Đồng Hydroxide 77% WP (20g/20 lít nước)\n   - Phun cách 7-10 ngày\n\n3. Biện pháp nông nghiệp:\n   - Cắt bỏ lá bệnh, tiêu hủy xa ruộng\n   - Tăng phân kali để tăng sức đề kháng\n   - Tránh tưới nước ngập lúa vào buổi chiều\n\n📅 Lịch phun: 2-3 lần, cách nhau 7-10 ngày"
+      },
+      "blast": {
+        "info": "Bệnh đạo ôn (Blast Disease)\n\n🦠 Nguyên nhân:\n- Nấm Pyricularia oryzae (Magnaporthe oryzae)\n- Bệnh nguy hiểm nhất trên lúa\n\n📋 Triệu chứng:\n- Bệnh đạo ôn lá: Các vết bệnh hình thoi, viền nâu, tâm xám trắng\n- Bệnh đạo ôn cổ bông: Cổ bông gãy, bông chết non\n- Bệnh đạo ôn hạt: Hạt lép, giảm năng suất\n\n⚠️ Mức độ nguy hiểm: Rất cao\n🌾 Giai đoạn dễ nhiễm: Mọi giai đoạn, đặc biệt là đẻ nhánh và trỗ bông\n\n💧 Điều kiện phát bệnh:\n- Nhiệt độ 20-30°C\n- Độ ẩm cao > 90%\n- Sương mù, mưa phùn\n- Bón nhiều đạm, thiếu kali",
+        "treatment": "Cách phòng trừ Bệnh đạo ôn:\n\n✅ Phòng ngừa:\n1. Chọn giống lúa kháng bệnh cao\n2. Bón phân cân đối NPK, tăng cường K và Si\n3. Tránh bón đạm quá liều, bón muộn\n4. Khoảng cách hàng lúa hợp lý (thoáng, đủ ánh sáng)\n5. Xử lý hạt giống bằng thuốc trước khi gieo\n\n💊 Điều trị khi bị bệnh:\n1. Thuốc hệ Triazole:\n   - Tricyclazole 75% WP (15-20g/20 lít nước)\n   - Propiconazole 25% EC (20ml/20 lít nước)\n\n2. Thuốc hệ Strobilurin:\n   - Azoxystrobin 25% SC (20ml/20 lít nước)\n\n3. Thuốc phối hợp:\n   - Tricyclazole + Hexaconazole (20g/20 lít nước)\n\n4. Khi bệnh nặng:\n   - Phun 3-4 lần, cách 5-7 ngày\n   - Luân phiên các loại thuốc tránh kháng thuốc\n\n📅 Thời điểm phun:\n- Giai đoạn đẻ nhánh: phun phòng ngừa\n- Khi phát hiện bệnh: phun ngay lập tức\n- Trước trỗ bông 7-10 ngày: phun bảo vệ cổ bông\n\n⚠️ Lưu ý: Đạo ôn cổ bông rất nguy hiểm, cần phòng trước khi trỗ!"
+      },
+      "brown_spot": {
+        "info": "Bệnh đốm nâu (Brown Spot Disease)\n\n🦠 Nguyên nhân:\n- Nấm Bipolaris oryzae (Helminthosporium oryzae)\n- Phổ biến ở các vùng thiếu dinh dưỡng\n\n📋 Triệu chứng:\n- Các đốm nhỏ hình tròn hoặc bầu dục màu nâu\n- Đốm có viền vàng, tâm màu nâu xám\n- Lá có nhiều đốm, khô dần, giảm quang hợp\n- Hạt bị nhiễm có màu nâu đen\n\n⚠️ Mức độ nguy hiểm: Trung bình\n🌾 Giai đoạn dễ nhiễm: Từ đẻ nhánh đến chín\n\n💧 Điều kiện phát bệnh:\n- Thiếu dinh dưỡng (đặc biệt thiếu N, P, K, Si)\n- Độ ẩm cao 80-90%\n- Nhiệt độ 25-30°C\n- Đất chua, nghèo dinh dưỡng",
+        "treatment": "Cách phòng trừ Bệnh đốm nâu:\n\n✅ Phòng ngừa:\n1. Bón phân cân đối, đầy đủ NPK\n2. Bón bổ sung phân lân, kali và silic\n3. Cải tạo đất chua bằng vôi bột\n4. Sử dụng giống lúa khỏe, kháng bệnh\n5. Xử lý hạt giống trước khi gieo\n\n💊 Điều trị khi bị bệnh:\n1. Thuốc diệt nấm:\n   - Mancozeb 80% WP (30-40g/20 lít nước)\n   - Edifenphos 50% EC (30ml/20 lít nước)\n   - Isoprothiolane 40% EC (30ml/20 lít nước)\n\n2. Phun phối hợp:\n   - Thuốc diệt nấm + phân bón lá (NPK)\n   - Bổ sung kẽm và silic qua lá\n\n3. Bón phân bổ sung:\n   - Phân NPK cân đối\n   - Phân kali (tăng sức đề kháng)\n   - Vôi bột nếu đất chua\n\n📅 Lịch phun: 2 lần, cách nhau 10 ngày\n\n💡 Mẹo: Bệnh đốm nâu thường do thiếu dinh dưỡng. Cải thiện dinh dưỡng là cách tốt nhất!"
+      },
+      "healthy": {
+        "info": "Lá lúa khỏe mạnh 🎉\n\n✅ Đánh giá:\nCây lúa của bạn đang trong tình trạng tốt, không phát hiện dấu hiệu bệnh!\n\n🌿 Đặc điểm lá khỏe:\n- Màu xanh đậm, đều màu\n- Bề mặt lá không có vết đốm hay vệt bệnh\n- Lá cứng cáp, đứng thẳng\n- Không có hiện tượng khô, héo\n\n📊 Tiếp tục duy trì:\n1. Bón phân đúng liều, đúng thời điểm\n2. Quản lý nước hợp lý\n3. Theo dõi sâu bệnh thường xuyên\n4. Vệ sinh đồng ruộng sạch sẽ\n\n🎯 Khuyến nghị:\n- Tiếp tục giữ gìn chất lượng chăm sóc hiện tại\n- Quan sát định kỳ để phát hiện sớm nếu có bệnh\n- Chụp ảnh theo dõi sự phát triển của cây",
+        "treatment": "Biện pháp duy trì sức khỏe cây lúa:\n\n✅ Chăm sóc định kỳ:\n\n1. Bón phân cân đối:\n   - Đạm: Chia 3 lần (lót, đẻ nhánh, trỗ bông)\n   - Lân: Bón lót toàn bộ\n   - Kali: Chia 2 lần (lót và trỗ bông)\n   - Silic: 100-150 kg/ha (tăng sức đề kháng)\n\n2. Quản lý nước:\n   - Giai đoạn đẻ nhánh: Tưới nước cạn\n   - Phơi ruộng đúng lúc\n   - Giữ nước sâu 5-7cm giai đoạn trỗ bông\n\n3. Phòng ngừa sâu bệnh:\n   - Kiểm tra ruộng 2-3 lần/tuần\n   - Dùng bẫy đèn diệt sâu đêm\n   - Phun phòng bệnh nếu thời tiết xấu\n\n4. Vệ sinh đồng ruộng:\n   - Dọn cỏ dại thường xuyên\n   - Vệ sinh bờ mương\n   - Tiêu hủy cây bệnh nếu có\n\n📅 Lịch chăm sóc:\n- Tuần 1-3: Theo dõi cây con, bón lót\n- Tuần 4-6: Giai đoạn đẻ nhánh, bón đạm lần 2\n- Tuần 7-8: Phơi ruộng\n- Tuần 9-10: Trỗ bông, bón kali\n- Tuần 11-14: Chín, thu hoạch\n\n🏆 Chúc mừng! Tiếp tục chăm sóc tốt như vậy!"
+      }
+    }
   },
 
   "gallery": {
@@ -234,7 +260,7 @@
     "home": "Trang chủ",
     "weather": "Thời tiết",
     "camera": "Camera",
-    "farming": "Nông vụ",
+    "mapFarm": "Bản đồ",
     "account": "Tài khoản"
   },
 
@@ -242,12 +268,6 @@
     "title": "Thời tiết",
     "subtitle": "Thông tin thời tiết phục vụ nông nghiệp",
     "comingSoon": "Thông tin thời tiết đang được cập nhật..."
-  },
-
-  "farming": {
-    "title": "Nông vụ",
-    "subtitle": "Quản lý thông tin nông vụ và cây lúa",
-    "comingSoon": "Thông tin nông vụ đang được cập nhật..."
   },
 
   "permissions": {

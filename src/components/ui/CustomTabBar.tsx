@@ -48,9 +48,9 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
       isCenter: true,
     },
     {
-      name: 'farming',
-      label: t('tabs.farming', { defaultValue: 'Nông vụ' }),
-      icon: 'leaf',
+      name: 'mapFarm',
+      label: t('tabs.mapFarm', { defaultValue: 'Bản đồ' }),
+      icon: 'map',
       isImage: false,
     },
     {

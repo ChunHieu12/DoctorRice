@@ -22,218 +22,6 @@ const { width } = Dimensions.get('window');
 
 type TabKey = 'info' | 'treatment';
 
-// Disease information database (will be updated by user later)
-const DISEASE_INFO: Record<string, { info: string; treatment: string; infoVi: string; treatmentVi: string }> = {
-  bacterial_leaf_blight: {
-    infoVi: `**Bệnh bạc lá vi khuẩn** (Bacterial Leaf Blight)
-
-🦠 **Nguyên nhân:**
-- Vi khuẩn Xanthomonas oryzae pv. oryzae
-- Phát triển mạnh trong điều kiện ẩm ướt, nhiệt độ 25-30°C
-
-📋 **Triệu chứng:**
-- Lá có các vệt dài màu vàng nhạt đến xám trắng
-- Vệt bệnh thường xuất hiện ở rìa lá
-- Lá khô, chết dần từ đầu lá
-- Có thể gây thiệt hại nặng nếu không xử lý kịp thời
-
-⚠️ **Mức độ nguy hiểm:** Cao
-🌾 **Giai đoạn dễ nhiễm:** Đẻ nhánh đến trỗ bông`,
-    
-    treatmentVi: `**Cách phòng trừ Bệnh bạc lá vi khuẩn:**
-
-✅ **Phòng ngừa:**
-1. Chọn giống lúa kháng bệnh
-2. Xử lý hạt giống trước khi gieo bằng nước nóng 52-54°C trong 10 phút
-3. Tăng cường thoát nước, tránh ngập úng kéo dài
-4. Bón phân cân đối, không bón quá nhiều đạm
-5. Dọn sạch rơm rạ sau thu hoạch
-
-💊 **Điều trị khi bị bệnh:**
-1. **Thuốc kháng sinh:**
-   - Validamycin 5% (30ml/20 lít nước)
-   - Kasugamycin 2% (40ml/20 lít nước)
-
-2. **Thuốc đồng:**
-   - Đồng Hydroxide 77% WP (20g/20 lít nước)
-   - Phun cách 7-10 ngày
-
-3. **Biện pháp nông nghiệp:**
-   - Cắt bỏ lá bệnh, tiêu hủy xa ruộng
-   - Tăng phân kali để tăng sức đề kháng
-   - Tránh tưới nước ngập lúa vào buổi chiều
-
-📅 **Lịch phun:** 2-3 lần, cách nhau 7-10 ngày`,
-    info: 'Bacterial Leaf Blight info (English placeholder)',
-    treatment: 'Bacterial Leaf Blight treatment (English placeholder)',
-  },
-  blast: {
-    infoVi: `**Bệnh đạo ôn** (Blast Disease)
-
-🦠 **Nguyên nhân:**
-- Nấm Pyricularia oryzae (Magnaporthe oryzae)
-- Bệnh nguy hiểm nhất trên lúa
-
-📋 **Triệu chứng:**
-- **Bệnh đạo ôn lá:** Các vết bệnh hình thoi, viền nâu, tâm xám trắng
-- **Bệnh đạo ôn cổ bông:** Cổ bông gãy, bông chết non
-- **Bệnh đạo ôn hạt:** Hạt lép, giảm năng suất
-
-⚠️ **Mức độ nguy hiểm:** Rất cao
-🌾 **Giai đoạn dễ nhiễm:** Mọi giai đoạn, đặc biệt là đẻ nhánh và trỗ bông
-
-💧 **Điều kiện phát bệnh:**
-- Nhiệt độ 20-30°C
-- Độ ẩm cao > 90%
-- Sương mù, mưa phùn
-- Bón nhiều đạm, thiếu kali`,
-    
-    treatmentVi: `**Cách phòng trừ Bệnh đạo ôn:**
-
-✅ **Phòng ngừa:**
-1. Chọn giống lúa kháng bệnh cao
-2. Bón phân cân đối NPK, tăng cường K và Si
-3. Tránh bón đạm quá liều, bón muộn
-4. Khoảng cách hàng lúa hợp lý (thoáng, đủ ánh sáng)
-5. Xử lý hạt giống bằng thuốc trước khi gieo
-
-💊 **Điều trị khi bị bệnh:**
-1. **Thuốc hệ Triazole:**
-   - Tricyclazole 75% WP (15-20g/20 lít nước)
-   - Propiconazole 25% EC (20ml/20 lít nước)
-
-2. **Thuốc hệ Strobilurin:**
-   - Azoxystrobin 25% SC (20ml/20 lít nước)
-
-3. **Thuốc phối hợp:**
-   - Tricyclazole + Hexaconazole (20g/20 lít nước)
-
-4. **Khi bệnh nặng:**
-   - Phun 3-4 lần, cách 5-7 ngày
-   - Luân phiên các loại thuốc tránh kháng thuốc
-
-📅 **Thời điểm phun:**
-- Giai đoạn đẻ nhánh: phun phòng ngừa
-- Khi phát hiện bệnh: phun ngay lập tức
-- Trước trỗ bông 7-10 ngày: phun bảo vệ cổ bông
-
-⚠️ **Lưu ý:** Đạo ôn cổ bông rất nguy hiểm, cần phòng trước khi trỗ!`,
-    info: 'Blast Disease info (English placeholder)',
-    treatment: 'Blast Disease treatment (English placeholder)',
-  },
-  brown_spot: {
-    infoVi: `**Bệnh đốm nâu** (Brown Spot Disease)
-
-🦠 **Nguyên nhân:**
-- Nấm Bipolaris oryzae (Helminthosporium oryzae)
-- Phổ biến ở các vùng thiếu dinh dưỡng
-
-📋 **Triệu chứng:**
-- Các đốm nhỏ hình tròn hoặc bầu dục màu nâu
-- Đốm có viền vàng, tâm màu nâu xám
-- Lá có nhiều đốm, khô dần, giảm quang hợp
-- Hạt bị nhiễm có màu nâu đen
-
-⚠️ **Mức độ nguy hiểm:** Trung bình
-🌾 **Giai đoạn dễ nhiễm:** Từ đẻ nhánh đến chín
-
-💧 **Điều kiện phát bệnh:**
-- Thiếu dinh dưỡng (đặc biệt thiếu N, P, K, Si)
-- Độ ẩm cao 80-90%
-- Nhiệt độ 25-30°C
-- Đất chua, nghèo dinh dưỡng`,
-    
-    treatmentVi: `**Cách phòng trừ Bệnh đốm nâu:**
-
-✅ **Phòng ngừa:**
-1. Bón phân cân đối, đầy đủ NPK
-2. Bón bổ sung phân lân, kali và silic
-3. Cải tạo đất chua bằng vôi bột
-4. Sử dụng giống lúa khỏe, kháng bệnh
-5. Xử lý hạt giống trước khi gieo
-
-💊 **Điều trị khi bị bệnh:**
-1. **Thuốc diệt nấm:**
-   - Mancozeb 80% WP (30-40g/20 lít nước)
-   - Edifenphos 50% EC (30ml/20 lít nước)
-   - Isoprothiolane 40% EC (30ml/20 lít nước)
-
-2. **Phun phối hợp:**
-   - Thuốc diệt nấm + phân bón lá (NPK)
-   - Bổ sung kẽm và silic qua lá
-
-3. **Bón phân bổ sung:**
-   - Phân NPK cân đối
-   - Phân kali (tăng sức đề kháng)
-   - Vôi bột nếu đất chua
-
-📅 **Lịch phun:** 2 lần, cách nhau 10 ngày
-
-💡 **Mẹo:** Bệnh đốm nâu thường do thiếu dinh dưỡng. Cải thiện dinh dưỡng là cách tốt nhất!`,
-    info: 'Brown Spot info (English placeholder)',
-    treatment: 'Brown Spot treatment (English placeholder)',
-  },
-  healthy: {
-    infoVi: `**Lá lúa khỏe mạnh** 🎉
-
-✅ **Đánh giá:**
-Cây lúa của bạn đang trong tình trạng tốt, không phát hiện dấu hiệu bệnh!
-
-🌿 **Đặc điểm lá khỏe:**
-- Màu xanh đậm, đều màu
-- Bề mặt lá không có vết đốm hay vệt bệnh
-- Lá cứng cáp, đứng thẳng
-- Không có hiện tượng khô, héo
-
-📊 **Tiếp tục duy trì:**
-1. Bón phân đúng liều, đúng thời điểm
-2. Quản lý nước hợp lý
-3. Theo dõi sâu bệnh thường xuyên
-4. Vệ sinh đồng ruộng sạch sẽ
-
-🎯 **Khuyến nghị:**
-- Tiếp tục giữ gìn chất lượng chăm sóc hiện tại
-- Quan sát định kỳ để phát hiện sớm nếu có bệnh
-- Chụp ảnh theo dõi sự phát triển của cây`,
-    
-    treatmentVi: `**Biện pháp duy trì sức khỏe cây lúa:**
-
-✅ **Chăm sóc định kỳ:**
-
-1. **Bón phân cân đối:**
-   - Đạm: Chia 3 lần (lót, đẻ nhánh, trỗ bông)
-   - Lân: Bón lót toàn bộ
-   - Kali: Chia 2 lần (lót và trỗ bông)
-   - Silic: 100-150 kg/ha (tăng sức đề kháng)
-
-2. **Quản lý nước:**
-   - Giai đoạn đẻ nhánh: Tưới nước cạn
-   - Phơi ruộng đúng lúc
-   - Giữ nước sâu 5-7cm giai đoạn trỗ bông
-
-3. **Phòng ngừa sâu bệnh:**
-   - Kiểm tra ruộng 2-3 lần/tuần
-   - Dùng bẫy đèn diệt sâu đêm
-   - Phun phòng bệnh nếu thời tiết xấu
-
-4. **Vệ sinh đồng ruộng:**
-   - Dọn cỏ dại thường xuyên
-   - Vệ sinh bờ mương
-   - Tiêu hủy cây bệnh nếu có
-
-📅 **Lịch chăm sóc:**
-- Tuần 1-3: Theo dõi cây con, bón lót
-- Tuần 4-6: Giai đoạn đẻ nhánh, bón đạm lần 2
-- Tuần 7-8: Phơi ruộng
-- Tuần 9-10: Trỗ bông, bón kali
-- Tuần 11-14: Chín, thu hoạch
-
-🏆 **Chúc mừng!** Tiếp tục chăm sóc tốt như vậy!`,
-    info: 'Healthy rice plant (English placeholder)',
-    treatment: 'Maintenance tips (English placeholder)',
-  },
-};
-
 export default function PhotoDetailScreen() {
   const router = useRouter();
   const { t } = useTranslation();
@@ -289,7 +77,19 @@ export default function PhotoDetailScreen() {
   }
 
   const diseaseClass = photo.prediction.class;
-  const diseaseData = DISEASE_INFO[diseaseClass] || DISEASE_INFO.healthy;
+  
+  // Get disease info and treatment from i18n
+  const getDiseaseInfo = () => {
+    return t(`photoDetail.diseases.${diseaseClass}.info`, {
+      defaultValue: 'Disease information not available',
+    });
+  };
+
+  const getDiseaseTreatment = () => {
+    return t(`photoDetail.diseases.${diseaseClass}.treatment`, {
+      defaultValue: 'Treatment information not available',
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -374,7 +174,7 @@ export default function PhotoDetailScreen() {
         {/* Content */}
         <View style={styles.contentContainer}>
           <Text style={styles.contentText}>
-            {activeTab === 'info' ? diseaseData.infoVi : diseaseData.treatmentVi}
+            {activeTab === 'info' ? getDiseaseInfo() : getDiseaseTreatment()}
           </Text>
         </View>
 
@@ -382,7 +182,7 @@ export default function PhotoDetailScreen() {
         <View style={styles.actionButtons}>
           <TouchableOpacity
             style={[styles.actionButton, styles.mapButton]}
-            onPress={() => router.push('/farming')}
+            onPress={() => router.push('/(tabs)/mapFarm')}
           >
             <Ionicons name="map" size={20} color="#fff" />
             <Text style={styles.actionButtonText}>
@@ -392,7 +192,7 @@ export default function PhotoDetailScreen() {
 
           <TouchableOpacity
             style={[styles.actionButton, styles.recaptureButton]}
-            onPress={() => router.push('/camera')}
+            onPress={() => router.push('/camera-modal')}
           >
             <Ionicons name="camera" size={20} color="#fff" />
             <Text style={styles.actionButtonText}>

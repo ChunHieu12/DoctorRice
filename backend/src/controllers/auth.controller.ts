@@ -250,6 +250,11 @@ export const loginWithPhone = async (req: Request, res: Response) => {
   try {
     const { phone, password } = req.body;
 
+    console.log('🔐 Login attempt:', { 
+      rawPhone: phone, 
+      passwordLength: password?.length 
+    });
+
     // Validate input
     if (!phone || !password) {
       return errorResponse(res, 'AUTH_004', 'Phone and password are required', 400);
@@ -257,21 +262,42 @@ export const loginWithPhone = async (req: Request, res: Response) => {
 
     // Normalize phone number
     const normalizedPhone = normalizePhone(phone);
+    console.log('📞 Normalized phone:', { 
+      from: phone, 
+      to: normalizedPhone 
+    });
 
     // Validate phone format
     if (!isValidVietnamesePhone(normalizedPhone)) {
+      console.log('❌ Invalid phone format:', normalizedPhone);
       return errorResponse(res, 'AUTH_013', 'Invalid phone number format', 400);
     }
 
     // Find user by normalized phone
     const user = await User.findOne({ phone: normalizedPhone }).select('+passwordHash');
+    console.log('🔍 User lookup:', { 
+      phone: normalizedPhone, 
+      found: !!user,
+      hasPassword: !!user?.passwordHash 
+    });
+
     if (!user || !user.passwordHash) {
+      console.log('❌ User not found or no password:', { 
+        userExists: !!user, 
+        hasPasswordHash: !!user?.passwordHash 
+      });
       return errorResponse(res, 'AUTH_001', 'Invalid credentials', 401);
     }
 
     // Verify password
     const isValid = await bcrypt.compare(password, user.passwordHash);
+    console.log('🔑 Password verification:', { 
+      isValid,
+      passwordHashLength: user.passwordHash?.length 
+    });
+
     if (!isValid) {
+      console.log('❌ Password mismatch');
       return errorResponse(res, 'AUTH_001', 'Invalid credentials', 401);
     }
 
@@ -295,6 +321,8 @@ export const loginWithPhone = async (req: Request, res: Response) => {
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
+    console.log('✅ Login successful for user:', user.username);
+
     return successResponse(res, {
       user: {
         id: user._id,
@@ -307,6 +335,7 @@ export const loginWithPhone = async (req: Request, res: Response) => {
       refreshToken,
     });
   } catch (error) {
+    console.error('❌ Login error:', error);
     return errorResponse(res, 'SERVER_001', 'Login failed', 500);
   }
 };

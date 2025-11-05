@@ -19,11 +19,14 @@ export const useGoogleSignIn = () => {
       GoogleSignin.configure({
         webClientId: WEB_CLIENT_ID,
         offlineAccess: true,
+        // IMPORTANT: Force account selection every time
+        forceCodeForRefreshToken: true,
         // Request idToken explicitly
         scopes: ['profile', 'email'],
       });
       setIsConfigured(true);
       console.log('✅ Google Sign-In configured with webClientId:', WEB_CLIENT_ID.substring(0, 20) + '...');
+      console.log('✅ Force account picker enabled');
     } catch (error) {
       console.error('❌ Failed to configure Google Sign-In:', error);
     }
@@ -45,17 +48,22 @@ export const useGoogleSignIn = () => {
       // Check if device supports Google Play Services
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
 
-      // Sign out first to force account picker dialog
+      // IMPORTANT: Always revoke and sign out to force account picker
       // This ensures user always sees account selection modal
       try {
-        const isSignedIn = await GoogleSignin.isSignedIn();
-        if (isSignedIn) {
+        const currentUser = await GoogleSignin.getCurrentUser();
+        if (currentUser) {
+          console.log('🔄 User is signed in, revoking access and signing out...');
+          await GoogleSignin.revokeAccess();
           await GoogleSignin.signOut();
+          console.log('✅ Revoked and signed out successfully');
         }
       } catch (signOutError) {
         // Ignore signOut errors - continue with sign in
-        console.log('Sign out before sign in (expected):', signOutError);
+        console.log('ℹ️ Sign out before sign in:', signOutError);
       }
+
+      console.log('🚀 Starting Google Sign-In with account picker...');
 
       // Get user info and ID token
       // Version 16+ returns: { type: 'success', data: { idToken, user, ... } }

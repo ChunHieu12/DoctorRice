@@ -16,6 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import ChatbotModal from '../src/components/ChatbotModal';
 import { Photo, getPhotoById } from '../src/services/photo.service';
 
 const { width } = Dimensions.get('window');
@@ -31,6 +32,7 @@ export default function PhotoDetailScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabKey>('info');
+  const [isChatbotVisible, setIsChatbotVisible] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -178,6 +180,23 @@ export default function PhotoDetailScreen() {
           </Text>
         </View>
 
+        {/* Chat with Doctor Rice Button */}
+        {diseaseClass !== 'healthy' && (
+          <TouchableOpacity
+            style={styles.chatButton}
+            onPress={() => setIsChatbotVisible(true)}
+          >
+            <Image
+              source={require('../src/assets/images/text-logo.png')}
+              style={styles.chatButtonIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.chatButtonText}>
+              {t('photoDetail.chatWithDoctor', { defaultValue: 'Chat với Bác sĩ Lúa' })}
+            </Text>
+          </TouchableOpacity>
+        )}
+
         {/* Action Buttons */}
         <View style={styles.actionButtons}>
           <TouchableOpacity
@@ -201,6 +220,22 @@ export default function PhotoDetailScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Chatbot Modal */}
+      <ChatbotModal
+        visible={isChatbotVisible}
+        onClose={() => setIsChatbotVisible(false)}
+        diseaseContext={{
+          diseaseClass: photo.prediction.class,
+          diseaseVi: photo.prediction.classVi,
+          confidence: photo.prediction.confidence,
+          location: {
+            lat: photo.metadata.lat,
+            lng: photo.metadata.lng,
+          },
+          timestamp: new Date(photo.createdAt).getTime(),
+        }}
+      />
     </View>
   );
 }
@@ -355,6 +390,32 @@ const styles = StyleSheet.create({
   actionButtonText: {
     fontSize: 14,
     fontWeight: '600',
+    color: '#fff',
+  },
+  chatButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 20,
+    paddingVertical: 16,
+    borderRadius: 12,
+    backgroundColor: '#4CAF50',
+    gap: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  chatButtonIcon: {
+    width: 28,
+    height: 28,
+  },
+  chatButtonText: {
+    fontSize: 16,
+    fontWeight: '700',
     color: '#fff',
   },
   loadingText: {

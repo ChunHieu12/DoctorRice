@@ -8,14 +8,15 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-    ActivityIndicator,
-    Dimensions,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import ChatbotModal from '../src/components/ChatbotModal';
 import { Photo, getPhotoById } from '../src/services/photo.service';
 
 const { width } = Dimensions.get('window');
@@ -28,6 +29,7 @@ export default function ResultScreen() {
   const [photo, setPhoto] = useState<Photo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isChatbotVisible, setIsChatbotVisible] = useState(false);
 
   useEffect(() => {
     if (photoId) {
@@ -230,7 +232,42 @@ export default function ResultScreen() {
             <Ionicons name="arrow-forward" size={20} color="#4CAF50" />
           </TouchableOpacity>
         )}
+
+        {/* Chat with Doctor Rice Button */}
+        {photo.prediction && photo.prediction.class && (
+          <TouchableOpacity
+            style={styles.chatButton}
+            onPress={() => setIsChatbotVisible(true)}
+          >
+            <Image
+              source={require('../src/assets/images/text-logo.png')}
+              style={styles.chatButtonIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.chatButtonText}>
+              {t('result.chatWithDoctor', { defaultValue: 'Chat với Bác sĩ Lúa' })}
+            </Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
+
+      {/* Chatbot Modal */}
+      {photo.prediction && (
+        <ChatbotModal
+          visible={isChatbotVisible}
+          onClose={() => setIsChatbotVisible(false)}
+          diseaseContext={{
+            diseaseClass: photo.prediction.class,
+            diseaseVi: photo.prediction.classVi,
+            confidence: photo.prediction.confidence,
+            location: {
+              lat: photo.metadata.lat,
+              lng: photo.metadata.lng,
+            },
+            timestamp: new Date(photo.createdAt).getTime(),
+          }}
+        />
+      )}
     </View>
   );
 }
@@ -404,6 +441,31 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: '#4CAF50',
+  },
+  chatButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 16,
+    marginTop: 12,
+    paddingVertical: 16,
+    borderRadius: 12,
+    backgroundColor: '#4CAF50',
+    gap: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  chatButtonIcon: {
+    width: 28,
+    height: 28,
+  },
+  chatButtonText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#fff',
   },
   loadingText: {
     marginTop: 16,

@@ -214,12 +214,29 @@
     "comingSoon": "Weather information is being updated..."
   },
 
+  "result": {
+    "title": "Analysis Result",
+    "loading": "Loading results...",
+    "confidence": "Confidence",
+    "viewOnMap": "View on Map",
+    "recapture": "Retake",
+    "viewDetails": "View disease details and treatment",
+    "chatWithDoctor": "Chat with Doctor Rice",
+    "noPrediction": "No analysis results",
+    "healthy": "Healthy leaves",
+    "healthyMessage": "Congratulations! Your rice plant is healthy",
+    "diseaseDetected": "Disease detected",
+    "location": "Location",
+    "capturedAt": "Captured at"
+  },
+
   "photoDetail": {
     "title": "Analysis Details",
     "loading": "Loading...",
     "confidence": "Confidence",
     "diseaseInfo": "Disease Information",
     "treatment": "Treatment",
+    "chatWithDoctor": "Chat with Doctor Rice",
     "viewOnMap": "View on Map",
     "newPhoto": "Take New Photo",
     "diseases": {

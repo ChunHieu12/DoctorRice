@@ -149,33 +149,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   const logout = async () => {
     try {
+      console.log('🚪 Starting logout process...');
+      
       // Clear JWT tokens and saved credentials
       await authService.logout();
+      console.log('✅ JWT tokens cleared');
       
       // Sign out from Firebase Auth
       try {
         const firebaseUser = auth().currentUser;
         if (firebaseUser) {
           await auth().signOut();
+          console.log('✅ Firebase signed out');
         }
       } catch (firebaseError) {
-        console.log('Firebase sign out (expected if not logged in):', firebaseError);
+        console.log('ℹ️ Firebase sign out (expected if not logged in):', firebaseError);
       }
       
-      // Sign out from Google to clear account cache
+      // IMPORTANT: Revoke and sign out from Google to force account picker next time
       try {
-        const isSignedIn = await GoogleSignin.isSignedIn();
-        if (isSignedIn) {
+        const currentUser = await GoogleSignin.getCurrentUser();
+        if (currentUser) {
+          console.log('🔄 Revoking Google access...');
+          await GoogleSignin.revokeAccess();
           await GoogleSignin.signOut();
+          console.log('✅ Google access revoked and signed out');
         }
       } catch (googleError) {
-        console.log('Google sign out (expected if not logged in):', googleError);
+        console.log('ℹ️ Google sign out (expected if not logged in):', googleError);
       }
       
       // Clear user state
       setUser(null);
+      console.log('✅ Logout complete');
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('❌ Logout failed:', error);
       // Still clear user state even if logout partially fails
       setUser(null);
       throw error;

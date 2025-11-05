@@ -6,9 +6,6 @@
     "orientation": "portrait",
 <<<<<<< HEAD
     "icon": "./src/assets/images/logo2.png",
-=======
-    "icon": "./src/assets/images/text-logo.png",
->>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
     "scheme": "doctorrice",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -20,13 +17,8 @@
       "package": "com.doctorrice.app",
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-<<<<<<< HEAD
-        "foregroundImage": "./src/assets/images/logo2.png",
-        "backgroundColor": "#ffffff"
-=======
         "foregroundImage": "./src/assets/images/text-logo.png",
         "backgroundColor": "#4CAF50"
->>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -80,13 +72,10 @@
     "extra": {
       "router": {},
       "apiUrl": "https://doctorrice.onrender.com/api",
-<<<<<<< HEAD
-=======
       "openWeatherApiKey": "510dd9ff566e47c94dc28da2fc76bbf1",
       "openWeatherBaseUrl": "https://api.openweathermap.org/data/2.5",
       "geminiApiKey": "AIzaSyDbmXck740HiiKfPavBI4WFjB1p0MfCbXs",
       "geminiApiUrl": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent",
->>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
       "eas": {
         "projectId": "45fd028f-bb4c-4921-8b02-ed70b3082ebe"
       }

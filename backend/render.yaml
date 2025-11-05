@@ -1,0 +1,21 @@
+# Render Blueprint Configuration
+services:
+  - type: web
+    name: doctorrice-backend
+    runtime: node
+    region: singapore
+    plan: free
+    branch: main
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: NODE_OPTIONS
+        value: --max-old-space-size=512
+      # Add other env vars from Render Dashboard
+

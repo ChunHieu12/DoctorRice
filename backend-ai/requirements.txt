@@ -1,0 +1,18 @@
+# Flask web framework
+Flask==3.0.0
+flask-cors==4.0.0
+
+# TensorFlow Lite (updated for Python 3.11+)
+tensorflow==2.20.0
+
+# Image processing
+Pillow==10.1.0
+numpy==1.26.4
+
+# WSGI server for production
+gunicorn==21.2.0
+
+# Utilities
+python-dotenv==1.0.0
+Werkzeug==3.0.1
+

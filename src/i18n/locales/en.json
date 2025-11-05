@@ -1,0 +1,273 @@
+{
+  "common": {
+    "appName": "Doctor Rice",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "retry": "Retry",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "warning": "Warning",
+    "ok": "OK",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done",
+    "skip": "Skip"
+  },
+
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "phone": "Phone Number",
+    "phoneNumber": "Phone Number",
+    "enterPhone": "Enter phone number",
+    "enterPassword": "Enter password",
+    "enterName": "Enter full name",
+    "fullName": "Full Name",
+    "displayName": "Display Name",
+    "rememberMe": "Remember password",
+    "forgotPassword": "Forgot Password?",
+    "resetPassword": "Reset Password",
+    "newPassword": "New Password",
+    "dontHaveAccount": "Don't have an account?",
+    "notMember": "Not a member of Doctor Rice yet?",
+    "quickLoginOTP": "Quick login with OTP",
+    "alreadyHaveAccount": "Already have an account?",
+    "loginWithGoogle": "Login with Google",
+    "loginWithFacebook": "Login with Facebook",
+    "loginWithPhone": "Login with Phone",
+    "orLoginWith": "Or login with",
+    "sendOTP": "Send OTP",
+    "verifyOTP": "Verify",
+    "enterOTP": "Enter OTP",
+    "otpCode": "Verification Code",
+    "otpSent": "OTP has been sent to {{phone}}",
+    "resendOTP": "Resend Code",
+    "completeRegistration": "Complete Registration",
+    "completeProfile": "Complete Profile",
+    "agreeTerms": "I agree to",
+    "termsAndConditions": "Terms and Conditions of Service",
+    "and": "and",
+    "privacyPolicy": "Privacy Policy",
+    "ofDoctorRice": "of Doctor Rice",
+    "mustAgreeTerms": "You must agree to the terms and privacy policy to continue",
+    "invalidCredentials": "Invalid phone number or password",
+    "emailRequired": "Please enter your email",
+    "passwordRequired": "Please enter your password",
+    "phoneRequired": "Please enter your phone number",
+    "nameRequired": "Please enter your full name",
+    "otpRequired": "Please enter OTP code",
+    "invalidEmail": "Invalid email address",
+    "invalidPhone": "Invalid phone number",
+    "invalidOTP": "Invalid OTP code",
+    "passwordTooShort": "Password must be more than 6 characters",
+    "passwordNeedsUppercase": "Password needs at least 1 uppercase letter (A-Z)",
+    "passwordNeedsLowercase": "Password needs at least 1 lowercase letter (a-z)",
+    "passwordNeedsNumber": "Password needs at least 1 number (0-9)",
+    "passwordsNotMatch": "Passwords do not match",
+    "loginSuccess": "Login successful",
+    "registerSuccess": "Registration successful",
+    "logoutSuccess": "Logout successful",
+    "otpVerifySuccess": "Verification successful",
+    "passwordResetSuccess": "Password reset successful",
+    "sendingOTP": "Sending OTP...",
+    "verifyingOTP": "Verifying OTP...",
+    "verifying": "Verifying...",
+    "loggingIn": "Logging in...",
+    "signingInWithGoogle": "Signing in with Google...",
+    "registering": "Registering...",
+    "newUser": "New User",
+    "completeRegistrationMessage": "Phone number not registered. Please complete your information to create an account.",
+    "phoneNotRegistered": "Phone Not Registered",
+    "phoneNotRegisteredMessage": "This phone number is not registered. Would you like to create a new account?",
+    "googleLoginSuccess": "Google Sign-In Successful!",
+    "googleLoginFailed": "Google Sign-In Failed",
+    "pleaseAgreeTerms": "Please agree to the terms and privacy policy to continue",
+    "otpExpired": "OTP Code Expired",
+    "otpExpiredMessage": "The OTP code has expired after 60 seconds. Would you like to request a new code?",
+    "verificationFailed": "Verification Failed"
+  },
+
+  "camera": {
+    "title": "Take Photo",
+    "takePicture": "Take Picture",
+    "retake": "Retake",
+    "usePhoto": "Use This Photo",
+    "permissionRequired": "Permission Required",
+    "cameraPermissionDenied": "You need to grant camera permission to use this feature",
+    "locationPermissionDenied": "You need to grant location permission to add GPS watermark",
+    "cameraPermissionRationale": "App needs camera access to take rice plant photos",
+    "locationPermissionRationale": "App needs location access to embed GPS coordinates in photos",
+    "openSettings": "Open Settings",
+    "grantPermission": "Grant Permission",
+    "uploading": "Uploading...",
+    "processing": "Processing...",
+    "uploadProgress": "Uploaded {{percent}}%",
+    "uploadSuccess": "Photo uploaded successfully",
+    "uploadFailed": "Photo upload failed",
+    "watermarkFailed": "Failed to add watermark",
+    "locationNotAvailable": "Unable to get current location"
+  },
+
+  "gallery": {
+    "title": "Photo Gallery",
+    "myPhotos": "My Photos",
+    "noPhotos": "No photos yet",
+    "photoDetails": "Photo Details",
+    "location": "Location",
+    "timestamp": "Timestamp",
+    "device": "Device",
+    "deletePhoto": "Delete Photo",
+    "deleteConfirm": "Are you sure you want to delete this photo?",
+    "deleteSuccess": "Photo deleted",
+    "deleteFailed": "Failed to delete photo"
+  },
+
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "vietnamese": "Tiếng Việt",
+    "english": "English",
+    "account": "Account",
+    "profile": "Profile",
+    "privacy": "Privacy",
+    "security": "Security",
+    "about": "About",
+    "version": "Version",
+    "logout": "Logout",
+    "logoutConfirm": "Are you sure you want to logout?",
+    "deleteAccount": "Delete Account",
+    "deleteAccountConfirm": "Are you sure you want to delete your account? This action cannot be undone!",
+    "deleteAccountSuccess": "Account has been deleted successfully",
+    "userInfo": "User Information"
+  },
+
+  "biometric": {
+    "enableTitle": "Enable Quick Login?",
+    "enableDescription": "Use {{biometricType}} for quick and secure login next time.",
+    "feature1": "Quick login",
+    "feature2": "High security",
+    "feature3": "No need to remember password",
+    "enable": "Enable Now",
+    "skip": "Later",
+    "infoText": "You can enable/disable this feature in Settings anytime.",
+    "loginWith": "Login with",
+    "description": "Quick and secure login with biometric.",
+    "enabled": "Biometric login enabled successfully!",
+    "disabled": "Biometric login disabled.",
+    "enableFailed": "Failed to enable biometric login",
+    "disableFailed": "Failed to disable biometric login.",
+    "notEnabled": "Please enable biometric login in Settings.",
+    "failed": "Authentication failed",
+    "setupRequired": "Authentication Required",
+    "setupMessage": "To enable biometric login, you need to login again to save credentials."
+  },
+
+  "home": {
+    "welcome": "Welcome to Doctor Rice",
+    "subtitle": "Capture rice plants with GPS watermark",
+    "getStarted": "Get Started",
+    "recentPhotos": "Recent Photos",
+    "viewAll": "View All",
+    "hello": "Hello"
+  },
+
+  "tabs": {
+    "home": "Home",
+    "weather": "Weather",
+    "camera": "Camera",
+    "mapFarm": "Map",
+    "account": "Account"
+  },
+
+  "map": {
+    "title": "Farm Map",
+    "loading": "Loading map...",
+    "noPhotos": "No photos yet",
+    "noPhotosDesc": "Take photos of rice plants to see them on the map",
+    "captureNow": "Take Photo",
+    "capture": "Take Photo",
+    "locations": "locations",
+    "confidence": "Confidence",
+    "viewDetail": "View Details",
+    "multiplePhotos": "{{count}} photos at this location",
+    "photosAtLocation": "photos at this location",
+    "analyzing": "Analyzing...",
+    "diseaseArea": "Disease risk area",
+    "areaRadius": "Radius: {{radius}}m",
+    "healthyArea": "Healthy area",
+    "diseaseZone": "Disease zone"
+  },
+
+  "weather": {
+    "title": "Weather",
+    "subtitle": "Weather information for agriculture",
+    "comingSoon": "Weather information is being updated..."
+  },
+
+  "photoDetail": {
+    "title": "Analysis Details",
+    "loading": "Loading...",
+    "confidence": "Confidence",
+    "diseaseInfo": "Disease Information",
+    "treatment": "Treatment",
+    "viewOnMap": "View on Map",
+    "newPhoto": "Take New Photo",
+    "diseases": {
+      "bacterial_leaf_blight": {
+        "info": "Bacterial Leaf Blight\n\n🦠 Cause:\n- Bacterium Xanthomonas oryzae pv. oryzae\n- Develops strongly in humid conditions, temperature 25-30°C\n\n📋 Symptoms:\n- Leaves have long streaks from pale yellow to grayish white\n- Streaks usually appear at leaf edges\n- Leaves dry and die gradually from leaf tip\n- Can cause severe damage if not treated promptly\n\n⚠️ Severity Level: High\n🌾 Vulnerable Stage: Tillering to heading",
+        "treatment": "Bacterial Leaf Blight Control:\n\n✅ Prevention:\n1. Choose disease-resistant rice varieties\n2. Treat seeds before sowing with hot water 52-54°C for 10 minutes\n3. Improve drainage, avoid prolonged flooding\n4. Apply balanced fertilizer, don't over-apply nitrogen\n5. Clean rice straw after harvest\n\n💊 Treatment when diseased:\n1. Antibiotics:\n   - Validamycin 5% (30ml/20L water)\n   - Kasugamycin 2% (40ml/20L water)\n\n2. Copper-based:\n   - Copper Hydroxide 77% WP (20g/20L water)\n   - Spray every 7-10 days\n\n3. Agricultural measures:\n   - Cut diseased leaves, destroy away from field\n   - Increase potassium to boost resistance\n   - Avoid flooding rice in the afternoon\n\n📅 Spray schedule: 2-3 times, 7-10 days apart"
+      },
+      "blast": {
+        "info": "Blast Disease\n\n🦠 Cause:\n- Fungus Pyricularia oryzae (Magnaporthe oryzae)\n- Most dangerous disease on rice\n\n📋 Symptoms:\n- Leaf blast: Diamond-shaped lesions, brown edge, gray-white center\n- Neck blast: Broken neck, dead panicles\n- Grain blast: Empty grains, reduced yield\n\n⚠️ Severity Level: Very High\n🌾 Vulnerable Stage: All stages, especially tillering and heading\n\n💧 Disease conditions:\n- Temperature 20-30°C\n- High humidity > 90%\n- Fog, drizzle\n- Excessive nitrogen, lack of potassium",
+        "treatment": "Blast Disease Control:\n\n✅ Prevention:\n1. Choose highly resistant rice varieties\n2. Apply balanced NPK fertilizer, increase K and Si\n3. Avoid excessive nitrogen application\n4. Proper row spacing (ventilated, adequate light)\n5. Treat seeds with fungicide before sowing\n\n💊 Treatment when diseased:\n1. Triazole fungicides:\n   - Tricyclazole 75% WP (15-20g/20L water)\n   - Propiconazole 25% EC (20ml/20L water)\n\n2. Strobilurin fungicides:\n   - Azoxystrobin 25% SC (20ml/20L water)\n\n3. Combined fungicides:\n   - Tricyclazole + Hexaconazole (20g/20L water)\n\n4. For severe cases:\n   - Spray 3-4 times, 5-7 days apart\n   - Rotate fungicides to avoid resistance\n\n📅 Spray timing:\n- Tillering stage: preventive spray\n- When disease detected: spray immediately\n- 7-10 days before heading: protect neck\n\n⚠️ Note: Neck blast is very dangerous, prevent before heading!"
+      },
+      "brown_spot": {
+        "info": "Brown Spot Disease\n\n🦠 Cause:\n- Fungus Bipolaris oryzae (Helminthosporium oryzae)\n- Common in nutrient-deficient areas\n\n📋 Symptoms:\n- Small round or oval brown spots\n- Spots have yellow edge, brown-gray center\n- Many spots on leaves, gradually dry, reduced photosynthesis\n- Infected grains turn dark brown\n\n⚠️ Severity Level: Medium\n🌾 Vulnerable Stage: Tillering to ripening\n\n💧 Disease conditions:\n- Nutrient deficiency (especially N, P, K, Si)\n- High humidity 80-90%\n- Temperature 25-30°C\n- Acidic, nutrient-poor soil",
+        "treatment": "Brown Spot Control:\n\n✅ Prevention:\n1. Apply balanced NPK fertilizer\n2. Supplement phosphorus, potassium and silicon\n3. Improve acidic soil with lime\n4. Use healthy, disease-resistant varieties\n5. Treat seeds before sowing\n\n💊 Treatment when diseased:\n1. Fungicides:\n   - Mancozeb 80% WP (30-40g/20L water)\n   - Edifenphos 50% EC (30ml/20L water)\n   - Isoprothiolane 40% EC (30ml/20L water)\n\n2. Combined spray:\n   - Fungicide + foliar fertilizer (NPK)\n   - Supplement zinc and silicon through leaves\n\n3. Additional fertilization:\n   - Balanced NPK fertilizer\n   - Potassium fertilizer (increase resistance)\n   - Lime if soil is acidic\n\n📅 Spray schedule: 2 times, 10 days apart\n\n💡 Tip: Brown spot is usually due to nutrient deficiency. Improving nutrition is the best way!"
+      },
+      "healthy": {
+        "info": "Healthy Rice Leaves 🎉\n\n✅ Assessment:\nYour rice plant is in good condition, no disease signs detected!\n\n🌿 Healthy leaf characteristics:\n- Dark green, uniform color\n- Leaf surface has no spots or streaks\n- Strong leaves, standing upright\n- No wilting or drying\n\n📊 Continue maintaining:\n1. Apply fertilizer at right dose and time\n2. Proper water management\n3. Regular pest and disease monitoring\n4. Keep field clean\n\n🎯 Recommendations:\n- Continue current quality care\n- Regular observation for early disease detection\n- Take photos to track plant development",
+        "treatment": "Rice Plant Health Maintenance:\n\n✅ Regular care:\n\n1. Balanced fertilization:\n   - Nitrogen: 3 splits (basal, tillering, heading)\n   - Phosphorus: All at basal\n   - Potassium: 2 splits (basal and heading)\n   - Silicon: 100-150 kg/ha (increase resistance)\n\n2. Water management:\n   - Tillering stage: Shallow water irrigation\n   - Drain field at right time\n   - Keep 5-7cm water depth at heading\n\n3. Pest and disease prevention:\n   - Check field 2-3 times/week\n   - Use light traps for night pests\n   - Spray preventively in bad weather\n\n4. Field sanitation:\n   - Regular weed removal\n   - Clean ditches and bunds\n   - Destroy diseased plants if any\n\n📅 Care schedule:\n- Week 1-3: Monitor seedlings, basal fertilization\n- Week 4-6: Tillering stage, 2nd nitrogen application\n- Week 7-8: Drain field\n- Week 9-10: Heading, potassium application\n- Week 11-14: Ripening, harvest\n\n🏆 Congratulations! Keep up the good care!"
+      }
+    }
+  },
+
+  "permissions": {
+    "title": "Permission Request",
+    "description": "Doctor Rice needs the following permissions to work properly:",
+    "camera": {
+      "title": "Camera",
+      "description": "Take photos of rice plants to detect diseases and add watermarks"
+    },
+    "location": {
+      "title": "Location",
+      "description": "Determine location to embed geographic information in photos"
+    },
+    "infoText": "We respect your privacy. Information is only used when you take photos.",
+    "allow": "Allow",
+    "skip": "Skip",
+    "requesting": "Requesting...",
+    "openSettings": "Open System Settings"
+  },
+
+  "errors": {
+    "networkError": "Network connection error",
+    "serverError": "Server error",
+    "unknownError": "Unknown error",
+    "timeout": "Request timeout",
+    "unauthorized": "You need to login to continue",
+    "forbidden": "You don't have permission to access",
+    "notFound": "Not found",
+    "validationError": "Invalid data"
+  }
+}

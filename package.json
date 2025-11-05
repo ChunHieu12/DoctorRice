@@ -4,11 +4,16 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
+    "start:clear": "expo start --clear",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "env:local": "node scripts/switch-env.js local",
+    "env:production": "node scripts/switch-env.js production",
+    "dev:local": "npm run env:local && npm run start:clear",
+    "dev:production": "npm run env:production && npm run start:clear"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

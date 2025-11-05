@@ -10,9 +10,9 @@ import Constants from 'expo-constants';
 export const API_CONFIG = {
   /**
    * Base URL for backend API
-   * Read from app.json extra.apiUrl or fallback to production URL
+   * Priority: EXPO_PUBLIC_API_URL > app.json extra.apiUrl > fallback
    */
-  BASE_URL: Constants.expoConfig?.extra?.apiUrl || 'https://doctorrice.onrender.com/api',
+  BASE_URL: process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl || 'https://doctorrice.onrender.com/api',
   
   /**
    * API timeout in milliseconds
@@ -92,6 +92,7 @@ export const IS_DEV = __DEV__;
 if (IS_DEV) {
   console.log('🔧 App Configuration:');
   console.log('  📡 API URL:', API_CONFIG.BASE_URL);
+  console.log('  🌍 ENV API:', process.env.EXPO_PUBLIC_API_URL || '(not set)');
   console.log('  📱 App Version:', APP_CONFIG.VERSION);
   console.log('  🏷️  Display Name:', APP_CONFIG.DISPLAY_NAME);
   console.log('  🆔 Project ID:', APP_CONFIG.PROJECT_ID);

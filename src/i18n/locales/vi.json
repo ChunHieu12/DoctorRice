@@ -131,6 +131,10 @@
     "viewOnMap": "Xem trên bản đồ",
     "recapture": "Chụp lại",
     "viewDetails": "Xem chi tiết về bệnh và cách điều trị",
+<<<<<<< HEAD
+=======
+    "chatWithDoctor": "Chat với Bác sĩ Lúa",
+>>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
     "noPrediction": "Không có kết quả phân tích",
     "healthy": "Lá khỏe mạnh",
     "healthyMessage": "Chúc mừng! Cây lúa của bạn khỏe mạnh",
@@ -171,6 +175,10 @@
     "confidence": "Độ tin cậy",
     "diseaseInfo": "Thông tin bệnh",
     "treatment": "Cách trị bệnh",
+<<<<<<< HEAD
+=======
+    "chatWithDoctor": "Chat với Bác sĩ Lúa",
+>>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
     "viewOnMap": "Xem bản đồ",
     "newPhoto": "Chụp mới",
     "diseases": {
@@ -267,7 +275,42 @@
   "weather": {
     "title": "Thời tiết",
     "subtitle": "Thông tin thời tiết phục vụ nông nghiệp",
+<<<<<<< HEAD
     "comingSoon": "Thông tin thời tiết đang được cập nhật..."
+=======
+    "comingSoon": "Thông tin thời tiết đang được cập nhật...",
+    "loading": "Đang tải thông tin thời tiết...",
+    "retry": "Thử lại",
+    "lastUpdate": "Cập nhật lúc",
+    "current": "HIỆN TẠI",
+    "forecast3Days": "3 NGÀY TỚI",
+    "warnings": "CẢNH BÁO",
+    "detail": "Chi tiết thời tiết",
+    "tapForDetails": "Nhấn để xem chi tiết",
+    "tapForMoreInfo": "Nhấn để xem thêm",
+    "swipeForMore": "Vuốt để xem thêm →",
+    "feelsLike": "Cảm giác",
+    "wind": "Gió",
+    "pressure": "Áp suất",
+    "temperature": "Nhiệt độ",
+    "humidity": "Độ ẩm",
+    "rain": "Mưa",
+    "recommendation": "Khuyến nghị",
+    "relatedDiseases": "Bệnh liên quan",
+    "askDoctorRice": "Hỏi Bác sĩ Lúa về thời tiết này",
+    "weatherAdvice": "Với thời tiết như này, tôi nên làm gì?",
+    "prefillQuestion": "Với thời tiết như này, tôi nên làm gì?",
+    "selectLocation": "Chọn vị trí",
+    "searchLocation": "Tìm kiếm địa điểm...",
+    "useCurrentLocation": "Dùng vị trí hiện tại",
+    "currentlyViewing": "Đang xem",
+    "savedLocations": "Vị trí đã lưu",
+    "popularCities": "Thành phố phổ biến",
+    "deleteLocation": "Xóa vị trí",
+    "confirmDelete": "Bạn có chắc muốn xóa vị trí này?",
+    "locationPermission": "Cần quyền vị trí",
+    "locationPermissionDesc": "Vui lòng cấp quyền truy cập vị trí để sử dụng tính năng này."
+>>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
   },
 
   "permissions": {

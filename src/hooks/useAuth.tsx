@@ -149,14 +149,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   const logout = async () => {
     try {
+<<<<<<< HEAD
       // Clear JWT tokens and saved credentials
       await authService.logout();
+=======
+      console.log('🚪 Starting logout process...');
+      
+      // Clear JWT tokens and saved credentials
+      await authService.logout();
+      console.log('✅ JWT tokens cleared');
+>>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
       
       // Sign out from Firebase Auth
       try {
         const firebaseUser = auth().currentUser;
         if (firebaseUser) {
           await auth().signOut();
+<<<<<<< HEAD
         }
       } catch (firebaseError) {
         console.log('Firebase sign out (expected if not logged in):', firebaseError);
@@ -170,12 +179,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       } catch (googleError) {
         console.log('Google sign out (expected if not logged in):', googleError);
+=======
+          console.log('✅ Firebase signed out');
+        }
+      } catch (firebaseError) {
+        console.log('ℹ️ Firebase sign out (expected if not logged in):', firebaseError);
+      }
+      
+      // IMPORTANT: Revoke and sign out from Google to force account picker next time
+      try {
+        const currentUser = await GoogleSignin.getCurrentUser();
+        if (currentUser) {
+          console.log('🔄 Revoking Google access...');
+          await GoogleSignin.revokeAccess();
+          await GoogleSignin.signOut();
+          console.log('✅ Google access revoked and signed out');
+        }
+      } catch (googleError) {
+        console.log('ℹ️ Google sign out (expected if not logged in):', googleError);
+>>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
       }
       
       // Clear user state
       setUser(null);
+<<<<<<< HEAD
     } catch (error) {
       console.error('Logout failed:', error);
+=======
+      console.log('✅ Logout complete');
+    } catch (error) {
+      console.error('❌ Logout failed:', error);
+>>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
       // Still clear user state even if logout partially fails
       setUser(null);
       throw error;

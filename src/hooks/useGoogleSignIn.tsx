@@ -19,11 +19,20 @@ export const useGoogleSignIn = () => {
       GoogleSignin.configure({
         webClientId: WEB_CLIENT_ID,
         offlineAccess: true,
+<<<<<<< HEAD
+=======
+        // IMPORTANT: Force account selection every time
+        forceCodeForRefreshToken: true,
+>>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
         // Request idToken explicitly
         scopes: ['profile', 'email'],
       });
       setIsConfigured(true);
       console.log('✅ Google Sign-In configured with webClientId:', WEB_CLIENT_ID.substring(0, 20) + '...');
+<<<<<<< HEAD
+=======
+      console.log('✅ Force account picker enabled');
+>>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
     } catch (error) {
       console.error('❌ Failed to configure Google Sign-In:', error);
     }
@@ -45,6 +54,7 @@ export const useGoogleSignIn = () => {
       // Check if device supports Google Play Services
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
 
+<<<<<<< HEAD
       // Sign out first to force account picker dialog
       // This ensures user always sees account selection modal
       try {
@@ -57,6 +67,25 @@ export const useGoogleSignIn = () => {
         console.log('Sign out before sign in (expected):', signOutError);
       }
 
+=======
+      // IMPORTANT: Always revoke and sign out to force account picker
+      // This ensures user always sees account selection modal
+      try {
+        const currentUser = await GoogleSignin.getCurrentUser();
+        if (currentUser) {
+          console.log('🔄 User is signed in, revoking access and signing out...');
+          await GoogleSignin.revokeAccess();
+          await GoogleSignin.signOut();
+          console.log('✅ Revoked and signed out successfully');
+        }
+      } catch (signOutError) {
+        // Ignore signOut errors - continue with sign in
+        console.log('ℹ️ Sign out before sign in:', signOutError);
+      }
+
+      console.log('🚀 Starting Google Sign-In with account picker...');
+
+>>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
       // Get user info and ID token
       // Version 16+ returns: { type: 'success', data: { idToken, user, ... } }
       const response = await GoogleSignin.signIn();

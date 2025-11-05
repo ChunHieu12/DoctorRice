@@ -50,16 +50,40 @@ export const loginWithPassword = async (
   phone: string,
   password: string
 ): Promise<LoginResponse> => {
+<<<<<<< HEAD
+=======
+  console.log('📤 Sending login request:', {
+    phone,
+    passwordLength: password?.length,
+  });
+
+>>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
   const response = await apiPost<LoginResponse>('/auth/login', {
     phone,
     password,
   });
 
+<<<<<<< HEAD
   if (response.success && response.data) {
     // Save tokens
     await saveTokens(response.data.accessToken, response.data.refreshToken);
     return response.data;
   } else {
+=======
+  console.log('📥 Login response:', {
+    success: response.success,
+    hasData: !!response.data,
+    error: response.error?.message,
+  });
+
+  if (response.success && response.data) {
+    // Save tokens
+    await saveTokens(response.data.accessToken, response.data.refreshToken);
+    console.log('✅ Login successful, tokens saved');
+    return response.data;
+  } else {
+    console.log('❌ Login failed:', response.error?.message);
+>>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
     throw new Error(response.error?.message || 'Login failed');
   }
 };

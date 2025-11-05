@@ -250,6 +250,14 @@ export const loginWithPhone = async (req: Request, res: Response) => {
   try {
     const { phone, password } = req.body;
 
+<<<<<<< HEAD
+=======
+    console.log('🔐 Login attempt:', { 
+      rawPhone: phone, 
+      passwordLength: password?.length 
+    });
+
+>>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
     // Validate input
     if (!phone || !password) {
       return errorResponse(res, 'AUTH_004', 'Phone and password are required', 400);
@@ -257,21 +265,56 @@ export const loginWithPhone = async (req: Request, res: Response) => {
 
     // Normalize phone number
     const normalizedPhone = normalizePhone(phone);
+<<<<<<< HEAD
 
     // Validate phone format
     if (!isValidVietnamesePhone(normalizedPhone)) {
+=======
+    console.log('📞 Normalized phone:', { 
+      from: phone, 
+      to: normalizedPhone 
+    });
+
+    // Validate phone format
+    if (!isValidVietnamesePhone(normalizedPhone)) {
+      console.log('❌ Invalid phone format:', normalizedPhone);
+>>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
       return errorResponse(res, 'AUTH_013', 'Invalid phone number format', 400);
     }
 
     // Find user by normalized phone
     const user = await User.findOne({ phone: normalizedPhone }).select('+passwordHash');
+<<<<<<< HEAD
     if (!user || !user.passwordHash) {
+=======
+    console.log('🔍 User lookup:', { 
+      phone: normalizedPhone, 
+      found: !!user,
+      hasPassword: !!user?.passwordHash 
+    });
+
+    if (!user || !user.passwordHash) {
+      console.log('❌ User not found or no password:', { 
+        userExists: !!user, 
+        hasPasswordHash: !!user?.passwordHash 
+      });
+>>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
       return errorResponse(res, 'AUTH_001', 'Invalid credentials', 401);
     }
 
     // Verify password
     const isValid = await bcrypt.compare(password, user.passwordHash);
+<<<<<<< HEAD
     if (!isValid) {
+=======
+    console.log('🔑 Password verification:', { 
+      isValid,
+      passwordHashLength: user.passwordHash?.length 
+    });
+
+    if (!isValid) {
+      console.log('❌ Password mismatch');
+>>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
       return errorResponse(res, 'AUTH_001', 'Invalid credentials', 401);
     }
 
@@ -295,6 +338,11 @@ export const loginWithPhone = async (req: Request, res: Response) => {
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
+<<<<<<< HEAD
+=======
+    console.log('✅ Login successful for user:', user.username);
+
+>>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
     return successResponse(res, {
       user: {
         id: user._id,
@@ -307,6 +355,10 @@ export const loginWithPhone = async (req: Request, res: Response) => {
       refreshToken,
     });
   } catch (error) {
+<<<<<<< HEAD
+=======
+    console.error('❌ Login error:', error);
+>>>>>>> 402e1502f34c040c2732167004a56a11f9fcca71
     return errorResponse(res, 'SERVER_001', 'Login failed', 500);
   }
 };

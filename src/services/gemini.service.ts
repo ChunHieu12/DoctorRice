@@ -4,10 +4,25 @@
  */
 import axios from 'axios';
 import Constants from 'expo-constants';
-import { WeatherData } from './weather.service';
 
 const GEMINI_API_KEY = Constants.expoConfig?.extra?.geminiApiKey || 'AIzaSyDbmXck740HiiKfPavBI4WFjB1p0MfCbXs';
 const GEMINI_API_URL = Constants.expoConfig?.extra?.geminiApiUrl || 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
+
+// Processed weather data for AI context
+export interface ProcessedWeatherData {
+  current: {
+    temp: number;
+    humidity: number;
+    description: string;
+  };
+  forecast: Array<{
+    date: string;
+    temp: number;
+    humidity: number;
+    rain: number;
+    description: string;
+  }>;
+}
 
 export interface DiseaseContext {
   diseaseClass: string;
@@ -31,8 +46,8 @@ export interface ChatMessage {
  */
 export const generateAIResponse = async (
   userMessage: string,
-  diseaseContext?: DiseaseContext,
-  weatherData?: WeatherData,
+  diseaseContext?: DiseaseContext | string,
+  weatherData?: ProcessedWeatherData,
   chatHistory: ChatMessage[] = []
 ): Promise<string> => {
   try {
@@ -112,8 +127,8 @@ export const generateAIResponse = async (
  * Build system prompt with disease and weather context
  */
 const buildSystemPrompt = (
-  diseaseContext?: DiseaseContext,
-  weatherData?: WeatherData
+  diseaseContext?: DiseaseContext | string,
+  weatherData?: ProcessedWeatherData
 ): string => {
   let prompt = `Bạn là "Bác sĩ Lúa" - chuyên gia tư vấn về bệnh lúa và canh tác nông nghiệp.
 
@@ -165,12 +180,18 @@ const buildSystemPrompt = (
 
   // Add disease context if available
   if (diseaseContext) {
-    prompt += `\n\n📸 THÔNG TIN BỆNH PHÁT HIỆN:
+    if (typeof diseaseContext === 'string') {
+      // If diseaseContext is already a string (from weather detail screen)
+      prompt += `\n\n${diseaseContext}`;
+    } else {
+      // If diseaseContext is an object (from disease detail screen)
+      prompt += `\n\n📸 THÔNG TIN BỆNH PHÁT HIỆN:
 - Loại bệnh: ${diseaseContext.diseaseVi} (${diseaseContext.diseaseClass})
 - Độ tin cậy: ${diseaseContext.confidence.toFixed(1)}%
 - Vị trí: ${diseaseContext.location.lat.toFixed(4)}°N, ${diseaseContext.location.lng.toFixed(4)}°E
 - Thời gian: ${new Date(diseaseContext.timestamp).toLocaleString('vi-VN')}
 `;
+    }
   }
 
   // Add weather context if available
@@ -179,7 +200,7 @@ const buildSystemPrompt = (
 - Hiện tại: ${weatherData.current.temp}°C, Độ ẩm ${weatherData.current.humidity}%
 - Dự báo:
 `;
-    weatherData.forecast.forEach((day, idx) => {
+    weatherData.forecast.forEach((day: ProcessedWeatherData['forecast'][0], idx: number) => {
       prompt += `  + Ngày ${idx + 1} (${day.date}): ${day.temp}°C, Độ ẩm ${day.humidity}%, Mưa ${day.rain}mm\n`;
     });
   }
@@ -203,7 +224,7 @@ Hãy trả lời bằng Tiếng Việt với format sạch đẹp, KHÔNG dùng 
  */
 export const generateMonitoringPlan = async (
   diseaseContext: DiseaseContext,
-  weatherData: WeatherData
+  weatherData: ProcessedWeatherData
 ): Promise<string> => {
   const prompt = `Tôi cần một KẾ HOẠCH GIÁM SÁT TỰ ĐỘNG chi tiết cho bệnh "${diseaseContext.diseaseVi}".
 

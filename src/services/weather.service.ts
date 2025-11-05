@@ -6,39 +6,32 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Constants from 'expo-constants';
 
+import type { ForecastData, WeatherData } from '@/types/weather.types';
+
 const OPENWEATHER_API_KEY = Constants.expoConfig?.extra?.openWeatherApiKey || '510dd9ff566e47c94dc28da2fc76bbf1';
 const OPENWEATHER_BASE_URL = Constants.expoConfig?.extra?.openWeatherBaseUrl || 'https://api.openweathermap.org/data/2.5';
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 
-export interface WeatherData {
-  current: {
-    temp: number;
-    humidity: number;
-    description: string;
-    icon: string;
-  };
-  forecast: Array<{
-    date: string;
-    temp: number;
-    humidity: number;
-    rain: number; // mm
-    description: string;
-  }>;
-}
-
 interface CachedWeather {
-  data: WeatherData;
+  current: WeatherData;
+  forecast: ForecastData;
   timestamp: number;
   location: string;
 }
 
+export interface WeatherResponse {
+  current: WeatherData;
+  forecast: ForecastData;
+}
+
 /**
  * Get weather forecast for location (3 days)
+ * Returns both current weather and 3-day forecast
  */
 export const getWeatherForecast = async (
   lat: number,
   lng: number
-): Promise<WeatherData> => {
+): Promise<WeatherResponse> => {
   try {
     const cacheKey = `weather_${lat.toFixed(4)}_${lng.toFixed(4)}`;
     
@@ -50,14 +43,17 @@ export const getWeatherForecast = async (
       
       if (isValid) {
         console.log('☁️ Using cached weather data');
-        return cachedData.data;
+        return {
+          current: cachedData.current,
+          forecast: cachedData.forecast,
+        };
       }
     }
 
     console.log(`☁️ Fetching weather for: ${lat}, ${lng}`);
 
     // Fetch current weather
-    const currentResponse = await axios.get(`${OPENWEATHER_BASE_URL}/weather`, {
+    const currentResponse = await axios.get<WeatherData>(`${OPENWEATHER_BASE_URL}/weather`, {
       params: {
         lat,
         lon: lng,
@@ -69,7 +65,7 @@ export const getWeatherForecast = async (
     });
 
     // Fetch 3-day forecast
-    const forecastResponse = await axios.get(`${OPENWEATHER_BASE_URL}/forecast`, {
+    const forecastResponse = await axios.get<ForecastData>(`${OPENWEATHER_BASE_URL}/forecast`, {
       params: {
         lat,
         lon: lng,
@@ -81,57 +77,20 @@ export const getWeatherForecast = async (
       timeout: 10000,
     });
 
-    // Process current weather
-    const current = {
-      temp: currentResponse.data.main.temp,
-      humidity: currentResponse.data.main.humidity,
-      description: currentResponse.data.weather[0].description,
-      icon: currentResponse.data.weather[0].icon,
-    };
-
-    // Process forecast - group by day and calculate daily averages
-    const forecastByDay: { [key: string]: any[] } = {};
-    
-    forecastResponse.data.list.forEach((item: any) => {
-      const date = new Date(item.dt * 1000).toLocaleDateString('vi-VN');
-      if (!forecastByDay[date]) {
-        forecastByDay[date] = [];
-      }
-      forecastByDay[date].push(item);
-    });
-
-    const forecast = Object.entries(forecastByDay)
-      .slice(0, 3) // Only take 3 days
-      .map(([date, items]: [string, any[]]) => {
-        const avgTemp = items.reduce((sum, item) => sum + item.main.temp, 0) / items.length;
-        const avgHumidity = items.reduce((sum, item) => sum + item.main.humidity, 0) / items.length;
-        const totalRain = items.reduce((sum, item) => sum + (item.rain?.['3h'] || 0), 0);
-        const mainDescription = items[0].weather[0].description;
-
-        return {
-          date,
-          temp: Math.round(avgTemp),
-          humidity: Math.round(avgHumidity),
-          rain: Math.round(totalRain * 10) / 10, // Round to 1 decimal
-          description: mainDescription,
-        };
-      });
-
-    const weatherData: WeatherData = {
-      current,
-      forecast,
-    };
+    const current: WeatherData = currentResponse.data;
+    const forecast: ForecastData = forecastResponse.data;
 
     // Cache the result
     const cacheData: CachedWeather = {
-      data: weatherData,
+      current,
+      forecast,
       timestamp: Date.now(),
       location: `${lat},${lng}`,
     };
     await AsyncStorage.setItem(cacheKey, JSON.stringify(cacheData));
 
     console.log('✅ Weather data fetched successfully');
-    return weatherData;
+    return { current, forecast };
 
   } catch (error: any) {
     console.error('❌ Weather API error:', error.message);

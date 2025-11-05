@@ -195,7 +195,7 @@ const buildSystemPrompt = (
   }
 
   // Add weather context if available
-  if (weatherData) {
+  if (weatherData && weatherData.current && weatherData.forecast && Array.isArray(weatherData.forecast)) {
     prompt += `\n\n🌤️ DỮ LIỆU THỜI TIẾT (3 NGÀY):
 - Hiện tại: ${weatherData.current.temp}°C, Độ ẩm ${weatherData.current.humidity}%
 - Dự báo:

@@ -53,8 +53,8 @@ export class CloudinaryService {
         public_id: options.public_id,
         overwrite: options.overwrite ?? false,
         resource_type: 'image',
-        quality: 'auto:good',
-        fetch_format: 'auto',
+        // Note: quality and fetch_format are transformation params, not upload params
+        // They should only be used when generating URLs, not during upload
       });
 
       logger.info(`✅ Image uploaded: ${result.secure_url}`);

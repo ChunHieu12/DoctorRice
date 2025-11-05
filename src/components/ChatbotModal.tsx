@@ -34,8 +34,9 @@ import {
     DiseaseContext,
     generateAIResponse,
     generateMonitoringPlan,
+    ProcessedWeatherData,
 } from '../services/gemini.service';
-import { getWeatherForecast, WeatherData } from '../services/weather.service';
+import { getWeatherForecast } from '../services/weather.service';
 import FormattedAIText from './FormattedAIText';
 
 const { width, height } = Dimensions.get('window');
@@ -58,7 +59,7 @@ export default function ChatbotModal({
   const [isLoading, setIsLoading] = useState(false);
   const [typingText, setTypingText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [weatherData, setWeatherData] = useState<ProcessedWeatherData | null>(null);
   const [timeRemaining, setTimeRemaining] = useState(24);
   const [suggestionsPosition, setSuggestionsPosition] = useState<'bottom' | 'top'>('bottom');
   const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -156,15 +157,57 @@ export default function ChatbotModal({
     }
   };
 
+  // Convert weather data to ProcessedWeatherData format
+  const convertWeatherData = (weatherResponse: any): ProcessedWeatherData => {
+    // Group forecast by day
+    const forecastByDay: { [key: string]: any[] } = {};
+    
+    weatherResponse.forecast.list.forEach((item: any) => {
+      const date = new Date(item.dt * 1000).toLocaleDateString('vi-VN');
+      if (!forecastByDay[date]) {
+        forecastByDay[date] = [];
+      }
+      forecastByDay[date].push(item);
+    });
+
+    // Calculate daily summaries
+    const forecast = Object.entries(forecastByDay)
+      .slice(0, 3)
+      .map(([date, items]: [string, any[]]) => {
+        const avgTemp = items.reduce((sum, item) => sum + item.main.temp, 0) / items.length;
+        const avgHumidity = items.reduce((sum, item) => sum + item.main.humidity, 0) / items.length;
+        const totalRain = items.reduce((sum, item) => sum + (item.rain?.['3h'] || 0), 0);
+        
+        return {
+          date,
+          temp: Math.round(avgTemp),
+          humidity: Math.round(avgHumidity),
+          rain: Math.round(totalRain * 10) / 10,
+          description: items[0].weather[0].description,
+        };
+      });
+
+    return {
+      current: {
+        temp: weatherResponse.current.main.temp,
+        humidity: weatherResponse.current.main.humidity,
+        description: weatherResponse.current.weather[0].description,
+      },
+      forecast,
+    };
+  };
+
   const loadWeatherData = async () => {
     if (!diseaseContext) return;
     
     try {
-      const weather = await getWeatherForecast(
+      const weatherResponse = await getWeatherForecast(
         diseaseContext.location.lat,
         diseaseContext.location.lng
       );
-      setWeatherData(weather);
+      
+      const processedData = convertWeatherData(weatherResponse);
+      setWeatherData(processedData);
       console.log('☁️ Weather data loaded for chatbot');
     } catch (error) {
       console.warn('⚠️ Failed to load weather data:', error);

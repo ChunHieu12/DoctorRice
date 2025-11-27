@@ -1,5 +1,4 @@
-# 🌾 Bác sĩ Lúa - DoctorRice
-
+ # 🌾 Bác sĩ Lúa - DoctorRice - KLTN
 > Ứng dụng chụp ảnh cây lúa với watermark GPS tự động
 
 [![Expo](https://img.shields.io/badge/Expo-~54.0-blue.svg)](https://expo.dev/)

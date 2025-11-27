@@ -1,0 +1,147 @@
+{
+  "expo": {
+    "name": "Bác sĩ Lúa",
+    "slug": "DoctorRice",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/images/logo2.png",
+    "scheme": "doctorrice",
+    "userInterfaceStyle": "automatic",
+    "primaryColor": "#4CAF50",
+    "backgroundColor": "#4CAF50",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#000000",
+      "resizeMode": "cover"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.doctorrice.app",
+      "icon": "./src/assets/images/logo2.png",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIUserInterfaceStyle": "automatic",
+        "UIStatusBarStyle": "UIStatusBarStyleDefault",
+        "NSCameraUsageDescription": "Ứng dụng cần quyền truy cập camera để chụp ảnh bệnh lúa và tạo watermark GPS.",
+        "NSLocationWhenInUseUsageDescription": "Ứng dụng cần quyền truy cập vị trí để ghi thông tin GPS vào ảnh chụp.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Ứng dụng cần quyền truy cập vị trí để ghi thông tin GPS vào ảnh chụp."
+      },
+      "splash": {
+        "backgroundColor": "#000000",
+        "resizeMode": "cover"
+      }
+    },
+    "android": {
+      "package": "com.doctorrice.app",
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/images/logo2.png",
+        "backgroundColor": "#4CAF50"
+      },
+      "softwareKeyboardLayoutMode": "pan",
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "userInterfaceStyle": "automatic",
+      "splash": {
+        "backgroundColor": "#000000",
+        "resizeMode": "cover"
+      }
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./src/assets/images/logo2.png",
+      "splash": {
+        "backgroundColor": "#000000",
+        "resizeMode": "cover"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./src/assets/images/logo2.png",
+          "backgroundColor": "#ffffff",
+          "resizeMode": "cover",
+          "statusBarTranslucent": true
+        }
+      ],
+      [
+        "expo-system-ui",
+        {
+          "userInterfaceStyle": "automatic",
+          "android": {
+            "userInterfaceStyle": "automatic"
+          },
+          "ios": {
+            "userInterfaceStyle": "automatic"
+          }
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": false,
+            "networkSecurityConfig": "./network_security_config.xml",
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "enableProguardInReleaseBuilds": true,
+            "useLegacyPackaging": false,
+            "packagingOptions": {
+              "pickFirst": [
+                "lib/x86/libc++_shared.so",
+                "lib/x86_64/libc++_shared.so",
+                "lib/armeabi-v7a/libc++_shared.so",
+                "lib/arm64-v8a/libc++_shared.so"
+              ]
+            }
+          },
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "@react-native-google-signin/google-signin",
+      "expo-secure-store",
+      "expo-local-authentication"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "apiUrl": "https://doctorrice-xdhp.onrender.com/api",
+      "openWeatherApiKey": "510dd9ff566e47c94dc28da2fc76bbf1",
+      "openWeatherBaseUrl": "https://api.openweathermap.org/data/2.5",
+      "geminiApiKey": "AIzaSyCEH6QaoNlHsSnko5xIJGdp3l0MzPHkdFA",
+      "geminiApiUrl": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent",
+      "eas": {
+        "projectId": "45fd028f-bb4c-4921-8b02-ed70b3082ebe"
+      }
+    },
+    "owner": "doctorrice2",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/45fd028f-bb4c-4921-8b02-ed70b3082ebe",
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    }
+  }
+}

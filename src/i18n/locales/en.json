@@ -1,0 +1,677 @@
+{
+  "common": {
+    "appName": "Doctor Rice",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "retry": "Retry",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "warning": "Warning",
+    "ok": "OK",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done",
+    "skip": "Skip"
+  },
+
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "phone": "Phone Number",
+    "phoneNumber": "Phone Number",
+    "enterPhone": "Enter phone number",
+    "enterPassword": "Enter password",
+    "enterName": "Enter full name",
+    "fullName": "Full Name",
+    "displayName": "Display Name",
+    "rememberMe": "Remember password",
+    "forgotPassword": "Forgot Password?",
+    "resetPassword": "Reset Password",
+    "newPassword": "New Password",
+    "dontHaveAccount": "Don't have an account?",
+    "notMember": "Not a member of Doctor Rice yet?",
+    "quickLoginOTP": "Quick login with OTP",
+    "alreadyHaveAccount": "Already have an account?",
+    "loginWithGoogle": "Login with Google",
+    "loginWithFacebook": "Login with Facebook",
+    "loginWithPhone": "Login with Phone",
+    "orLoginWith": "Or login with",
+    "sendOTP": "Send OTP",
+    "verifyOTP": "Verify",
+    "enterOTP": "Enter OTP",
+    "otpCode": "Verification Code",
+    "otpSent": "OTP has been sent to {{phone}}",
+    "resendOTP": "Resend Code",
+    "completeRegistration": "Complete Registration",
+    "completeProfile": "Complete Profile",
+    "agreeTerms": "I agree to",
+    "termsAndConditions": "Terms and Conditions of Service",
+    "and": "and",
+    "privacyPolicy": "Privacy Policy",
+    "ofDoctorRice": "of Doctor Rice",
+    "mustAgreeTerms": "You must agree to the terms and privacy policy to continue",
+    "invalidCredentials": "Invalid phone number or password",
+    "emailRequired": "Please enter your email",
+    "passwordRequired": "Please enter your password",
+    "phoneRequired": "Please enter your phone number",
+    "nameRequired": "Please enter your full name",
+    "otpRequired": "Please enter OTP code",
+    "invalidEmail": "Invalid email address",
+    "invalidPhone": "Invalid phone number",
+    "invalidOTP": "Invalid OTP code",
+    "passwordTooShort": "Password must be more than 6 characters",
+    "passwordNeedsUppercase": "Password needs at least 1 uppercase letter (A-Z)",
+    "passwordNeedsLowercase": "Password needs at least 1 lowercase letter (a-z)",
+    "passwordNeedsNumber": "Password needs at least 1 number (0-9)",
+    "passwordsNotMatch": "Passwords do not match",
+    "loginSuccess": "Login successful",
+    "registerSuccess": "Registration successful",
+    "logoutSuccess": "Logout successful",
+    "otpVerifySuccess": "Verification successful",
+    "passwordResetSuccess": "Password reset successful",
+    "sendingOTP": "Sending OTP...",
+    "verifyingOTP": "Verifying OTP...",
+    "verifying": "Verifying...",
+    "loggingIn": "Logging in...",
+    "signingInWithGoogle": "Signing in with Google...",
+    "registering": "Registering...",
+    "newUser": "New User",
+    "completeRegistrationMessage": "Phone number not registered. Please complete your information to create an account.",
+    "phoneNotRegistered": "Phone Not Registered",
+    "phoneNotRegisteredMessage": "This phone number is not registered. Would you like to create a new account?",
+    "googleLoginSuccess": "Google Sign-In Successful!",
+    "googleLoginFailed": "Google Sign-In Failed",
+    "pleaseAgreeTerms": "Please agree to the terms and privacy policy to continue",
+    "otpExpired": "OTP Code Expired",
+    "otpExpiredMessage": "The OTP code has expired after 60 seconds. Would you like to request a new code?",
+    "verificationFailed": "Verification Failed"
+  },
+
+  "camera": {
+    "title": "Take Photo",
+    "takePicture": "Take Picture",
+    "retake": "Retake",
+    "usePhoto": "Use This Photo",
+    "permissionRequired": "Permission Required",
+    "cameraPermissionDenied": "You need to grant camera permission to use this feature",
+    "locationPermissionDenied": "You need to grant location permission to add GPS watermark",
+    "cameraPermissionRationale": "App needs camera access to take rice plant photos",
+    "locationPermissionRationale": "App needs location access to embed GPS coordinates in photos",
+    "openSettings": "Open Settings",
+    "grantPermission": "Grant Permission",
+    "uploading": "Uploading...",
+    "processing": "Processing...",
+    "uploadProgress": "Uploaded {{percent}}%",
+    "uploadSuccess": "Photo uploaded successfully",
+    "uploadFailed": "Photo upload failed",
+    "watermarkFailed": "Failed to add watermark",
+    "locationNotAvailable": "Unable to get current location"
+  },
+
+  "gallery": {
+    "title": "Photo Gallery",
+    "myPhotos": "My Photos",
+    "noPhotos": "No photos yet",
+    "photoDetails": "Photo Details",
+    "location": "Location",
+    "timestamp": "Timestamp",
+    "device": "Device",
+    "deletePhoto": "Delete Photo",
+    "deleteConfirm": "Are you sure you want to delete this photo?",
+    "deleteSuccess": "Photo deleted",
+    "deleteFailed": "Failed to delete photo"
+  },
+
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "vietnamese": "Tiếng Việt",
+    "english": "English",
+    "account": "Account",
+    "profile": "Profile",
+    "privacy": "Privacy",
+    "security": "Security",
+    "about": "About",
+    "version": "Version",
+    "logout": "Logout",
+    "logoutConfirm": "Are you sure you want to logout?",
+    "deleteAccount": "Delete Account",
+    "deleteAccountConfirm": "Are you sure you want to delete your account? This action cannot be undone!",
+    "deleteAccountSuccess": "Account has been deleted successfully",
+    "userInfo": "User Information",
+    "personalManagement": "Personal Management",
+    "accountSettings": "Account Settings",
+    "support": "Support",
+    "IOT": "IoT Management",
+    "expertConversations": "Expert Q&A History",
+    "recognitionHistory": "Recognition History",
+    "aiChatHistory": "AI Chat History",
+    "changePassword": "Change Password",
+    "textSizeLabel": "Text Size",
+    "textSize": {
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large",
+      "example": "Sample Text"
+    },
+    "faq": "Frequently Asked Questions"
+  },
+
+  "biometric": {
+    "enableTitle": "Enable Quick Login?",
+    "enableDescription": "Use {{biometricType}} for quick and secure login next time.",
+    "feature1": "Quick login",
+    "feature2": "High security",
+    "feature3": "No need to remember password",
+    "enable": "Enable Now",
+    "skip": "Later",
+    "infoText": "You can enable/disable this feature in Settings anytime.",
+    "loginWith": "Login with",
+    "description": "Quick and secure login with biometric.",
+    "enabled": "Biometric login enabled successfully!",
+    "disabled": "Biometric login disabled.",
+    "enableFailed": "Failed to enable biometric login",
+    "disableFailed": "Failed to disable biometric login.",
+    "notEnabled": "Please enable biometric login in Settings.",
+    "failed": "Authentication failed",
+    "setupRequired": "Authentication Required",
+    "setupMessage": "To enable biometric login, you need to login again to save credentials."
+  },
+
+  "home": {
+    "welcome": "Welcome to Doctor Rice",
+    "subtitle": "Capture rice plants with GPS watermark",
+    "getStarted": "Get Started",
+    "recentPhotos": "Recent Photos",
+    "viewAll": "View More",
+    "hello": "Hello",
+    "weather": {
+      "warning": "Agricultural Advisory"
+    },
+    "features": {
+      "title": "Featured",
+      "chatAI": "Chat AI",
+      "iotFields": "IoT Fields",
+      "stormTracking": "Storm Tracking",
+      "doctorAI": "Doctor AI",
+      "chatWithExperts": "Chat with Experts",
+      "chatWithFarmers": "Chat with Farmers"
+    },
+    "photoHistory": {
+      "title": "Recognition History",
+      "empty": "No photos yet",
+      "takePhoto": "Take Photo Now"
+    },
+    "news": {
+      "title": "News",
+      "empty": "No news available",
+      "categories": {
+        "agriculture": "Agriculture",
+        "environment": "Environment",
+        "economy": "Economy",
+        "market": "Market"
+      }
+    }
+  },
+
+  "tabs": {
+    "home": "Home",
+    "weather": "Weather",
+    "camera": "Camera",
+    "mapFarm": "Map",
+    "account": "Account"
+  },
+
+  "map": {
+    "title": "Farm Map",
+    "loading": "Loading map...",
+    "noPhotos": "No photos yet",
+    "noPhotosDesc": "Take photos of rice plants to see them on the map",
+    "captureNow": "Take Photo",
+    "capture": "Take Photo",
+    "locations": "locations",
+    "confidence": "Confidence",
+    "viewDetail": "View Details",
+    "multiplePhotos": "{{count}} photos at this location",
+    "photosAtLocation": "photos at this location",
+    "analyzing": "Analyzing...",
+    "diseaseArea": "Disease risk area",
+    "areaRadius": "Radius: {{radius}}m",
+    "healthyArea": "Healthy area",
+    "diseaseZone": "Disease zone"
+  },
+
+  "weather": {
+    "title": "Weather",
+    "subtitle": "Weather information for agriculture",
+    "comingSoon": "Weather information is being updated...",
+    "loading": "Loading weather information...",
+    "retry": "Retry",
+    "lastUpdate": "Last update",
+    "current": "CURRENT",
+    "forecast3Days": "3-DAY FORECAST",
+    "warnings": "WARNINGS",
+    "detail": "Weather Details",
+    "tapForDetails": "Tap for details",
+    "tapForMoreInfo": "Tap for more info",
+    "swipeForMore": "Swipe for more →",
+    "feelsLike": "Feels like",
+    "wind": "Wind",
+    "pressure": "Pressure",
+    "temperature": "Temperature",
+    "humidity": "Humidity",
+    "rain": "Rain",
+    "recommendation": "Recommendation",
+    "relatedDiseases": "Related diseases",
+    "askDoctorRice": "Ask Doctor Rice about this weather",
+    "weatherAdvice": "What should I do with this weather?",
+    "prefillQuestion": "What should I do with this weather?",
+    "selectLocation": "Select Location",
+    "searchLocation": "Search location...",
+    "useCurrentLocation": "Use Current Location",
+    "currentlyViewing": "Currently viewing",
+    "savedLocations": "Saved Locations",
+    "popularCities": "Popular Cities",
+    "deleteLocation": "Delete Location",
+    "confirmDelete": "Are you sure you want to delete this location?",
+    "locationPermission": "Location Permission Required",
+    "locationPermissionDesc": "Please grant location permission to use this feature.",
+    "dayNames": {
+      "sunday": "Sunday",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday"
+    },
+    "warningMessages": {
+      "blastCritical": {
+        "title": "🚨 VERY HIGH blast disease risk",
+        "description": "Humidity {{humidity}}% with rain {{rain}}mm - ideal conditions for blast disease.",
+        "recommendation": "URGENT: Spray Tricyclazole or Tebuconazole within 24h. Improve drainage."
+      },
+      "blastHigh": {
+        "title": "⚠️ HIGH blast disease risk",
+        "description": "Humidity {{humidity}}% - favorable for blast disease.",
+        "recommendation": "Spray preventively within 48h and monitor the field closely."
+      },
+      "brownspotHigh": {
+        "title": "⚠️ HIGH brown spot risk",
+        "description": "3-day avg humidity: {{humidity}}%, accumulated rain: {{rain}}mm.",
+        "recommendation": "Spray Mancozeb or Validamycin; add potassium fertilizer to boost resistance."
+      },
+      "brownspotMedium": {
+        "title": "🔶 MODERATE brown spot risk",
+        "description": "3-day avg humidity: {{humidity}}%.",
+        "recommendation": "Monitor closely and prepare fungicide if symptoms appear."
+      },
+      "bacterialLeafHigh": {
+        "title": "⚠️ HIGH bacterial leaf blight risk",
+        "description": "{{days}} consecutive rainy days with humidity above 85%.",
+        "recommendation": "Spray Validamycin A or Kasugamycin and remove infected leaves."
+      },
+      "heatHigh": {
+        "title": "🌡️ Heat stress alert",
+        "description": "Peak temperature: {{temperature}}°C - risk of leaf scorch.",
+        "recommendation": "Irrigate in early morning/evening and keep water depth 5-7cm."
+      },
+      "heatMedium": {
+        "title": "🔶 Warm conditions",
+        "description": "Peak temperature: {{temperature}}°C.",
+        "recommendation": "Maintain stable water level and irrigate in the early morning."
+      },
+      "floodingCritical": {
+        "title": "🌊 HEAVY rain alert",
+        "description": "Forecast rain: {{rain}}mm - high flooding risk.",
+        "recommendation": "URGENT: Check drainage, reinforce dikes, monitor water level 24/7."
+      },
+      "floodingHigh": {
+        "title": "⚠️ Heavy rain next 3 days",
+        "description": "Total rainfall: {{rain}}mm.",
+        "recommendation": "Inspect the drainage system and prepare anti-flood measures."
+      },
+      "goodConditions": {
+        "title": "✅ Favorable weather",
+        "description": "Temperature {{temperature}}°C, humidity {{humidity}}% - great conditions for rice.",
+        "recommendation": "Maintain regular care and keep monitoring for pests and diseases."
+      }
+    }
+  },
+
+  "permissions": {
+    "title": "Permission Request",
+    "description": "Doctor Rice needs the following permissions to work properly:",
+    "camera": {
+      "title": "Camera",
+      "description": "Take photos of rice plants to detect diseases and add watermarks"
+    },
+    "location": {
+      "title": "Location",
+      "description": "Determine location to embed geographic information in photos"
+    },
+    "infoText": "We respect your privacy. Information is only used when you take photos.",
+    "allow": "Allow",
+    "skip": "Skip",
+    "requesting": "Requesting...",
+    "openSettings": "Open System Settings"
+  },
+
+  "stormTracking": {
+    "title": "Storm Tracking",
+    "info": "Weather and storm data from Windy.com",
+    "loading": "Loading map...",
+    "legend": "Legend"
+  },
+
+  "photoHistory": {
+    "title": "Recognition History",
+    "loading": "Loading...",
+    "empty": "No photos yet",
+    "filters": {
+      "all": "All",
+      "healthy": "Healthy",
+      "bacterial": "Bacterial Blight",
+      "blast": "Blast",
+      "brownSpot": "Brown Spot",
+      "selectDate": "Select Date"
+    }
+  },
+
+  "news": {
+    "title": "News",
+    "loading": "Loading news...",
+    "empty": "No news available"
+  },
+
+  "newsDetail": {
+    "title": "News Detail",
+    "loading": "Loading...",
+    "readFull": "Read Full Article",
+    "openBrowser": "Open in Browser",
+    "closeWebView": "Close"
+  },
+
+  "errors": {
+    "networkError": "Network connection error",
+    "serverError": "Server error",
+    "unknownError": "Unknown error",
+    "timeout": "Request timeout",
+    "unauthorized": "You need to login to continue",
+    "forbidden": "You don't have permission to access",
+    "notFound": "Not found",
+    "validationError": "Invalid data"
+  },
+
+  "account": {
+    "title": "Account",
+    "role": {
+      "user": "Farmer",
+      "expert": "Expert"
+    },
+    "editProfile": "Edit Profile",
+    "uploadAvatar": "Change Avatar",
+    "addPhone": "Add Phone Number"
+  },
+
+  "profile": {
+    "title": "Account Information",
+    "fullName": "Full Name",
+    "phoneNumber": "Phone Number",
+    "save": "Save Changes",
+    "cancel": "Cancel",
+    "updateSuccess": "Profile updated successfully",
+    "uploadAvatarSuccess": "Avatar uploaded successfully"
+  },
+
+  "expertConversations": {
+    "title": "Expert Q&A History",
+    "noPending": "No pending questions",
+    "noAnswered": "No answered questions",
+    "noCompleted": "No completed conversations",
+    "noConversations": "No conversations yet",
+    "pending": "Pending",
+    "answered": "Answered",
+    "completed": "Completed",
+    "lastMessage": "Last message",
+    "startChat": "Start Chat",
+    "selectExpert": "Select Expert",
+    "messageExpert": "Message Expert"
+  },
+  "experts": {
+    "list": {
+      "title": "Expert Directory",
+      "searchPlaceholder": "Search experts...",
+      "onlineFilter": "Online",
+      "askButton": "Ask",
+      "reviewCount": "{{count}} comments",
+      "status": {
+        "online": "Online",
+        "offline": "Offline"
+      },
+      "empty": {
+        "noResults": "No experts found",
+        "noOnline": "No experts are online",
+        "none": "No experts available"
+      }
+    },
+    "detail": {
+      "title": "Expert Details",
+      "notFound": "Expert not found",
+      "ratingCount": "({{count}} ratings)",
+      "commentCount": "{{count}} comments",
+      "statusOnline": "Online now",
+      "statusOffline": "Offline",
+      "suggestionStatusOnline": "🟢 Online",
+      "suggestionStatusOffline": "⚫ Offline",
+      "suggestionAsk": "Ask",
+      "sections": {
+        "expertise": "Expertise",
+        "education": "Education",
+        "experience": "Experience",
+        "workHistory": "Work history",
+        "workHistoryDetail": "Detailed work history",
+        "reviews": "Farmer comments ({{count}})",
+        "otherExperts": "Other experts"
+      },
+      "noReviews": "No comments yet",
+      "anonymousFarmer": "Anonymous farmer",
+      "askButton": "Ask this expert",
+      "viewMoreReviews": "View More Comments"
+    },
+    "reviews": {
+      "title": "Expert Comments",
+      "filterAll": "All",
+      "filterStars": "{{count}} stars",
+      "noReviews": "No comments yet",
+      "anonymousFarmer": "Anonymous Farmer"
+    }
+  },
+
+  "aiChatHistory": {
+    "title": "AI Chat History",
+    "noConversations": "No conversations yet",
+    "continueChat": "Continue",
+    "delete": "Delete",
+    "archive": "Archive",
+    "newConversation": "New Conversation",
+    "deleteConfirm": "Are you sure you want to delete this conversation?",
+    "deleteSuccess": "Conversation deleted"
+  },
+
+  "changePassword": {
+    "title": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "save": "Save Changes",
+    "cancel": "Cancel",
+    "success": "Password changed successfully",
+    "successAndLogout": "Password changed successfully! Please login again.",
+    "passwordMismatch": "Passwords do not match",
+    "currentPasswordIncorrect": "Current password is incorrect",
+    "forgotPassword": "Forgot Password?"
+  },
+
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "q1": "How do I take photos to detect diseases?",
+    "a1": "Go to Home, tap the Camera button in the center of the screen. Take a clear photo of rice leaves and wait for analysis results.",
+    "q2": "How can I view photo history?",
+    "a2": "Go to Recognition History in the Account section to view all captured photos.",
+    "q3": "Can I ask experts about rice diseases?",
+    "a3": "Yes! Go to Expert Q&A History in Account and select an expert to start chatting.",
+    "q4": "How do I change my password?",
+    "a4": "Go to Account > Change Password in Account Settings section.",
+    "q5": "Is the app free?",
+    "a5": "Yes, Doctor Rice is completely free for Vietnamese farmers.",
+    "q6": "How do I change text size?",
+    "a6": "Go to Account > Text Size in Account Settings section.",
+    "q7": "Where can I view the rice field map?",
+    "a7": "Tap the Map tab in the bottom menu bar to see the locations of captured photos.",
+    "q8": "How do I chat with AI about rice diseases?",
+    "a8": "Tap the Chat button in the bottom right corner of the Home screen to start chatting with Doctor Rice AI."
+  },
+
+  "fieldSelection": {
+    "title": "Select Field",
+    "instruction": "Select a field connected to IoT to view images from the device",
+    "loading": "Loading field list...",
+    "noFields": "No fields yet",
+    "noFieldsDesc": "Please create a field and connect IoT device first",
+    "noIoTFields": "No IoT connected fields",
+    "noIoTFieldsDesc": "Please connect IoT device to field first",
+    "notConnected": "Not connected to IoT",
+    "cancel": "Cancel",
+    "viewIoTImages": "View IoT Images"
+  },
+
+  "iotFieldSelection": {
+    "title": "Select IoT Field",
+    "subtitle": "{{count}} connected fields",
+    "loading": "Loading fields...",
+    "emptyTitle": "No IoT fields",
+    "emptySubtitle": "Please connect an IoT device to a field",
+    "info": "Select a field to view the IoT photo gallery",
+    "connected": "Connected"
+  },
+
+  "iotGallery": {
+    "title": "IoT Gallery",
+    "selectField": "Select Field",
+    "selectFieldDesc": "Please select a field to view images from IoT",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "all": "All",
+    "week": "7 days",
+    "month": "30 days",
+    "noImages": "No images",
+    "noImagesDesc": "No images in the selected time period",
+    "loading": "Loading images...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "viewAll": "View All",
+    "images": "images"
+  },
+
+  "result": {
+    "title": "Analysis Result",
+    "loading": "Loading results...",
+    "confidence": "Confidence",
+    "viewOnMap": "View on Map",
+    "recapture": "Recapture",
+    "viewDetails": "View details about disease and treatment",
+    "chatWithDoctor": "Chat with Doctor Rice",
+    "noPrediction": "No analysis result",
+    "healthy": "Healthy leaf",
+    "healthyMessage": "Congratulations! Your rice plant is healthy",
+    "diseaseDetected": "Disease detected",
+    "location": "Location",
+    "capturedAt": "Captured at",
+    "iotImage": "Image from IoT device",
+    "sensorData": "IoT Sensor Data",
+    "treatmentGuide": "Treatment Guide",
+    "treatmentNote": "For a more detailed treatment plan, please chat with Doctor Rice below",
+    "sendToIoT": "Send treatment information to IoT",
+    "sentToIoT": "✓ Treatment information sent",
+    "treatmentSentSuccess": "Treatment information sent to IoT device"
+  },
+
+  "photoDetail": {
+    "title": "Analysis Details",
+    "loading": "Loading...",
+    "confidence": "Confidence",
+    "diseaseInfo": "Disease Information",
+    "treatment": "Treatment",
+    "chatWithDoctor": "Chat with Doctor Rice",
+    "viewOnMap": "View Map",
+    "newPhoto": "New Photo",
+    "defaultInfo": "No disease information available. Please chat with Doctor Rice for guidance.",
+    "defaultTreatment": "No detailed treatment guide yet. Please chat with Doctor Rice for personalized advice.",
+    "diagnosisInfo": "Diagnosis Information",
+    "loadingPlan": "Generating monitoring plan...",
+    "loadingDiseaseInfo": "Loading disease information...",
+    "sendToIoT": "Send treatment information to IoT",
+    "sentToIoT": "✓ Treatment information sent",
+    "treatmentSentSuccess": "Treatment information sent to IoT device",
+    "diseases": {
+      "bacterial_leaf_blight": {
+        "info": "Bacterial Leaf Blight (Leaf burn)\n\n🦠 Cause:\n- Bacteria Xanthomonas oryzae pv. oryzae\n- Thrives in humid conditions, temperature 25-30°C\n\n📋 Symptoms:\n- Long streaks from light yellow to gray-white on leaves\n- Disease streaks usually appear at leaf edges\n- Leaves dry, gradually die from the tip\n- Can cause severe damage if not treated promptly\n\n⚠️ Danger level: High\n🌾 Susceptible stage: Tillering to heading",
+        "treatment": "How to prevent Bacterial Leaf Blight:\n\n✅ Prevention:\n1. Choose disease-resistant rice varieties\n2. Treat seeds before sowing with hot water 52-54°C for 10 minutes\n3. Improve drainage, avoid prolonged flooding\n4. Balanced fertilization, avoid excessive nitrogen\n5. Clean up rice straw after harvest\n\n💊 Treatment when infected:\n1. Antibiotics:\n   - Validamycin 5% (30ml/20 liters water)\n   - Kasugamycin 2% (40ml/20 liters water)\n\n2. Copper fungicides:\n   - Copper Hydroxide 77% WP (20g/20 liters water)\n   - Spray every 7-10 days\n\n3. Agricultural measures:\n   - Remove diseased leaves, destroy away from field\n   - Increase potassium to boost resistance\n   - Avoid flooding rice in the afternoon\n\n📅 Spray schedule: 2-3 times, 7-10 days apart"
+      },
+      "blast": {
+        "info": "Blast Disease\n\n🦠 Cause:\n- Fungus Pyricularia oryzae (Magnaporthe oryzae)\n- Most dangerous rice disease\n\n📋 Symptoms:\n- Leaf blast: Diamond-shaped lesions, brown edges, gray-white center\n- Neck blast: Broken neck, dead panicles\n- Grain blast: Empty grains, reduced yield\n\n⚠️ Danger level: Very High\n🌾 Susceptible stage: All stages, especially tillering and heading\n\n💧 Disease conditions:\n- Temperature 20-30°C\n- High humidity > 90%\n- Fog, drizzle\n- Excessive nitrogen, lack of potassium",
+        "treatment": "How to prevent Blast Disease:\n\n✅ Prevention:\n1. Choose highly blast-resistant varieties\n2. Balanced NPK fertilization, increase K and Si\n3. Avoid excessive or late nitrogen application\n4. Proper row spacing (ventilated, sufficient light)\n5. Treat seeds with fungicide before sowing\n\n💊 Treatment when infected:\n1. Triazole fungicides:\n   - Tricyclazole 75% WP (15-20g/20 liters water)\n   - Propiconazole 25% EC (20ml/20 liters water)\n\n2. Strobilurin fungicides:\n   - Azoxystrobin 25% SC (20ml/20 liters water)\n\n3. Combined fungicides:\n   - Tricyclazole + Hexaconazole (20g/20 liters water)\n\n4. When severe:\n   - Spray 3-4 times, 5-7 days apart\n   - Rotate fungicides to avoid resistance\n\n📅 Spray timing:\n- Tillering stage: preventive spray\n- When disease detected: spray immediately\n- 7-10 days before heading: protect neck\n\n⚠️ Note: Neck blast is very dangerous, must prevent before heading!"
+      },
+      "brown_spot": {
+        "info": "Brown Spot Disease\n\n🦠 Cause:\n- Fungus Bipolaris oryzae (Helminthosporium oryzae)\n- Common in nutrient-deficient areas\n\n📋 Symptoms:\n- Small round or oval brown spots\n- Spots with yellow edges, brown-gray center\n- Many spots on leaves, gradual drying, reduced photosynthesis\n- Infected grains turn dark brown\n\n⚠️ Danger level: Medium\n🌾 Susceptible stage: From tillering to maturity\n\n💧 Disease conditions:\n- Nutrient deficiency (especially N, P, K, Si)\n- High humidity 80-90%\n- Temperature 25-30°C\n- Acidic, nutrient-poor soil",
+        "treatment": "How to prevent Brown Spot Disease:\n\n✅ Prevention:\n1. Balanced, complete NPK fertilization\n2. Supplement with phosphorus, potassium and silicon\n3. Improve acidic soil with lime\n4. Use healthy, disease-resistant varieties\n5. Treat seeds before sowing\n\n💊 Treatment when infected:\n1. Fungicides:\n   - Mancozeb 80% WP (30-40g/20 liters water)\n   - Edifenphos 50% EC (30ml/20 liters water)\n   - Isoprothiolane 40% EC (30ml/20 liters water)\n\n2. Combined spray:\n   - Fungicide + foliar fertilizer (NPK)\n   - Supplement zinc and silicon via leaves\n\n3. Additional fertilization:\n   - Balanced NPK\n   - Potassium (increase resistance)\n   - Lime if soil is acidic\n\n📅 Spray schedule: 2 times, 10 days apart\n\n💡 Tip: Brown spot is often due to nutrient deficiency. Improving nutrition is the best way!"
+      },
+      "healthy": {
+        "info": "Healthy Rice Leaf 🎉\n\n✅ Assessment:\nYour rice plant is in good condition, no disease signs detected!\n\n🌿 Healthy leaf characteristics:\n- Dark green, uniform color\n- Leaf surface without spots or disease streaks\n- Firm, upright leaves\n- No drying or wilting\n\n📊 Continue maintaining:\n1. Fertilize correctly, at the right time\n2. Manage water properly\n3. Monitor pests and diseases regularly\n4. Keep field clean\n\n🎯 Recommendations:\n- Continue maintaining current care quality\n- Regular observation for early detection if disease occurs\n- Take photos to track plant development",
+        "treatment": "Measures to maintain rice plant health:\n\n✅ Regular care:\n\n1. Balanced fertilization:\n   - Nitrogen: Divide into 3 times (basal, tillering, heading)\n   - Phosphorus: Apply all at basal\n   - Potassium: Divide into 2 times (basal and heading)\n   - Silicon: 100-150 kg/ha (increase resistance)\n\n2. Water management:\n   - Tillering stage: Shallow water\n   - Field drying at the right time\n   - Keep water depth 5-7cm at heading stage\n\n3. Pest and disease prevention:\n   - Check field 2-3 times/week\n   - Use light traps for night pests\n   - Preventive spray if weather is bad\n\n4. Field hygiene:\n   - Regular weed removal\n   - Clean ditches\n   - Destroy diseased plants if any\n\n📅 Care schedule:\n- Week 1-3: Monitor seedlings, basal fertilization\n- Week 4-6: Tillering stage, second nitrogen application\n- Week 7-8: Field drying\n- Week 9-10: Heading, potassium application\n- Week 11-14: Maturity, harvest\n\n🏆 Congratulations! Keep up the good care!"
+      }
+    }
+  },
+
+  "chatbot": {
+    "welcomeMessage": "Hello, I'm Doctor Rice, happy to help you",
+    "welcomeWithImage": "I've received your image. What would you like to ask about this rice plant?",
+    "suggestions": {
+      "monitoringPlan": "🔍 Automatic monitoring plan",
+      "keepHealthy": "💡 How to keep rice plants always healthy?",
+      "preventDisease": "🛡️ How to effectively prevent diseases?",
+      "whatNext": "📋 What should I do next?",
+      "bestCare": "🌾 Best way to care for rice?",
+      "defaultDiseaseLabel": "disease rice",
+      "diseaseDanger": "⚠️ Is {{disease}} dangerous?",
+      "preventSpecific": "🛡️ How to prevent {{disease}}?",
+      "diseaseCause": "💡 What causes {{disease}}?"
+    },
+    "newImageMessage": "This is a new rice leaf image. Please help me analyze it.",
+    "newConversation": "New conversation",
+    "sendToIoT": "Send analysis information to IoT",
+    "sendingToIoT": "Sending...",
+    "clearHistoryTitle": "New Conversation",
+    "clearHistoryMessage": "Do you want to start a new conversation? The current conversation will be saved.",
+    "clearHistoryCancel": "Cancel",
+    "clearHistoryConfirm": "Start New",
+    "error": "Error",
+    "errorConnection": "Cannot connect to AI. Please try again.",
+    "errorMissingInfo": "Missing image or field information",
+    "errorLogin": "Please login again",
+    "errorSendFailed": "Cannot send treatment information. Please try again.",
+    "success": "✅ Success",
+    "sendFailed": "Send failed"
+  }
+}

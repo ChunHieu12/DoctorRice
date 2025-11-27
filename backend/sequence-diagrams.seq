@@ -1,0 +1,204 @@
+
+// ============================================
+// 1. FLOW ĐĂNG NHẬP/ĐĂNG KÝ VỚI OTP
+// ============================================
+title Đăng nhập/Đăng ký với OTP
+
+Người dùng->Mobile App:Nhập số điện thoại
+Mobile App->Firebase Auth:Gửi yêu cầu OTP
+Firebase Auth->Người dùng:Gửi mã OTP qua SMS
+Người dùng->Mobile App:Nhập mã OTP
+Mobile App->Firebase Auth:Xác thực mã OTP
+Firebase Auth->Mobile App:Trả về Firebase Token
+
+Mobile App->Backend API:POST /auth/verify-otp\n{firebaseToken}
+Backend API->Firebase Auth:Xác thực Firebase Token
+Firebase Auth<--Backend API:Decoded token (phone_number)
+
+Backend API->MongoDB:Tìm user theo phone
+MongoDB<--Backend API:User found hoặc not found
+
+note over Backend API,MongoDB:Nếu user tồn tại:\ntạo Session và trả về tokens\nNếu user mới:\ntrả về userExists=false
+
+Backend API->MongoDB:Tạo Session mới\nCập nhật isPhoneVerified
+MongoDB<--Backend API:Session created
+
+Backend API<--Mobile App:{userExists, user, accessToken, refreshToken}
+Mobile App<--Người dùng:Đăng nhập thành công
+
+// ============================================
+// 2. FLOW CHỤP ẢNH VÀ UPLOAD VỚI WATERMARK
+// ============================================
+title Chụp ảnh và xử lý watermark
+
+Người dùng->Mobile App:Mở camera và chụp ảnh
+Mobile App->Mobile App:Lấy GPS location (lat, lng)\nTạo metadata
+
+Mobile App->Backend API:POST /api/photos/upload\nmultipart/form-data\n(file + metadata)
+Backend API->MongoDB:Tạo Photo record\nstatus: 'processing'
+
+Backend API->AI Service:Gửi ảnh để phân tích bệnh\nPOST /predict
+AI Service<--Backend API:Prediction result\n{class, classVi, confidence}
+
+Backend API->Cloudinary:Upload ảnh gốc
+Cloudinary<--Backend API:originalUrl, publicId
+
+Backend API->Cloudinary:Tạo watermark với GPS\n{lat, lng, timestamp}
+Cloudinary<--Backend API:watermarkedUrl
+
+Backend API->Cloudinary:Tạo thumbnail
+Cloudinary<--Backend API:thumbnailUrl
+
+note over Backend API,Cloudinary:Xử lý song song:\nAI prediction và Cloudinary upload
+
+Backend API->MongoDB:Cập nhật Photo\n{originalUrl, watermarkedUrl,\nthumbnailUrl, prediction,\nstatus: 'completed'}
+MongoDB<--Backend API:Photo saved
+
+Backend API<--Mobile App:{photo: {_id, originalUrl,\nwatermarkedUrl, thumbnailUrl,\nprediction, status}}
+Mobile App<--Người dùng:Hiển thị ảnh đã watermark\nvà kết quả phân tích bệnh
+
+// ============================================
+// 3. FLOW GỬI TIN NHẮN TRONG CONVERSATION
+// ============================================
+title Gửi tin nhắn giữa nhà nông và chuyên gia
+
+Nhà nông->Mobile App:Nhập tin nhắn và chọn ảnh\n(tối đa 5 ảnh)
+Mobile App->Backend API:POST /api/conversations/:id/messages\n{content, images[], conversationId}
+
+Backend API->MongoDB:Tìm Conversation
+MongoDB<--Backend API:Conversation found
+
+Backend API->MongoDB:Tạo Message mới\n{senderId, receiverId, content, images}
+Backend API->MongoDB:Cập nhật Conversation\n{lastMessageAt, unreadCountExpert++}
+MongoDB<--Backend API:Message created
+
+Backend API->Socket.IO:Emit 'new_message' event\nto expert
+Socket.IO->Chuyên gia:Push notification\n"Tin nhắn mới từ nhà nông"
+
+Chuyên gia->Mobile App:Mở conversation
+Mobile App->Backend API:GET /api/conversations/:id/messages
+Backend API->MongoDB:Lấy danh sách messages
+MongoDB<--Backend API:Messages list
+Backend API<--Mobile App:{messages: [...]}
+Mobile App<--Chuyên gia:Hiển thị tin nhắn
+
+Chuyên gia->Mobile App:Đánh dấu đã đọc
+Mobile App->Backend API:PUT /api/conversations/:id/read
+Backend API->MongoDB:Cập nhật unreadCountExpert = 0\nCập nhật Message.isRead = true
+MongoDB<--Backend API:Updated
+
+// ============================================
+// 4. FLOW KẾT NỐI IOT DEVICE VỚI FIELD
+// ============================================
+title Kết nối thiết bị IoT với ruộng lúa
+
+Người dùng->Mobile App:Chọn ruộng (Field) để kết nối
+Mobile App->Backend API:POST /api/iot/connect\n{fieldId, deviceId, connectionCode}
+
+Backend API->MongoDB:Tìm IoTConnectionCode\nvà verify codeHash
+MongoDB<--Backend API:Code valid
+
+Backend API->MongoDB:Tạo IoTConnection\n{userId, fieldId, deviceId, firebaseDbUrl}
+Backend API->MongoDB:Đánh dấu code đã sử dụng\n{isUsed: true, usedBy, usedAt}
+MongoDB<--Backend API:Connection created
+
+Backend API->Firebase Realtime DB:Tạo Firebase path\n/treatments/{deviceId}
+Firebase Realtime DB<--Backend API:Path created
+
+Backend API<--Mobile App:{connection: {_id, fieldId,\ndeviceId, status: 'active'}}
+Mobile App<--Người dùng:Kết nối thành công
+
+IoT Device->Firebase Realtime DB:Gửi dữ liệu sensor\n{temp, humidity, ph, soil, lux, wind}
+Firebase Realtime DB->Backend API:Webhook hoặc polling
+Backend API->MongoDB:Lưu sensor data vào Photo.iotMetadata
+MongoDB<--Backend API:Data saved
+
+// ============================================
+// 5. FLOW GỬI ĐIỀU TRỊ ĐẾN IOT DEVICE
+// ============================================
+title Gửi phác đồ điều trị đến thiết bị IoT
+
+Chuyên gia->Mobile App:Xem ảnh và phân tích bệnh
+Chuyên gia->Mobile App:Tạo phác đồ điều trị\n{pesticides[], fertilizers[],\nwateringSchedule[], schedule[]}
+
+Mobile App->Backend API:PUT /api/photos/:id/treatment\n{treatmentData}
+Backend API->MongoDB:Cập nhật Photo.treatmentData
+MongoDB<--Backend API:Photo updated
+
+Mobile App->Backend API:POST /api/treatments/send\n{photoId, fieldId, deviceId}
+Backend API->MongoDB:Tìm IoTConnection theo fieldId
+MongoDB<--Backend API:Connection found
+
+Backend API->Firebase Realtime DB:Ghi dữ liệu điều trị\n/treatments/{deviceId}/{timestamp}\n{treatmentData}
+Backend API->MongoDB:Tạo TreatmentLog\n{status: 'sent', firebasePath}
+MongoDB<--Backend API:Log created
+
+Firebase Realtime DB->IoT Device:Real-time update\nTreatment data available
+IoT Device->Firebase Realtime DB:Acknowledge\n{status: 'acknowledged'}
+
+Firebase Realtime DB->Backend API:Webhook hoặc polling
+Backend API->MongoDB:Cập nhật TreatmentLog\n{status: 'acknowledged', acknowledgedAt}
+MongoDB<--Backend API:Log updated
+
+Backend API<--Mobile App:{treatment: {_id,\nstatus: 'acknowledged'}}
+Mobile App<--Chuyên gia:Đã gửi điều trị thành công
+
+// ============================================
+// 6. FLOW ĐĂNG NHẬP VỚI GOOGLE
+// ============================================
+title Đăng nhập với Google
+
+Người dùng->Mobile App:Chọn "Đăng nhập với Google"
+Mobile App->Google OAuth:Mở Google Sign-In
+Google OAuth->Người dùng:Yêu cầu xác thực
+Người dùng->Google OAuth:Xác nhận đăng nhập
+Google OAuth->Firebase Auth:Trả về Google token
+Firebase Auth->Mobile App:Firebase ID Token
+
+Mobile App->Backend API:POST /auth/google\n{firebaseToken}
+Backend API->Firebase Auth:Verify Firebase token
+Firebase Auth<--Backend API:Decoded token\n{email, name, picture, uid}
+
+Backend API->MongoDB:Tìm user theo email\nhoặc socialIds.google
+MongoDB<--Backend API:User found hoặc not found
+
+note over Backend API,MongoDB:Nếu user tồn tại:\ncập nhật socialIds.google\nNếu user mới:\ntạo User mới với Google info
+
+Backend API->MongoDB:Cập nhật/Create User\nCập nhật isEmailVerified = true
+Backend API->MongoDB:Tạo Session mới
+MongoDB<--Backend API:User/Session created
+
+Backend API->Email Service:Gửi email thông báo đăng nhập\n(async, non-blocking)
+Email Service<--Backend API:Email sent
+
+Backend API<--Mobile App:{userExists: true, user,\naccessToken, refreshToken}
+Mobile App<--Người dùng:Đăng nhập thành công
+
+// ============================================
+// 7. FLOW ĐÁNH GIÁ CHUYÊN GIA
+// ============================================
+title Đánh giá chuyên gia
+
+Nhà nông->Mobile App:Đánh dấu conversation hoàn thành
+Mobile App->Backend API:PUT /api/conversations/:id/complete
+Backend API->MongoDB:Cập nhật Conversation\n{status: 'completed', completedAt}
+MongoDB<--Backend API:Updated
+
+Nhà nông->Mobile App:Chọn rating (1-5) và nhập comment
+Mobile App->Backend API:POST /api/conversations/:id/rating\n{rating, comment}
+
+Backend API->MongoDB:Cập nhật Conversation\n{rating, ratingComment}
+Backend API->MongoDB:Tạo ExpertReview\n{conversationId, expertId,\nfarmerId, rating, comment}
+Backend API->MongoDB:Tính toán rating trung bình\ncủa Expert
+Backend API->MongoDB:Cập nhật User.rating\nvà User.totalRatings
+MongoDB<--Backend API:Review created
+
+Backend API<--Mobile App:{review: {_id, rating, comment}}
+Mobile App<--Nhà nông:Đánh giá thành công
+
+Chuyên gia->Mobile App:Xem đánh giá
+Mobile App->Backend API:GET /api/expert/reviews
+Backend API->MongoDB:Lấy danh sách ExpertReview
+MongoDB<--Backend API:Reviews list
+Backend API<--Mobile App:{reviews: [...], averageRating}
+Mobile App<--Chuyên gia:Hiển thị đánh giá\nvà rating trung bình

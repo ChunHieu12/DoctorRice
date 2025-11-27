@@ -1,0 +1,220 @@
+
+Table users {
+  _id varchar [primary key, note: 'MongoDB ObjectId']
+  email varchar [note: 'Optional, unique sparse index']
+  phone varchar [note: 'Optional, unique sparse index, format: 0xxxxxxxxx']
+  username varchar [note: 'Optional display username']
+  passwordHash varchar [note: 'Hidden by default, bcrypt hash']
+  displayName varchar [not null]
+  avatar varchar [note: 'Avatar URL']
+  expertise varchar [note: 'For expert users: area of expertise']
+  experience text [note: 'Professional experience overview']
+  education varchar [note: 'Education background']
+  workHistory text [note: 'Work history overview']
+  detailedWorkHistory json [note: 'Array of work history items with position, organization, period, description']
+  rating decimal [default: 0, note: 'Average rating 0-5']
+  totalRatings integer [default: 0]
+  isOnline boolean [default: false, note: 'Socket.io presence status']
+  lastActiveAt timestamp
+  socialIds json [note: 'Object with google and facebook IDs']
+  roles json [note: 'Array: user, admin, expert']
+  isEmailVerified boolean [default: false]
+  isPhoneVerified boolean [default: false, note: 'Set to true after OTP verification']
+  createdAt timestamp
+  updatedAt timestamp
+  
+  indexes {
+    email [unique]
+    phone [unique]
+  }
+}
+
+Table photos {
+  _id varchar [primary key, note: 'MongoDB ObjectId']
+  userId varchar [not null, ref: > users._id]
+  originalUrl varchar [note: 'Original photo URL from Cloudinary']
+  watermarkedUrl varchar [note: 'Watermarked photo URL']
+  thumbnailUrl varchar [note: 'Thumbnail URL']
+  cloudinaryPublicId varchar [note: 'Cloudinary public ID']
+  source varchar [default: 'upload', note: 'upload or iot']
+  metadata json [note: 'Object with lat, lng, timestamp, device, orientation, address']
+  prediction json [note: 'Disease prediction: class, classVi, confidence, allPredictions']
+  iotMetadata json [note: 'IoT device metadata: deviceId, fieldId, captureId, firebaseUrl, sensors, sensorTimestamp']
+  weatherContext json [note: 'Weather data: current and forecast']
+  aiAnalysis json [note: 'AI analysis: shouldShowSendButton, riskLevel, alerts']
+  treatmentData json [note: 'Structured treatment data for IoT devices']
+  status varchar [default: 'processing', note: 'processing, completed, failed']
+  fileSize integer [not null]
+  errorMessage text
+  createdAt timestamp
+  updatedAt timestamp
+  
+  indexes {
+    userId
+    status
+    source
+  }
+}
+
+Table sessions {
+  _id varchar [primary key, note: 'MongoDB ObjectId']
+  userId varchar [not null, ref: > users._id]
+  refreshToken varchar [not null, unique]
+  deviceInfo varchar
+  ipAddress varchar
+  expiresAt timestamp [not null, note: 'TTL index for auto-cleanup']
+  createdAt timestamp
+  updatedAt timestamp
+  
+  indexes {
+    userId
+    expiresAt
+  }
+}
+
+Table conversations {
+  _id varchar [primary key, note: 'MongoDB ObjectId']
+  userId varchar [not null, ref: > users._id, note: 'Farmer/User ID']
+  expertId varchar [not null, ref: > users._id, note: 'Expert ID']
+  status varchar [default: 'pending', note: 'pending, answered, completed, reopen_requested, expired']
+  lastMessageAt timestamp
+  unreadCountFarmer integer [default: 0]
+  unreadCountExpert integer [default: 0]
+  rating integer [note: 'Rating 1-5 from farmer']
+  ratingComment text [note: 'Max 500 chars']
+  completedAt timestamp
+  expiresAt timestamp [note: 'Auto-expire after 48h inactivity']
+  reopenRequestedAt timestamp
+  reopenRequestedBy varchar [ref: > users._id, note: 'Who requested reopen']
+  deletedByFarmer boolean [default: false, note: 'Soft delete flag']
+  deletedByExpert boolean [default: false, note: 'Soft delete flag']
+  createdAt timestamp
+  updatedAt timestamp
+  
+  indexes {
+    userId
+    expertId
+    status
+  }
+}
+
+Table messages {
+  _id varchar [primary key, note: 'MongoDB ObjectId']
+  conversationId varchar [not null, ref: > conversations._id]
+  senderId varchar [not null, ref: > users._id]
+  receiverId varchar [not null, ref: > users._id]
+  content text [default: '']
+  images json [note: 'Array of image URLs, max 5']
+  isRead boolean [default: false]
+  createdAt timestamp
+  updatedAt timestamp
+  
+  indexes {
+    conversationId
+    createdAt
+  }
+}
+
+Table fields {
+  _id varchar [primary key, note: 'MongoDB ObjectId']
+  userId varchar [not null, ref: > users._id, note: 'Field owner']
+  name varchar [not null, note: 'Field name, 1-100 chars']
+  gpsCenter json [not null, note: 'Object with lat (-90 to 90) and lng (-180 to 180)']
+  radius integer [default: 500, note: 'Monitoring radius in meters, 100-5000']
+  metadata json [note: 'Object with area (m²), cropType, plantedDate']
+  isActive boolean [default: true]
+  createdAt timestamp
+  updatedAt timestamp
+  
+  indexes {
+    userId
+    isActive
+  }
+}
+
+Table iot_connections {
+  _id varchar [primary key, note: 'MongoDB ObjectId']
+  userId varchar [not null, ref: > users._id]
+  fieldId varchar [not null, ref: > fields._id, unique, note: 'One field can only have one IoT connection']
+  deviceId varchar [not null, note: 'IoT device ID, uppercase']
+  connectionCode varchar [not null, note: 'Hashed connection code, hidden by default']
+  firebaseDbUrl varchar [not null, default: 'https://rice-813b5-default-rtdb.firebaseio.com']
+  status varchar [default: 'active', note: 'active or inactive']
+  connectedAt timestamp
+  lastSyncAt timestamp
+  createdAt timestamp
+  updatedAt timestamp
+  
+  indexes {
+    userId
+    status
+    deviceId
+    fieldId [unique]
+  }
+}
+
+Table iot_connection_codes {
+  _id varchar [primary key, note: 'MongoDB ObjectId']
+  deviceId varchar [not null, note: 'IoT device ID, uppercase']
+  code varchar [not null, unique, note: 'Plain connection code, hidden by default']
+  codeHash varchar [not null, note: 'Bcrypt hash, hidden by default']
+  fieldId varchar [ref: > fields._id, note: 'Optional: link to specific field']
+  isUsed boolean [default: false]
+  usedBy varchar [ref: > users._id]
+  usedAt timestamp
+  expiresAt timestamp
+  createdAt timestamp
+  updatedAt timestamp
+  
+  indexes {
+    deviceId
+    isUsed
+    code [unique]
+    expiresAt
+  }
+}
+
+Table treatment_logs {
+  _id varchar [primary key, note: 'MongoDB ObjectId']
+  userId varchar [not null, ref: > users._id]
+  fieldId varchar [not null, ref: > fields._id]
+  photoId varchar [not null, ref: > photos._id]
+  deviceId varchar [not null, note: 'IoT device ID, uppercase']
+  treatmentData json [not null, note: 'Structured treatment data with disease, conditions, pesticides, fertilizers, schedules']
+  firebasePath varchar [not null, note: 'Firebase path where treatment was sent']
+  status varchar [default: 'sent', note: 'sent, acknowledged, failed']
+  sentAt timestamp
+  acknowledgedAt timestamp
+  error text
+  createdAt timestamp
+  updatedAt timestamp
+  
+  indexes {
+    userId
+    createdAt
+    fieldId
+    deviceId
+    status
+  }
+}
+
+Table expert_reviews {
+  _id varchar [primary key, note: 'MongoDB ObjectId']
+  conversationId varchar [not null, ref: > conversations._id, unique, note: 'One review per conversation']
+  expertId varchar [not null, ref: > users._id]
+  farmerId varchar [not null, ref: > users._id]
+  rating integer [not null, note: 'Rating 1-5']
+  comment text [note: 'Max 500 chars']
+  completedAt timestamp
+  createdAt timestamp
+  updatedAt timestamp
+  
+  indexes {
+    expertId
+    completedAt
+  }
+}
+
+// Relationships are already defined inline in table definitions using ref: >
+// All relationships are automatically created from the ref: > syntax in each table
+

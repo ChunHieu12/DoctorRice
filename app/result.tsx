@@ -503,6 +503,19 @@ export default function ResultScreen() {
 
         // Always reload photo to get updated treatment data
         const updatedPhoto = await getPhotoById(targetPhoto._id);
+        
+        // ✅ Preserve treatmentText from original photo if new photo doesn't have it
+        // (treatmentText is only in IoT analyze response, not saved in DB)
+        const preservedTreatmentText = (targetPhoto as any).treatmentText;
+        if (preservedTreatmentText && !(updatedPhoto as any).treatmentText) {
+          (updatedPhoto as any).treatmentText = preservedTreatmentText;
+          console.log("✅ Preserved treatmentText when reloading photo");
+        } else if (preservedTreatmentText && (updatedPhoto as any).treatmentText) {
+          console.log("✅ Photo already has treatmentText, keeping it");
+        } else {
+          console.log("ℹ️ No treatmentText to preserve");
+        }
+        
         setPhoto(updatedPhoto);
 
         return true;

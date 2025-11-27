@@ -153,7 +153,7 @@ export default function MapFarmScreen() {
     };
     
     const diseaseNames = {
-      'bacterial_leaf_blight': 'Bệnh bạc lá vi khuẩn',
+      'bacterial_leaf_blight': 'Bệnh cháy bìa lá',
       'blast': 'Bệnh đạo ôn',
       'brown_spot': 'Bệnh đốm nâu',
     };

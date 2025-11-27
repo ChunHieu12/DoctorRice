@@ -14,6 +14,7 @@
     "warning": "Warning",
     "ok": "OK",
     "back": "Back",
+    "user": "User",
     "next": "Next",
     "done": "Done",
     "skip": "Skip"
@@ -437,16 +438,22 @@
   "expertConversations": {
     "title": "Expert Q&A History",
     "noPending": "No pending questions",
+    "noPendingExpert": "No farmer questions yet",
     "noAnswered": "No answered questions",
     "noCompleted": "No completed conversations",
     "noConversations": "No conversations yet",
     "pending": "Pending",
     "answered": "Answered",
     "completed": "Completed",
+    "reopenRequested": "Reopen requested",
+    "expired": "Expired",
     "lastMessage": "Last message",
     "startChat": "Start Chat",
     "selectExpert": "Select Expert",
-    "messageExpert": "Message Expert"
+    "messageExpert": "Message Expert",
+    "sentImage": "Sent a photo",
+    "deleteSuccess": "Conversation removed",
+    "deleteFailed": "Unable to delete conversation"
   },
   "experts": {
     "list": {

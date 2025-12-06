@@ -156,16 +156,17 @@ export class FirebaseIoTService {
   /**
    * Detect active device_id from Firebase
    * Check recent feeds to find the device that's actually uploading
+   * Returns the most recent device found, or null if none found
    */
   async detectActiveDevice(): Promise<string | null> {
     try {
       const db = this.initDatabase();
 
-      // Check last 3 days for any active device
+      // Check last 14 days for any active device (increased from 3 to 14)
       const today = new Date();
       const dateKeys = [];
 
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 14; i++) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
         const dateKey = date.toISOString().split("T")[0].replace(/-/g, "");
@@ -177,26 +178,36 @@ export class FirebaseIoTService {
         dateKeys
       );
 
+      // Track all unique devices found
+      const foundDevices = new Set<string>();
+
       // Check each date
       for (const dateKey of dateKeys) {
         const feedsRef = db.ref(`feeds/${dateKey}`);
-        const snapshot = await feedsRef.limitToLast(1).once("value");
+        const snapshot = await feedsRef.limitToLast(10).once("value"); // Check last 10 feeds instead of 1
 
         if (snapshot.exists()) {
           const data = snapshot.val();
-          const latestFeed = Object.values(data)[0] as any;
+          const feeds = Object.values(data) as any[];
 
-          if (latestFeed?.device_id) {
-            // Normalize device ID (underscore to hyphen, lowercase)
-            const normalizedDeviceId = this.normalizeDeviceId(
-              latestFeed.device_id
-            );
-            logger.info(
-              `✅ Found active device: ${latestFeed.device_id} → normalized: ${normalizedDeviceId} in ${dateKey}`
-            );
-            return normalizedDeviceId;
+          // Collect all device IDs from this date
+          for (const feed of feeds) {
+            if (feed?.device_id) {
+              const normalizedDeviceId = this.normalizeDeviceId(feed.device_id);
+              foundDevices.add(normalizedDeviceId);
+            }
           }
         }
+      }
+
+      if (foundDevices.size > 0) {
+        // Return the first device found (most recent)
+        const deviceArray = Array.from(foundDevices);
+        logger.info(
+          `✅ Found ${foundDevices.size} active device(s) in Firebase:`,
+          deviceArray
+        );
+        return deviceArray[0];
       }
 
       logger.warn(`⚠️ No active device found in Firebase`);
@@ -204,6 +215,39 @@ export class FirebaseIoTService {
     } catch (error: any) {
       logger.error("❌ Failed to detect active device:", error.message);
       return null;
+    }
+  }
+
+  /**
+   * Get all available device IDs from Firebase (for debugging/listing)
+   */
+  async getAllAvailableDevices(days: number = 7): Promise<string[]> {
+    try {
+      const db = this.initDatabase();
+      const dateKeys = getDateKeys(days);
+      const foundDevices = new Set<string>();
+
+      for (const dateKey of dateKeys) {
+        const feedsRef = db.ref(`feeds/${dateKey}`);
+        const snapshot = await feedsRef.once("value");
+
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const feeds = Object.values(data) as any[];
+
+          for (const feed of feeds) {
+            if (feed?.device_id) {
+              const normalizedDeviceId = this.normalizeDeviceId(feed.device_id);
+              foundDevices.add(normalizedDeviceId);
+            }
+          }
+        }
+      }
+
+      return Array.from(foundDevices);
+    } catch (error: any) {
+      logger.error("❌ Failed to get available devices:", error.message);
+      return [];
     }
   }
 
@@ -296,10 +340,13 @@ export class FirebaseIoTService {
           );
 
           if (normalizedCaptureDeviceId !== normalizedRequestedDeviceId) {
+            // Only log first few mismatches to avoid spam
             if (images.length === 0) {
-              // Log first mismatch for debugging
               logger.warn(
                 `⏭️ Device mismatch: capture.device_id="${capture.device_id}" (normalized: "${normalizedCaptureDeviceId}") !== requested="${deviceId}" (normalized: "${normalizedRequestedDeviceId}")`
+              );
+              logger.info(
+                `💡 Tip: If you're looking for device "${normalizedRequestedDeviceId}", make sure it matches the device_id in Firebase. Found device "${normalizedCaptureDeviceId}" in this capture.`
               );
             }
             return;

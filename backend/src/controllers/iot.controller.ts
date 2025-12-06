@@ -529,10 +529,13 @@ export const getIoTImages = async (req: Request, res: Response) => {
     });
 
     // Fetch images from Firebase (use detected deviceId or 'ANY')
+    // Fetch significantly more to account for GPS filtering and device filtering
+    // Multiply by 5 to ensure we have enough after filtering
+    const fetchLimit = Number(limit) * 5;
     const allImages = await firebaseIoTService.getRecentImages(
       deviceId, // Use updated deviceId
       Number(days),
-      Number(limit) * 2 // Fetch more for GPS filtering
+      fetchLimit // Fetch more for GPS filtering and device filtering
     );
 
     logger.info(
@@ -582,6 +585,7 @@ export const getIoTImages = async (req: Request, res: Response) => {
     });
 
     // Filter by GPS geofence
+    let filteredOutCount = 0;
     let firstFilteredOutLogged = false;
     const filteredImages = allImages
       .filter((img) => {
@@ -593,27 +597,37 @@ export const getIoTImages = async (req: Request, res: Response) => {
           field.radius
         );
 
-        // Log first filtered out image for debugging
-        if (!isInside && !firstFilteredOutLogged) {
-          firstFilteredOutLogged = true;
-          const distance = calculateDistance(
-            img.gps.lat,
-            img.gps.lng,
-            field.gpsCenter.lat,
-            field.gpsCenter.lng
-          );
-          logger.warn(`⚠️ Image filtered out:`, {
-            imageGPS: { lat: img.gps.lat, lng: img.gps.lng },
-            fieldGPS: { lat: field.gpsCenter.lat, lng: field.gpsCenter.lng },
-            distance: `${distance.toFixed(2)}m`,
-            radius: `${field.radius}m`,
-            exceedBy: `${(distance - field.radius).toFixed(2)}m`,
-          });
+        if (!isInside) {
+          filteredOutCount++;
+          
+          // Log first few filtered out images for debugging
+          if (filteredOutCount <= 3) {
+            const distance = calculateDistance(
+              img.gps.lat,
+              img.gps.lng,
+              field.gpsCenter.lat,
+              field.gpsCenter.lng
+            );
+            logger.warn(`⚠️ Image #${filteredOutCount} filtered out by GPS:`, {
+              captureId: img.captureId,
+              imageGPS: { lat: img.gps.lat, lng: img.gps.lng },
+              fieldGPS: { lat: field.gpsCenter.lat, lng: field.gpsCenter.lng },
+              distance: `${distance.toFixed(2)}m`,
+              radius: `${field.radius}m`,
+              exceedBy: `${(distance - field.radius).toFixed(2)}m`,
+            });
+          }
         }
 
         return isInside;
       })
       .slice(0, Number(limit));
+    
+    if (filteredOutCount > 0) {
+      logger.warn(
+        `⚠️ GPS Filtering: ${filteredOutCount} images filtered out (outside geofence of ${field.radius}m)`
+      );
+    }
 
     logger.info(
       `✅ GPS Filtering Result: ${allImages.length} → ${filteredImages.length} images`

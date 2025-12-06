@@ -456,7 +456,8 @@ export const listConnections = async (req: Request, res: Response) => {
 export const getIoTImages = async (req: Request, res: Response) => {
   try {
     const userId = req.user!.userId;
-    const { fieldId, limit = 50, days = 7 } = req.query;
+    // Default to 30 days to match IMAGE_RETENTION_DAYS config
+    const { fieldId, limit = 50, days = 30 } = req.query;
 
     if (!fieldId) {
       return errorResponse(

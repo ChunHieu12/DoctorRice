@@ -71,8 +71,9 @@ export const connectDevice = async (req: Request, res: Response) => {
     }
     
     // Determine deviceId: use user-provided if available, otherwise use codeRecord.deviceId
-    // Normalize to lowercase for case-insensitive matching
-    const initialDeviceId = (userProvidedDeviceId?.trim() || codeRecord.deviceId).toLowerCase();
+    // Normalize: replace underscores with hyphens and lowercase for consistent matching
+    const rawDeviceId = userProvidedDeviceId?.trim() || codeRecord.deviceId;
+    const initialDeviceId = rawDeviceId.replace(/_/g, '-').toLowerCase();
     
     logger.info(`📝 Creating connection with deviceId:`, {
       userProvided: userProvidedDeviceId,

@@ -452,21 +452,84 @@ export class FirebaseIoTService {
 
   /**
    * Get images for last N days
+   * Default to 30 days to match IMAGE_RETENTION_DAYS config
+   * If no images found and deviceId is not 'ANY', automatically expands search range
    */
   async getRecentImages(
     deviceId: string,
-    days: number = 7,
+    days: number = 30,
     limit: number = 50
   ): Promise<any[]> {
     try {
-      const dateKeys = getDateKeys(days);
-      const allImages: any[] = [];
+      let searchDays = days;
+      const maxDays = 90; // Maximum search range (3 months)
+      let allImages: any[] = [];
 
+      // First attempt with requested days
+      let dateKeys = getDateKeys(searchDays);
+
+      // Query ALL dates first, then filter and limit later
+      // This ensures we get images from all dates, not just the first date that reaches limit
+      logger.info(
+        `🔍 Querying ${dateKeys.length} dates for device "${deviceId}" (limit: ${limit})`
+      );
+      
       for (const date of dateKeys) {
         const images = await this.getImagesForDate(date, deviceId);
         allImages.push(...images);
+        
+        logger.info(
+          `📅 Date ${date}: found ${images.length} images (total so far: ${allImages.length})`
+        );
+        
+        // Don't break early - we need to query all dates to get comprehensive results
+        // The limit will be applied after sorting
+      }
+      
+      logger.info(
+        `📊 Total images collected from all dates: ${allImages.length}`
+      );
 
-        if (allImages.length >= limit) break;
+      // If no images found and deviceId is specific (not 'ANY'), expand search range
+      if (
+        allImages.length === 0 &&
+        deviceId &&
+        deviceId.toLowerCase() !== "any" &&
+        searchDays < maxDays
+      ) {
+        logger.info(
+          `⚠️ No images found for device "${deviceId}" in last ${searchDays} days. Expanding search to ${maxDays} days...`
+        );
+
+        searchDays = maxDays;
+        dateKeys = getDateKeys(searchDays);
+        allImages = [];
+
+        // Query ALL dates in expanded range
+        logger.info(
+          `🔍 Expanded search: Querying ${dateKeys.length} dates for device "${deviceId}"`
+        );
+        
+        for (const date of dateKeys) {
+          const images = await this.getImagesForDate(date, deviceId);
+          allImages.push(...images);
+          
+          logger.info(
+            `📅 Date ${date}: found ${images.length} images (total so far: ${allImages.length})`
+          );
+          
+          // Don't break early - query all dates for comprehensive results
+        }
+        
+        logger.info(
+          `📊 Total images collected from expanded search: ${allImages.length}`
+        );
+
+        if (allImages.length > 0) {
+          logger.info(
+            `✅ Found ${allImages.length} images for device "${deviceId}" after expanding search to ${maxDays} days`
+          );
+        }
       }
 
       // Sort by timestamp desc
@@ -475,7 +538,13 @@ export class FirebaseIoTService {
           new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
       );
 
-      return allImages.slice(0, limit);
+      const result = allImages.slice(0, limit);
+      
+      logger.info(
+        `✅ Returning ${result.length} images (from ${allImages.length} total, limit: ${limit})`
+      );
+
+      return result;
     } catch (error: any) {
       logger.error("❌ Error fetching recent images:", error.message);
       return [];

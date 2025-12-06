@@ -187,7 +187,10 @@ export class FirebaseIoTService {
           const latestFeed = Object.values(data)[0] as any;
 
           if (latestFeed?.device_id) {
-            const normalizedDeviceId = latestFeed.device_id.toLowerCase();
+            // Normalize device ID (underscore to hyphen, lowercase)
+            const normalizedDeviceId = this.normalizeDeviceId(
+              latestFeed.device_id
+            );
             logger.info(
               `✅ Found active device: ${latestFeed.device_id} → normalized: ${normalizedDeviceId} in ${dateKey}`
             );
@@ -205,6 +208,17 @@ export class FirebaseIoTService {
   }
 
   /**
+   * Normalize device ID for consistent matching
+   * Converts underscores to hyphens and lowercases
+   * Example: "JETSON-001_F4:7B:09:22:29:73" -> "jetson-001-f4:7b:09:22:29:73"
+   */
+  private normalizeDeviceId(deviceId: string): string {
+    if (!deviceId) return deviceId;
+    // Replace underscores with hyphens, then lowercase
+    return deviceId.replace(/_/g, "-").toLowerCase();
+  }
+
+  /**
    * Get images from sensors_data for specific date
    */
   async getImagesForDate(date: string, deviceId?: string): Promise<any[]> {
@@ -213,9 +227,15 @@ export class FirebaseIoTService {
       const path = `${FIREBASE_IOT_CONFIG.SENSORS_PATH}/${date}`;
       const ref = db.ref(path);
 
+      // Normalize requested deviceId for comparison
+      const normalizedRequestedDeviceId = deviceId
+        ? this.normalizeDeviceId(deviceId)
+        : null;
+
       logger.info(`🔍 Querying Firebase Realtime Database:`, {
         path,
         deviceId,
+        normalizedDeviceId: normalizedRequestedDeviceId,
       });
 
       const snapshot = await ref.once("value");
@@ -257,24 +277,33 @@ export class FirebaseIoTService {
             hasEnv: !!capture.env,
             envKeys: capture.env ? Object.keys(capture.env) : [],
             device_id: capture.device_id,
+            normalizedDeviceId: capture.device_id
+              ? this.normalizeDeviceId(capture.device_id)
+              : null,
             allKeys: Object.keys(capture),
           });
         }
 
         // Filter by deviceId if provided (but allow "ANY")
-        // Case-insensitive comparison
+        // Normalize both device IDs for comparison (handles underscore vs hyphen)
         if (
-          deviceId &&
-          deviceId !== "ANY" &&
-          capture.device_id?.toLowerCase() !== deviceId.toLowerCase()
+          normalizedRequestedDeviceId &&
+          normalizedRequestedDeviceId !== "any" &&
+          capture.device_id
         ) {
-          if (images.length === 0) {
-            // Log first mismatch for debugging
-            logger.warn(
-              `⏭️ Device mismatch: capture.device_id="${capture.device_id}" !== requested="${deviceId}"`
-            );
+          const normalizedCaptureDeviceId = this.normalizeDeviceId(
+            capture.device_id
+          );
+
+          if (normalizedCaptureDeviceId !== normalizedRequestedDeviceId) {
+            if (images.length === 0) {
+              // Log first mismatch for debugging
+              logger.warn(
+                `⏭️ Device mismatch: capture.device_id="${capture.device_id}" (normalized: "${normalizedCaptureDeviceId}") !== requested="${deviceId}" (normalized: "${normalizedRequestedDeviceId}")`
+              );
+            }
+            return;
           }
-          return;
         }
 
         // Strict validation - require image URL and valid GPS coordinates

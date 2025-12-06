@@ -400,10 +400,133 @@ export default function ChatbotModal({
 
     try {
       let aiResponse: string;
+      let parsedTreatment: any = null;
 
       // Generate monitoring plan if requested
       if (isMonitoringRequest && diseaseContext && weatherData) {
         aiResponse = await generateMonitoringPlan(diseaseContext, weatherData);
+
+        // ✅ Parse and format response for IoT images BEFORE adding to messages
+        if (source === "iot" && diseaseContext && photoId) {
+          try {
+            const { parseMonitoringPlanResponse } = await import(
+              "@/utils/treatment-parser.utils"
+            );
+            const { updatePhotoTreatment } = await import(
+              "@/services/photo.service"
+            );
+
+            // Parse AI response to extract treatment data
+            parsedTreatment = parseMonitoringPlanResponse(
+              aiResponse,
+              diseaseContext.diseaseVi,
+              diseaseContext.diseaseEn || diseaseContext.diseaseVi,
+              diseaseContext.confidence || 0,
+              diseaseContext.sensors
+            );
+
+            console.log("📝 Parsed treatment data from chatbot:", {
+              disease: parsedTreatment.disease.name,
+              hasPesticides: parsedTreatment.pesticides.length > 0,
+              hasFertilizers: parsedTreatment.fertilizers.length > 0,
+              scheduleCount: parsedTreatment.schedule.length,
+            });
+
+            // Update photo treatment data in database
+            const updateResult = await updatePhotoTreatment(
+              photoId,
+              parsedTreatment
+            );
+            if (updateResult.success) {
+              console.log("✅ Treatment data saved to photo:", photoId);
+
+              // ✅ Format response to show structured data like photo-detail.tsx
+              let formattedResponse = "📋 KẾ HOẠCH GIÁM SÁT VÀ ĐIỀU TRỊ\n\n";
+
+              // Add pesticides section
+              if (
+                parsedTreatment.pesticides &&
+                parsedTreatment.pesticides.length > 0
+              ) {
+                formattedResponse += "💊 THUỐC TRỪ BỆNH:\n";
+                parsedTreatment.pesticides.forEach((pesticide: any) => {
+                  formattedResponse += `• ${pesticide.name}`;
+                  if (pesticide.activeIngredient) {
+                    formattedResponse += ` (${pesticide.activeIngredient})`;
+                  }
+                  formattedResponse += "\n";
+                  if (pesticide.dosage) {
+                    formattedResponse += `  - Liều lượng: ${pesticide.dosage}\n`;
+                  }
+                  if (pesticide.mixing) {
+                    formattedResponse += `  - Cách dùng: ${pesticide.mixing}\n`;
+                  }
+                  if (pesticide.timing) {
+                    formattedResponse += `  - Thời gian: ${pesticide.timing}\n`;
+                  }
+                  if (pesticide.frequency) {
+                    formattedResponse += `  - Tần suất: ${pesticide.frequency}\n`;
+                  }
+                  formattedResponse += "\n";
+                });
+              }
+
+              // Add fertilizers section
+              if (
+                parsedTreatment.fertilizers &&
+                parsedTreatment.fertilizers.length > 0
+              ) {
+                formattedResponse += "🌾 PHÂN BÓN:\n";
+                parsedTreatment.fertilizers.forEach((fertilizer: any) => {
+                  formattedResponse += `• ${fertilizer.name}`;
+                  if (fertilizer.type) {
+                    formattedResponse += ` (${fertilizer.type})`;
+                  }
+                  formattedResponse += "\n";
+                  if (fertilizer.dosage) {
+                    formattedResponse += `  - Liều lượng: ${fertilizer.dosage}\n`;
+                  }
+                  if (fertilizer.mixing) {
+                    formattedResponse += `  - Cách dùng: ${fertilizer.mixing}\n`;
+                  }
+                  if (fertilizer.timing) {
+                    formattedResponse += `  - Thời gian: ${fertilizer.timing}\n`;
+                  }
+                  formattedResponse += "\n";
+                });
+              }
+
+              // Add schedule section
+              if (
+                parsedTreatment.schedule &&
+                parsedTreatment.schedule.length > 0
+              ) {
+                formattedResponse += "📅 LỊCH ĐIỀU TRỊ:\n";
+                parsedTreatment.schedule.forEach((item: any) => {
+                  formattedResponse += `• ${item.date} - ${item.task}`;
+                  if (item.details) {
+                    formattedResponse += ` (${item.details})`;
+                  }
+                  formattedResponse += "\n";
+                });
+              }
+
+              // Update AI response with formatted version
+              aiResponse = formattedResponse;
+            } else {
+              console.warn(
+                "⚠️ Failed to save treatment data:",
+                updateResult.error
+              );
+            }
+          } catch (parseError: any) {
+            console.error(
+              "❌ Error parsing/saving treatment data:",
+              parseError
+            );
+            // Don't show error to user - just log it
+          }
+        }
       } else {
         // Get chat history for context
         const conversation = await getCurrentConversation(userId);
@@ -436,61 +559,38 @@ export default function ChatbotModal({
         await addMessageToConversation(currentConvId, aiMessage, userId);
       }
 
-      // Parse and save treatment data if this was a monitoring plan request
-      if (isMonitoringRequest && diseaseContext && photoId) {
-        try {
-          const { parseMonitoringPlanResponse } = await import(
-            "@/utils/treatment-parser.utils"
-          );
-          const { updatePhotoTreatment } = await import(
-            "@/services/photo.service"
-          );
-
-          // Parse AI response to extract treatment data
-          const parsedTreatment = parseMonitoringPlanResponse(
-            aiResponse,
-            diseaseContext.diseaseVi,
-            diseaseContext.diseaseEn || diseaseContext.diseaseVi,
-            diseaseContext.confidence || 0,
-            diseaseContext.sensors
-          );
-
-          console.log("📝 Parsed treatment data from chatbot:", {
-            disease: parsedTreatment.disease.name,
-            hasPesticides: parsedTreatment.pesticides.length > 0,
-            hasFertilizers: parsedTreatment.fertilizers.length > 0,
-          });
-
-          // Update photo treatment data in database
-          const updateResult = await updatePhotoTreatment(
-            photoId,
-            parsedTreatment
-          );
-          if (updateResult.success) {
-            console.log("✅ Treatment data saved to photo:", photoId);
-          } else {
-            console.warn(
-              "⚠️ Failed to save treatment data:",
-              updateResult.error
-            );
-          }
-        } catch (parseError: any) {
-          console.error("❌ Error parsing/saving treatment data:", parseError);
-          // Don't show error to user - just log it
-        }
-      }
-
       // Show "Send to IoT" button if this was a monitoring plan request for IoT image
+      // Also check if AI response contains monitoring/treatment keywords (user might ask differently)
+      const monitoringKeywords = [
+        "kế hoạch",
+        "giám sát",
+        "điều trị",
+        "phác đồ",
+        "thuốc",
+        "phân bón",
+        "lịch",
+        "schedule",
+        "treatment",
+        "monitoring",
+      ];
+      const responseContainsMonitoring = monitoringKeywords.some((keyword) =>
+        aiResponse.toLowerCase().includes(keyword.toLowerCase())
+      );
+      const isMonitoringRelated =
+        isMonitoringRequest || responseContainsMonitoring;
+
       console.log(
         "🔘 ChatbotModal - Checking if should show Send to IoT button:",
         {
           isMonitoringRequest,
+          responseContainsMonitoring,
+          isMonitoringRelated,
           source,
           photoId: photoId?.substring(0, 20),
           fieldId: fieldId?.substring(0, 20),
           treatmentSent,
           shouldShow:
-            isMonitoringRequest &&
+            isMonitoringRelated &&
             source === "iot" &&
             photoId &&
             fieldId &&
@@ -499,7 +599,7 @@ export default function ChatbotModal({
       );
 
       if (
-        isMonitoringRequest &&
+        isMonitoringRelated &&
         source === "iot" &&
         photoId &&
         fieldId &&
@@ -531,6 +631,150 @@ export default function ChatbotModal({
     try {
       setIsSendingToIoT(true);
 
+      // Step 1: Ensure treatment data exists (check and generate if needed)
+      const { getPhotoById } = await import("@/services/photo.service");
+      let currentPhoto = await getPhotoById(photoId);
+      const hasTreatmentData = !!(currentPhoto as any)?.treatmentData;
+
+      if (!hasTreatmentData) {
+        console.log("🔄 Step 1: Generating treatment data (chatbot)...");
+
+        // Generate treatment data from AI response if available
+        // Check last AI message for monitoring plan
+        const lastAIMessage = messages
+          .filter((m) => m.role === "assistant")
+          .pop();
+
+        if (lastAIMessage && diseaseContext) {
+          try {
+            const { parseMonitoringPlanResponse } = await import(
+              "@/utils/treatment-parser.utils"
+            );
+            const { updatePhotoTreatment } = await import(
+              "@/services/photo.service"
+            );
+
+            // Parse AI response to extract treatment data
+            const parsedTreatment = parseMonitoringPlanResponse(
+              lastAIMessage.content,
+              diseaseContext.diseaseVi,
+              diseaseContext.diseaseEn || diseaseContext.diseaseVi,
+              diseaseContext.confidence || 0,
+              diseaseContext.sensors
+            );
+
+            // Check if parsed treatment has content
+            const hasContent =
+              (parsedTreatment.pesticides &&
+                parsedTreatment.pesticides.length > 0) ||
+              (parsedTreatment.fertilizers &&
+                parsedTreatment.fertilizers.length > 0) ||
+              (parsedTreatment.schedule && parsedTreatment.schedule.length > 0);
+
+            if (hasContent) {
+              const updateResult = await updatePhotoTreatment(
+                photoId,
+                parsedTreatment
+              );
+              if (updateResult.success) {
+                console.log(
+                  "✅ Treatment data generated and saved from chatbot"
+                );
+                // Reload photo
+                currentPhoto = await getPhotoById(photoId);
+              }
+            }
+          } catch (parseError: any) {
+            console.warn(
+              "⚠️ Failed to parse treatment from AI response:",
+              parseError
+            );
+          }
+        }
+
+        // If still no treatment data, try to generate from scratch
+        if (!(currentPhoto as any)?.treatmentData && diseaseContext) {
+          try {
+            const { generateMonitoringPlan } = await import(
+              "@/services/gemini.service"
+            );
+            const { getWeatherForecast } = await import(
+              "@/services/weather.service"
+            );
+            const { parseMonitoringPlanResponse } = await import(
+              "@/utils/treatment-parser.utils"
+            );
+            const { updatePhotoTreatment } = await import(
+              "@/services/photo.service"
+            );
+
+            // Get weather data
+            const weatherResponse = await getWeatherForecast(
+              diseaseContext.location.lat,
+              diseaseContext.location.lng
+            );
+
+            // Convert weather data (simplified - you may need to adjust based on your weather service)
+            const weatherData = {
+              current: {
+                temp: weatherResponse.current.main.temp,
+                humidity: weatherResponse.current.main.humidity,
+                description: weatherResponse.current.weather[0].description,
+              },
+              forecast: weatherResponse.forecast.list
+                .slice(0, 3)
+                .map((item: any) => ({
+                  date: new Date(item.dt * 1000).toLocaleDateString("vi-VN"),
+                  temp: item.main.temp,
+                  humidity: item.main.humidity,
+                  rain: item.rain?.["3h"] || 0,
+                  description: item.weather[0].description,
+                })),
+            };
+
+            // Generate monitoring plan
+            const aiResponse = await generateMonitoringPlan(
+              diseaseContext,
+              weatherData
+            );
+
+            // Parse and save
+            const parsedTreatment = parseMonitoringPlanResponse(
+              aiResponse,
+              diseaseContext.diseaseVi,
+              diseaseContext.diseaseEn || diseaseContext.diseaseVi,
+              diseaseContext.confidence || 0,
+              diseaseContext.sensors
+            );
+
+            const updateResult = await updatePhotoTreatment(
+              photoId,
+              parsedTreatment
+            );
+            if (updateResult.success) {
+              console.log("✅ Treatment data generated from scratch");
+              currentPhoto = await getPhotoById(photoId);
+            }
+          } catch (genError: any) {
+            console.warn("⚠️ Failed to generate treatment data:", genError);
+          }
+        }
+      } else {
+        console.log("✅ Treatment data already exists, skipping generation");
+      }
+
+      // Step 2: Verify treatment data exists before sending
+      const hasTreatmentDataNow = !!(currentPhoto as any)?.treatmentData;
+      if (!hasTreatmentDataNow) {
+        Alert.alert(
+          t("chatbot.error"),
+          "Không có dữ liệu điều trị. Vui lòng đợi hệ thống tạo phác đồ điều trị."
+        );
+        return;
+      }
+
+      // Step 3: Send treatment to IoT
+      console.log("🔄 Step 2: Sending treatment to IoT (chatbot)...");
       const token = await getAccessToken();
       if (!token) {
         Alert.alert(t("chatbot.error"), t("chatbot.errorLogin"));
@@ -551,7 +795,11 @@ export default function ChatbotModal({
           [{ text: t("common.ok") }]
         );
       } else {
-        throw new Error(t("chatbot.sendFailed"));
+        const errorMessage =
+          typeof response.error === "string"
+            ? response.error
+            : response.error?.message || t("chatbot.sendFailed");
+        Alert.alert(t("chatbot.error"), errorMessage);
       }
     } catch (error: any) {
       Alert.alert(

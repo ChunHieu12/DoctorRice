@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "95898980634-g65e4d7btfoo8ru0gn2qd1p4hk79l5vv.apps.googleusercontent.com",
+          "client_id": "95898980634-9ec0ac6jj7mlkrv2dcc1ckmhnfdbsc01.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.doctorrice.app",
-            "certificate_hash": "45db064666194707418589837c2b940939f8c328"
+            "certificate_hash": "ad96c6ff7b72b1218446ffd52fac3c515c2f8638"
           }
         },
         {

@@ -40,7 +40,7 @@
     "newPassword": "Mật khẩu mới",
     "dontHaveAccount": "Chưa có tài khoản?",
     "notMember": "Bạn chưa là thành viên của Bác sĩ Lúa?",
-    "quickLoginOTP": "Đăng nhập nhanh với OTP",
+    "quickLoginOTP": "Đăng kí tài khoản bằng số điện thoại",
     "alreadyHaveAccount": "Đã có tài khoản?",
     "loginWithGoogle": "Đăng nhập với Google",
     "loginWithFacebook": "Đăng nhập với Facebook",
@@ -157,7 +157,7 @@
     "photoDetails": "Chi tiết ảnh",
     "location": "Vị trí",
     "timestamp": "Thời gian",
-    "device": "Thiết bị",
+    "device": "Hệ thống",
     "deletePhoto": "Xóa ảnh",
     "deleteConfirm": "Bạn có chắc muốn xóa ảnh này?",
     "deleteSuccess": "Đã xóa ảnh",
@@ -558,12 +558,12 @@
 
   "fieldSelection": {
     "title": "Chọn ruộng",
-    "instruction": "Chọn ruộng đã kết nối IoT để xem ảnh từ thiết bị",
+    "instruction": "Chọn ruộng đã kết nối IoT để xem ảnh từ hệ thống",
     "loading": "Đang tải danh sách ruộng...",
     "noFields": "Chưa có ruộng nào",
-    "noFieldsDesc": "Vui lòng tạo ruộng và kết nối thiết bị IoT trước",
+    "noFieldsDesc": "Vui lòng tạo ruộng và kết nối hệ thống IoT trước",
     "noIoTFields": "Chưa có ruộng nào kết nối IoT",
-    "noIoTFieldsDesc": "Vui lòng kết nối thiết bị IoT với ruộng trước",
+    "noIoTFieldsDesc": "Vui lòng kết nối hệ thống IoT với ruộng trước",
     "notConnected": "Chưa kết nối IoT",
     "cancel": "Hủy",
     "viewIoTImages": "Xem ảnh IoT"
@@ -571,16 +571,16 @@
 
   "iotFieldSelection": {
     "title": "Chọn ruộng IoT",
-    "subtitle": "{{count}} ruộng đã kết nối thiết bị",
+    "subtitle": "{{count}} ruộng đã kết nối hệ thống",
     "loading": "Đang tải danh sách ruộng...",
     "emptyTitle": "Không có ruộng IoT nào",
-    "emptySubtitle": "Vui lòng kết nối thiết bị IoT với ruộng",
-    "info": "Chọn ruộng để xem bộ sưu tập ảnh từ thiết bị IoT",
+    "emptySubtitle": "Vui lòng kết nối hệ thống IoT với ruộng",
+    "info": "Chọn ruộng để xem bộ sưu tập ảnh từ hệ thống IoT",
     "connected": "Đã kết nối"
   },
 
   "iotGallery": {
-    "title": "Bộ sưu tập IoT",
+    "title": "Bộ sưu tập ảnh IoT",
     "selectField": "Chọn ruộng",
     "selectFieldDesc": "Vui lòng chọn ruộng để xem ảnh từ IoT",
     "today": "Hôm nay",
@@ -611,13 +611,13 @@
     "diseaseDetected": "Phát hiện bệnh",
     "location": "Vị trí",
     "capturedAt": "Thời gian chụp",
-    "iotImage": "Ảnh từ thiết bị IoT",
+    "iotImage": "Ảnh từ hệ thống IoT",
     "sensorData": "Dữ liệu cảm biến IoT",
     "treatmentGuide": "Hướng dẫn điều trị",
     "treatmentNote": "Để có phác đồ điều trị chi tiết hơn, vui lòng chat với Bác sĩ Lúa bên dưới",
     "sendToIoT": "Gửi thông tin điều trị cho IOT",
     "sentToIoT": "✓ Đã gửi thông tin điều trị",
-    "treatmentSentSuccess": "Đã gửi thông tin điều trị đến thiết bị IoT"
+    "treatmentSentSuccess": "Đã gửi thông tin điều trị đến hệ thống IoT"
   },
 
   "photoDetail": {
@@ -636,7 +636,7 @@
     "loadingDiseaseInfo": "Đang tải thông tin bệnh...",
     "sendToIoT": "Gửi thông tin điều trị cho IOT",
     "sentToIoT": "✓ Đã gửi thông tin điều trị",
-    "treatmentSentSuccess": "Đã gửi thông tin điều trị đến thiết bị IoT",
+    "treatmentSentSuccess": "Đã gửi thông tin điều trị đến hệ thống IoT",
     "diseases": {
       "bacterial_leaf_blight": {
         "info": "Bệnh cháy bìa lá (Leaf burn)\n\n🦠 Nguyên nhân:\n- Vi khuẩn Xanthomonas oryzae pv. oryzae\n- Phát triển mạnh trong điều kiện ẩm ướt, nhiệt độ 25-30°C\n\n📋 Triệu chứng:\n- Lá có các vệt dài màu vàng nhạt đến xám trắng\n- Vệt bệnh thường xuất hiện ở rìa lá\n- Lá khô, chết dần từ đầu lá\n- Có thể gây thiệt hại nặng nếu không xử lý kịp thời\n\n⚠️ Mức độ nguy hiểm: Cao\n🌾 Giai đoạn dễ nhiễm: Đẻ nhánh đến trỗ bông",

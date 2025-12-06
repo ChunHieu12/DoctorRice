@@ -103,29 +103,44 @@ export default function PhotoDetailScreen() {
 
       setPhoto(photoData);
 
-      // ✅ If IoT image with disease, auto-generate monitoring plan
-      const isIoT = (photoData as any).source === "iot";
-      const hasDisease = photoData.prediction?.class !== "healthy";
-
-      if (isIoT && hasDisease) {
-        console.log("📊 Auto-loading monitoring plan for IoT image...");
-        loadMonitoringPlan(photoData);
-      }
-
-      // ✅ Auto-generate treatment plan for camera/upload images (not IoT)
-      // IoT images already have treatment from analyze API
+      // ✅ Auto-generate treatment data for ALL images (both IoT and non-IoT) if no treatment data exists
       const photoSource = (photoData as any).source;
       const isFromIoT = photoSource === "iot";
       const hasPrediction =
         !!photoData.prediction && photoData.prediction.class;
       const notHealthy = photoData.prediction?.class !== "healthy";
-      const hasNoTreatment =
-        !(photoData as any)?.treatmentData &&
-        !(photoData as any)?.treatmentText;
+      
+      // ❌ REMOVED: Don't check treatmentText - we only use AI-generated treatmentData
+      const hasTreatmentData = !!(photoData as any)?.treatmentData;
+      const hasNoTreatment = !hasTreatmentData;
 
-      // ✅ Auto-generate treatment plan for camera/upload images (not IoT)
-      // Use same logic as IoT: generateMonitoringPlan and display with FormattedAIText
-      if (!isFromIoT && hasPrediction && notHealthy) {
+      // ✅ If IoT image with disease, auto-load monitoring plan for display
+      if (isFromIoT && notHealthy) {
+        console.log("📊 Auto-loading monitoring plan for IoT image...");
+        loadMonitoringPlan(photoData);
+      }
+
+      // ✅ Auto-generate treatment data immediately for IoT images (not in background)
+      // This ensures treatment is personalized based on disease + weather + sensors
+      if (isFromIoT && hasPrediction && notHealthy && hasNoTreatment) {
+        console.log(
+          "🤖 Auto-generating personalized treatment plan for IoT image (disease + weather + sensors) (photo-detail)..."
+        );
+        // Generate immediately (not in background) to ensure treatment is ready
+        generateMonitoringPlanBackground().catch((err) => {
+          console.warn("⚠️ Failed to generate treatment plan:", err);
+        });
+      } else if (hasPrediction && notHealthy && hasNoTreatment && !isFromIoT) {
+        // ✅ For non-IoT images, generate in background
+        console.log(
+          "🤖 Auto-generating treatment data for camera/upload image (photo-detail)..."
+        );
+        // Generate in background and save to DB (don't block UI)
+        generateMonitoringPlanBackground().catch((err) => {
+          console.warn("⚠️ Failed to generate treatment data:", err);
+        });
+      } else if (hasPrediction && notHealthy && !isFromIoT) {
+        // ✅ For non-IoT images, also load treatment plan for display (if not already loaded)
         console.log(
           "🤖 Auto-loading treatment plan for camera/upload image (photo-detail)..."
         );
@@ -436,7 +451,20 @@ export default function PhotoDetailScreen() {
         diseaseContext.sensors
       );
 
-      // Update photo treatment data
+      // Check if parsed treatment has actual content before updating
+      const hasTreatmentContent =
+        (parsedTreatment.pesticides && parsedTreatment.pesticides.length > 0) ||
+        (parsedTreatment.fertilizers && parsedTreatment.fertilizers.length > 0) ||
+        (parsedTreatment.schedule && parsedTreatment.schedule.length > 0);
+
+      if (!hasTreatmentContent) {
+        console.warn(
+          "⚠️ Generated treatment data is empty, skipping update to preserve existing display (photo-detail)"
+        );
+        return false;
+      }
+
+      // Update photo treatment data only if it has content
       const { getPhotoById } = await import("@/services/photo.service");
       const updateResult = await updatePhotoTreatment(
         photo._id,
@@ -447,9 +475,21 @@ export default function PhotoDetailScreen() {
           "✅ Treatment data updated from background AI call (photo-detail)"
         );
 
-        // Always reload photo to get updated treatment data
+        // Only reload photo if we successfully updated with content
+        // This prevents losing existing treatment display
         const updatedPhoto = await getPhotoById(photo._id);
-        setPhoto(updatedPhoto);
+        
+        // Merge with current photo state to preserve any UI state
+        setPhoto((prevPhoto) => {
+          if (!prevPhoto) return updatedPhoto;
+          // Preserve current photo but update treatment data
+          return {
+            ...prevPhoto,
+            ...updatedPhoto,
+            // Ensure treatment data is from updated photo
+            treatmentData: (updatedPhoto as any).treatmentData,
+          };
+        });
 
         return true;
       } else {
@@ -488,13 +528,38 @@ export default function PhotoDetailScreen() {
     try {
       setIsSendingToIoT(true);
 
-      // Step 1: Generate monitoring plan from chatbot AI in background
-      console.log(
-        "🔄 Step 1: Generating monitoring plan from chatbot AI (photo-detail)..."
-      );
-      await generateMonitoringPlanBackground();
+      // Step 1: Ensure treatment data exists (generate if needed)
+      let currentPhoto = photo;
+      const hasTreatmentData = !!(currentPhoto as any)?.treatmentData;
+      
+      if (!hasTreatmentData) {
+        console.log(
+          "🔄 Step 1: Generating treatment data (photo-detail)..."
+        );
+        const generated = await generateMonitoringPlanBackground();
+        if (!generated) {
+          console.warn("⚠️ Failed to generate treatment data, will try to send anyway");
+        } else {
+          // Reload photo to get updated treatment data
+          const { getPhotoById } = await import("@/services/photo.service");
+          const updatedPhoto = await getPhotoById(photo._id);
+          setPhoto(updatedPhoto);
+          // Use updated photo for next step
+          currentPhoto = updatedPhoto;
+        }
+      } else {
+        console.log("✅ Treatment data already exists, skipping generation");
+      }
 
-      // Step 2: Send treatment to IoT
+      // Step 2: Verify treatment data exists before sending
+      const hasTreatmentDataNow = !!(currentPhoto as any)?.treatmentData;
+      if (!hasTreatmentDataNow) {
+        throw new Error(
+          "Không có dữ liệu điều trị. Vui lòng đợi hệ thống tạo phác đồ điều trị."
+        );
+      }
+
+      // Step 3: Send treatment to IoT
       console.log("🔄 Step 2: Sending treatment to IoT (photo-detail)...");
       const token = await getAccessToken();
       if (!token) {
@@ -502,7 +567,7 @@ export default function PhotoDetailScreen() {
       }
 
       const response = await apiPost("/iot/treatment/send", {
-        photoId: photo._id,
+        photoId: currentPhoto._id,
         fieldId,
       });
 
@@ -511,7 +576,11 @@ export default function PhotoDetailScreen() {
         setTreatmentSent(true);
         setShowSuccessModal(true);
       } else {
-        throw new Error("Gửi thất bại");
+        const errorMessage =
+          typeof response.error === "string"
+            ? response.error
+            : response.error?.message || "Gửi thất bại";
+        throw new Error(errorMessage);
       }
     } catch (error: any) {
       console.error("❌ Send treatment error:", error);

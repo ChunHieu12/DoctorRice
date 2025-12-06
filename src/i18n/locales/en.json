@@ -126,7 +126,7 @@
     "photoDetails": "Photo Details",
     "location": "Location",
     "timestamp": "Timestamp",
-    "device": "Device",
+    "device": "System",
     "deletePhoto": "Delete Photo",
     "deleteConfirm": "Are you sure you want to delete this photo?",
     "deleteSuccess": "Photo deleted",
@@ -552,12 +552,12 @@
 
   "fieldSelection": {
     "title": "Select Field",
-    "instruction": "Select a field connected to IoT to view images from the device",
+    "instruction": "Select a field connected to IoT to view images from the system",
     "loading": "Loading field list...",
     "noFields": "No fields yet",
-    "noFieldsDesc": "Please create a field and connect IoT device first",
+    "noFieldsDesc": "Please create a field and connect IoT system first",
     "noIoTFields": "No IoT connected fields",
-    "noIoTFieldsDesc": "Please connect IoT device to field first",
+    "noIoTFieldsDesc": "Please connect IoT system to field first",
     "notConnected": "Not connected to IoT",
     "cancel": "Cancel",
     "viewIoTImages": "View IoT Images"
@@ -568,7 +568,7 @@
     "subtitle": "{{count}} connected fields",
     "loading": "Loading fields...",
     "emptyTitle": "No IoT fields",
-    "emptySubtitle": "Please connect an IoT device to a field",
+    "emptySubtitle": "Please connect an IoT system to a field",
     "info": "Select a field to view the IoT photo gallery",
     "connected": "Connected"
   },
@@ -605,13 +605,13 @@
     "diseaseDetected": "Disease detected",
     "location": "Location",
     "capturedAt": "Captured at",
-    "iotImage": "Image from IoT device",
+    "iotImage": "Image from IoT system",
     "sensorData": "IoT Sensor Data",
     "treatmentGuide": "Treatment Guide",
     "treatmentNote": "For a more detailed treatment plan, please chat with Doctor Rice below",
     "sendToIoT": "Send treatment information to IoT",
     "sentToIoT": "✓ Treatment information sent",
-    "treatmentSentSuccess": "Treatment information sent to IoT device"
+    "treatmentSentSuccess": "Treatment information sent to IoT system"
   },
 
   "photoDetail": {
@@ -630,7 +630,7 @@
     "loadingDiseaseInfo": "Loading disease information...",
     "sendToIoT": "Send treatment information to IoT",
     "sentToIoT": "✓ Treatment information sent",
-    "treatmentSentSuccess": "Treatment information sent to IoT device",
+    "treatmentSentSuccess": "Treatment information sent to IoT system",
     "diseases": {
       "bacterial_leaf_blight": {
         "info": "Bacterial Leaf Blight (Leaf burn)\n\n🦠 Cause:\n- Bacteria Xanthomonas oryzae pv. oryzae\n- Thrives in humid conditions, temperature 25-30°C\n\n📋 Symptoms:\n- Long streaks from light yellow to gray-white on leaves\n- Disease streaks usually appear at leaf edges\n- Leaves dry, gradually die from the tip\n- Can cause severe damage if not treated promptly\n\n⚠️ Danger level: High\n🌾 Susceptible stage: Tillering to heading",

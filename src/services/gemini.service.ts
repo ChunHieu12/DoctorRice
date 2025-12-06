@@ -378,40 +378,59 @@ export const generateMonitoringPlan = async (
 Dựa vào dự báo thời tiết 3 ngày (không có dữ liệu cảm biến IoT)`;
   }
 
-  const prompt = `Phân tích bệnh "${
-    diseaseContext.diseaseVi
-  }" với điều kiện môi trường:
+  // ✅ Get disease names for clarity
+  const diseaseNameVi = diseaseContext.diseaseVi;
+  const diseaseNameEn = diseaseContext.diseaseClass;
+  const diseaseNameFull = `${diseaseNameVi} (${diseaseNameEn})`;
+
+  const prompt = `Bạn là chuyên gia nông nghiệp. Phân tích và đưa ra phác đồ điều trị CỤ THỂ cho bệnh "${
+    diseaseNameFull
+  }" (Độ tin cậy: ${diseaseContext.confidence.toFixed(1)}%).
+
+⚠️ QUAN TRỌNG: Mỗi bệnh cần thuốc và lịch điều trị KHÁC NHAU:
+- Bệnh cháy bìa lá (bacterial_leaf_blight): Dùng thuốc kháng khuẩn như Kasugamycin, Streptomycin
+- Bệnh đạo ôn (blast): Dùng thuốc như Tricyclazole, Isoprothiolane
+- Bệnh đốm nâu (brown_spot): Dùng thuốc như Propiconazole, Tebuconazole
+- Bệnh khác: Dùng thuốc phù hợp với nguyên nhân gây bệnh
+
+Điều kiện môi trường:
 ${environmentalConditions}
 
 🌤️ THỜI TIẾT 3 NGÀY TỚI:
 ${weatherSummary}
 
-Trả lời theo cấu trúc:
+Yêu cầu: Đưa ra thuốc và lịch điều trị CỤ THỂ cho bệnh "${
+    diseaseNameFull
+  }" dựa trên:
+1. Loại bệnh (${diseaseNameEn}) - QUAN TRỌNG: mỗi bệnh cần thuốc khác nhau
+2. Điều kiện môi trường hiện tại
+3. Dự báo thời tiết 3 ngày
+
+Trả lời theo cấu trúc CHÍNH XÁC:
 
 📋 THUỐC TRỊ BỆNH:
-- Tên: [tên + hoạt chất]
-- Liều lượng: [X g/L]
-- Cách dùng: [ngắn gọn]
+- Tên: [tên thuốc CỤ THỂ cho bệnh ${diseaseNameVi} + hoạt chất]
+- Liều lượng: [X g/L - cụ thể cho bệnh này]
+- Cách dùng: [ngắn gọn, phù hợp với bệnh ${diseaseNameVi}]
 
 🌾 PHÂN BÓN PHỤC HỒI:
-- Tên: [loại phân]
+- Tên: [loại phân phù hợp với bệnh ${diseaseNameVi}]
 - Liều lượng: [X kg/sào]
 - Cách dùng: [ngắn gọn]
 
-📅 KẾ HOẠCH:
-• Ngày 1 (${new Date().toLocaleDateString("vi-VN")}): Phun thuốc lần 1
-• Ngày 7-10: Phun lại nếu cần
-• Ngày 14: Bón phân
-• Ngày 21: Kiểm tra
+📅 KẾ HOẠCH (tùy chỉnh theo bệnh ${diseaseNameVi}):
+• Ngày 1 (${new Date().toLocaleDateString("vi-VN")}): [công việc cụ thể cho bệnh ${diseaseNameVi}]
+• Ngày [X]: [công việc tiếp theo - tùy chỉnh theo bệnh]
+• Ngày [Y]: [công việc tiếp theo - tùy chỉnh theo bệnh]
 
 ⚠️ KẾT LUẬN:
 ${
   hasSensorData
-    ? `Phân tích tất cả 6 chỉ số môi trường (nhiệt độ ${temp}°C, độ ẩm không khí ${humidity}%, độ ẩm đất ${soil}%, pH ${ph}, ánh sáng ${lux} lux, gió ${wind} m/s) + thời tiết 3 ngày → Bệnh sẽ [MẠNH/GIẢM/LÂY LAN] vì [lý do dựa trên CÁC CHỈ SỐ TRÊN].`
-    : `Dựa vào dự báo thời tiết 3 ngày → Bệnh sẽ [MẠNH/GIẢM/LÂY LAN] vì [lý do dựa trên thời tiết].`
+    ? `Phân tích tất cả 6 chỉ số môi trường (nhiệt độ ${temp}°C, độ ẩm không khí ${humidity}%, độ ẩm đất ${soil}%, pH ${ph}, ánh sáng ${lux} lux, gió ${wind} m/s) + thời tiết 3 ngày → Bệnh "${diseaseNameVi}" sẽ [MẠNH/GIẢM/LÂY LAN] vì [lý do dựa trên CÁC CHỈ SỐ TRÊN và đặc điểm của bệnh ${diseaseNameVi}].`
+    : `Dựa vào dự báo thời tiết 3 ngày → Bệnh "${diseaseNameVi}" sẽ [MẠNH/GIẢM/LÂY LAN] vì [lý do dựa trên thời tiết và đặc điểm của bệnh ${diseaseNameVi}].`
 }
 
-Trả lời NGẮN GỌN, tối đa 200 từ.`;
+LƯU Ý: Thuốc và lịch điều trị PHẢI khác nhau cho từng loại bệnh. Không dùng chung một phác đồ cho tất cả các bệnh.`;
 
   return generateAIResponse(prompt, diseaseContext, weatherData);
 };
